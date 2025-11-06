@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a Next.js 16 starter kit with Convex backend and Better Auth authentication. The stack includes:
+
 - **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS 4, shadcn/ui components
 - **Backend**: Convex (real-time database and serverless functions)
 - **Auth**: Better Auth with Convex integration (email/password, no verification required)
@@ -13,27 +14,31 @@ This is a Next.js 16 starter kit with Convex backend and Better Auth authenticat
 ## Development Commands
 
 ### Starting Development
+
 ```bash
-npm run dev
+pnpm run dev
 # Runs both frontend and backend in parallel:
 # - Next.js dev server with Turbo (localhost:3000)
 # - Convex dev server (convex dev)
 ```
 
 ### Individual Services
+
 ```bash
-npm run dev:frontend    # Next.js only
-npm run dev:backend     # Convex only
-npm run predev          # Convex dev until success, then open dashboard
+pnpm run dev:frontend    # Next.js only
+pnpm run dev:backend     # Convex only
+pnpm run predev          # Convex dev until success, then open dashboard
 ```
 
 ### Build and Lint
+
 ```bash
-npm run build           # Build Next.js for production
-npm run lint            # Run ESLint
+pnpm run build           # Build Next.js for production
+pnpm run lint            # Run ESLint
 ```
 
 ### Convex Management
+
 ```bash
 npx convex dev                              # Start Convex dev mode
 npx convex dashboard                        # Open Convex dashboard
@@ -49,20 +54,24 @@ npx convex env set SITE_URL http://localhost:3000                  # Set site UR
 **Better Auth + Convex Integration**: This project uses Better Auth with the Convex plugin, which stores auth data directly in Convex tables managed by a component.
 
 1. **Backend (convex/auth.ts)**:
+
    - `authComponent`: Client for the Better Auth Convex component
    - `createAuth()`: Factory function that creates Better Auth instance
    - Validates `SITE_URL` and `BETTER_AUTH_SECRET` environment variables
    - Email/password auth enabled with `requireEmailVerification: false`
 
 2. **Frontend (lib/auth-client.ts)**:
+
    - Creates auth client with `convexClient()` plugin
    - Used throughout React components for auth operations
 
 3. **Provider (app/ConvexClientProvider.tsx)**:
+
    - Wraps app with `ConvexBetterAuthProvider`
    - Convex client configured with `expectAuth: true` (pauses queries until authenticated)
 
 4. **HTTP Routes (convex/http.ts)**:
+
    - Auth routes registered via `authComponent.registerRoutes(http, createAuth)`
    - Available at `/api/auth/*` endpoints
 
@@ -73,7 +82,7 @@ npx convex env set SITE_URL http://localhost:3000                  # Set site UR
 
 ### Directory Structure
 
-```
+```text
 /app                        # Next.js App Router pages
   /api                      # API routes (if any)
   /dashboard               # Protected dashboard pages
@@ -115,6 +124,7 @@ middleware.ts              # Next.js middleware (route protection)
 This project follows the new Convex function syntax with validators. See `.cursor/rules/convex_rules.mdc` for comprehensive Convex guidelines. Key patterns:
 
 **Always use argument and return validators**:
+
 ```typescript
 export const myQuery = query({
   args: { id: v.id("tableName") },
@@ -126,15 +136,18 @@ export const myQuery = query({
 ```
 
 **Function types and visibility**:
+
 - `query`, `mutation`, `action` - Public functions (part of API)
 - `internalQuery`, `internalMutation`, `internalAction` - Private functions (only callable by other Convex functions)
 
 **Calling functions**:
+
 - Import from `api` for public functions: `api.myFunctions.listNumbers`
 - Import from `internal` for internal functions: `internal.myModule.privateFunction`
 - Use `ctx.runQuery()`, `ctx.runMutation()`, `ctx.runAction()` to call functions
 
 **Getting current user**:
+
 ```typescript
 const user = await authComponent.getAuthUser(ctx);
 ```
@@ -142,10 +155,12 @@ const user = await authComponent.getAuthUser(ctx);
 ### Environment Variables
 
 **Convex (set via `npx convex env set`)**:
+
 - `BETTER_AUTH_SECRET` - Auth encryption secret (generate with `openssl rand -base64 32`)
 - `SITE_URL` - Site URL (e.g., `http://localhost:3000`)
 
 **Next.js (.env.local)**:
+
 - `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL (auto-created by `npx convex dev`)
 
 ### shadcn/ui Configuration
@@ -158,6 +173,7 @@ const user = await authComponent.getAuthUser(ctx);
 - Icon library: Lucide
 
 Add components via:
+
 ```bash
 npx shadcn@latest add [component-name]
 ```
@@ -171,6 +187,7 @@ Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 2. **Queries**: Use indexes instead of filters. Use `.unique()` for single results, `.take(n)` for limits, `.collect()` or async iteration for results
 
 3. **Validators**:
+
    - Use `v.int64()` not `v.bigint()`
    - Use `v.null()` for null returns
    - Use `v.record()` for dynamic keys
