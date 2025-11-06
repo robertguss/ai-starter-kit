@@ -53,6 +53,7 @@ export function NavUser({
       router.refresh()
     } catch (error) {
       console.error("Logout error:", error)
+    } finally {
       setIsLoggingOut(false)
     }
   }

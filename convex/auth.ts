@@ -5,8 +5,23 @@ import { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
 
-const siteUrl = process.env.SITE_URL!;
-const secret = process.env.BETTER_AUTH_SECRET!;
+// Validate required environment variables at module initialization
+if (!process.env.SITE_URL) {
+  throw new Error(
+    "SITE_URL environment variable is required but not defined. " +
+    "Please set SITE_URL in your environment configuration."
+  );
+}
+
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error(
+    "BETTER_AUTH_SECRET environment variable is required but not defined. " +
+    "Please set BETTER_AUTH_SECRET in your environment configuration."
+  );
+}
+
+const siteUrl = process.env.SITE_URL;
+const secret = process.env.BETTER_AUTH_SECRET;
 
 // The component client has methods needed for integrating Convex with Better Auth,
 // as well as helper methods for general use.
