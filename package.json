@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "npm-run-all --parallel dev:frontend dev:backend",
+    "dev:frontend": "next dev --turbo",
+    "dev:backend": "convex dev",
+    "predev": "convex dev --until-success && convex dashboard",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -12,8 +15,10 @@
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "convex": "^1.28.2",
     "lucide-react": "^0.552.0",
     "next": "16.0.1",
+    "npm-run-all2": "^8.0.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tailwind-merge": "^3.3.1"
