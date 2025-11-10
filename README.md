@@ -38,6 +38,31 @@ A modern, production-ready starter kit for building full-stack applications with
 
 ---
 
+## 🚀 Built with this Starter Kit
+
+<div align="center">
+
+### [SocialPost](https://github.com/robertguss/social_post) - Real-World Production Application
+
+[![GitHub](https://img.shields.io/badge/View_on_GitHub-SocialPost-181717?style=for-the-badge&logo=github)](https://github.com/robertguss/social_post)
+
+**See this starter kit in action!** SocialPost is a full-featured social media management tool built entirely with this stack.
+
+**Features:**
+
+- 📝 Create and schedule posts across multiple social platforms
+- 📊 Analytics dashboard with real-time engagement metrics
+- 🎨 Rich media support (images, videos, carousel posts)
+- 📅 Calendar view for content planning
+- 🔄 Real-time sync across all your social accounts
+- 🤖 AI-powered post suggestions and optimization
+
+[**→ Explore SocialPost Source Code**](https://github.com/robertguss/social_post)
+
+</div>
+
+---
+
 ## Table of Contents
 
 - [Features](#features)
