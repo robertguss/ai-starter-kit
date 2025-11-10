@@ -24,11 +24,11 @@ A modern, production-ready starter kit for building full-stack applications with
 
 <p><strong>✨ What You'll Learn:</strong></p>
 
-<ul style="list-style-position: inside; text-align: center;">
-  <li>🚀 I've taught over 50,000 developers to date.</li>
-  <li>🎯 Top 1% TypeScript engineers globally on GitHub.</li>
-  <li>🤖 Learn how to use AI coding agents like Claude Code effectively</li>
-</ul>
+<p>
+🚀 I've taught over 50,000 developers to date.<br/>
+🎯 Top 1% TypeScript engineers globally on GitHub.<br/>
+🤖 Learn how to use AI coding agents like Claude Code effectively
+</p>
 
 [**→ Subscribe Now (It's Free!)**](https://refactoringai.substack.com/)
 
@@ -52,14 +52,14 @@ A modern, production-ready starter kit for building full-stack applications with
 
 <p><strong>Features:</strong></p>
 
-<ul style="list-style-position: inside; text-align: center;">
-  <li>📝 Create and schedule posts across multiple social platforms</li>
-  <li>📊 Analytics dashboard with real-time engagement metrics</li>
-  <li>🎨 Rich media support (images, videos, carousel posts)</li>
-  <li>📅 Calendar view for content planning</li>
-  <li>🔄 Real-time sync across all your social accounts</li>
-  <li>🤖 AI-powered post suggestions and optimization</li>
-</ul>
+<p>
+📝 Create and schedule posts across multiple social platforms<br/>
+📊 Analytics dashboard with real-time engagement metrics<br/>
+🎨 Rich media support (images, videos, carousel posts)<br/>
+📅 Calendar view for content planning<br/>
+🔄 Real-time sync across all your social accounts<br/>
+🤖 AI-powered post suggestions and optimization
+</p>
 
 [**→ Explore SocialPost Source Code**](https://github.com/robertguss/social_post)
 
