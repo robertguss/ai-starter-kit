@@ -1,7 +1,34 @@
 {
-  "name": "next-convex-starter-kit",
-  "version": "0.1.0",
-  "private": true,
+  "name": "ai-starter-kit",
+  "version": "1.0.0",
+  "description": "A modern, production-ready starter kit for building full-stack applications with Next.js 16, Convex real-time database, Better Auth authentication, TypeScript, and shadcn/ui components.",
+  "author": "Robert Guss <https://github.com/robertguss>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robertguss/ai-starter-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/robertguss/ai-starter-kit/issues"
+  },
+  "homepage": "https://github.com/robertguss/ai-starter-kit#readme",
+  "keywords": [
+    "nextjs",
+    "next16",
+    "react19",
+    "convex",
+    "better-auth",
+    "authentication",
+    "typescript",
+    "shadcn-ui",
+    "tailwindcss",
+    "starter-kit",
+    "boilerplate",
+    "full-stack",
+    "real-time",
+    "serverless"
+  ],
+  "private": false,
   "scripts": {
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
     "dev:frontend": "next dev --turbo",
