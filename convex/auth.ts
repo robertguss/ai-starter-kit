@@ -4,6 +4,7 @@ import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
+import authConfig from "./auth.config";
 
 // Check if we're in a setup/analysis phase where env vars may not be configured yet
 const isSetupPhase = (): boolean => {
@@ -16,7 +17,7 @@ export const authComponent = createClient<DataModel>(components.betterAuth);
 
 export const createAuth = (
   ctx: GenericCtx<DataModel>,
-  { optionsOnly } = { optionsOnly: false }
+  { optionsOnly } = { optionsOnly: false },
 ) => {
   // During initial setup/deployment, env vars may not be configured yet.
   // Return a minimal placeholder config that allows module analysis to succeed.
@@ -28,7 +29,7 @@ export const createAuth = (
       baseURL: "http://localhost:3000",
       database: authComponent.adapter(ctx),
       emailAndPassword: { enabled: false },
-      plugins: [convex()],
+      plugins: [convex({ authConfig })],
     });
   }
 
@@ -52,7 +53,7 @@ export const createAuth = (
     },
     plugins: [
       // The Convex plugin is required for Convex compatibility
-      convex(),
+      convex({ authConfig }),
     ],
   });
 };
