@@ -108,7 +108,7 @@ Example reactive data flow:
 
 ```typescript
 // Component automatically re-renders when data changes
-const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
+const items = useQuery(api.myModule.listItems, { count: 10 });
 ```
 
 ---
@@ -125,13 +125,13 @@ const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
 │  • Can read database                                         │
 │  • Cannot modify database                                    │
 │  • Automatically cached and reactive                         │
-│  • Example: listNumbers, getUser                             │
+│  • Example: listItems, getUser                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Mutations (Write, Transactional)                            │
 │  • Can read and write database                               │
 │  • ACID transactions                                         │
 │  • Cannot call external APIs                                 │
-│  • Example: addNumber, updateUser                            │
+│  • Example: createItem, updateUser                           │
 ├─────────────────────────────────────────────────────────────┤
 │  Actions (Long-running, External APIs)                       │
 │  • Cannot directly access database                           │
@@ -276,15 +276,15 @@ All subscribed queries automatically refresh
 UI updates reactively
 ```
 
-### Example: Adding a Number
+### Example: Creating an Item
 
 ```typescript
 // Component (Frontend)
-const addNumber = useMutation(api.myFunctions.addNumber);
-const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
+const createItem = useMutation(api.myModule.createItem);
+const items = useQuery(api.myModule.listItems, { count: 10 });
 
-await addNumber({ value: 42 });
-// numbers automatically updates! No need to manually refetch.
+await createItem({ name: "New item" });
+// items automatically updates! No need to manually refetch.
 ```
 
 ---
@@ -437,7 +437,7 @@ Alternatives: Material UI, Ant Design, Chakra UI
 │  Backend Tests (Implemented)                 │
 │  • Vitest + convex-test                      │
 │  • Isolated mock environment                 │
-│  • Example: convex/myFunctions.test.ts       │
+│  • Place tests in convex/ directory           │
 └──────────────────────────────────────────────┘
 ```
 

@@ -8,18 +8,6 @@ Learn about the database schema, relationships, and patterns in the AI Starter K
 
 The database schema is defined in `convex/schema.ts`. Convex uses a NoSQL document database with strong TypeScript typing.
 
-### Example Tables
-
-#### `numbers` (Example Table)
-
-```typescript
-numbers: defineTable({
-  value: v.number(),
-});
-```
-
-Used for demonstration in `convex/myFunctions.ts`.
-
 ### Better Auth Tables (Auto-Created)
 
 These tables are managed by the Better Auth Convex component:

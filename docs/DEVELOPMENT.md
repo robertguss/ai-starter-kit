@@ -61,7 +61,7 @@ The middleware automatically protects all `/dashboard/*` routes.
 
 ### Query (Read Data)
 
-Add to `convex/myFunctions.ts`:
+Create a new file in the `convex/` directory (e.g., `convex/todos.ts`):
 
 ```typescript
 export const getTodos = query({
@@ -71,7 +71,7 @@ export const getTodos = query({
       _id: v.id("todos"),
       text: v.string(),
       completed: v.boolean(),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     return await ctx.db
@@ -132,8 +132,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 export function TodoList({ userId }: { userId: string }) {
-  const todos = useQuery(api.myFunctions.getTodos, { userId });
-  const addTodo = useMutation(api.myFunctions.addTodo);
+  const todos = useQuery(api.todos.getTodos, { userId });
+  const addTodo = useMutation(api.todos.addTodo);
 
   const handleAdd = async () => {
     await addTodo({ text: "New todo", userId });
@@ -284,7 +284,7 @@ import { Input } from "@/components/ui/input";
 export function TodoForm({ userId }: { userId: string }) {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-  const addTodo = useMutation(api.myFunctions.addTodo);
+  const addTodo = useMutation(api.todos.addTodo);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -336,12 +336,12 @@ describe("todos", () => {
   it("should add a todo", async () => {
     const t = convexTest(schema, modules);
 
-    const todoId = await t.mutation(api.myFunctions.addTodo, {
+    const todoId = await t.mutation(api.todos.addTodo, {
       text: "Test todo",
       userId: "user_123" as any,
     });
 
-    const todos = await t.query(api.myFunctions.getTodos, {
+    const todos = await t.query(api.todos.getTodos, {
       userId: "user_123" as any,
     });
 
@@ -423,7 +423,7 @@ export const getMyTodos = query({
   returns: v.array(
     v.object({
       /* ... */
-    })
+    }),
   ),
   handler: async (ctx) => {
     const user = await authComponent.getAuthUser(ctx);
@@ -449,7 +449,7 @@ const addTodo = useMutation(api.todos.add).withOptimisticUpdate(
         { _id: "temp" as any, text: args.text, completed: false },
       ]);
     }
-  }
+  },
 );
 ```
 

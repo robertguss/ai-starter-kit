@@ -159,6 +159,7 @@ NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment-name.convex.site
 > **Critical**: The `NEXT_PUBLIC_CONVEX_SITE_URL` must point to your Convex HTTP endpoint (`.convex.site`), NOT `localhost:3000`. This URL is used by the Next.js auth handler to proxy authentication requests to Convex. If set incorrectly to `localhost:3000`, it creates an infinite loop causing 500 errors with ~10 second timeouts.
 
 **How to find your deployment name:**
+
 - Look at `NEXT_PUBLIC_CONVEX_URL` - if it's `https://shiny-platypus-495.convex.cloud`
 - Then `NEXT_PUBLIC_CONVEX_SITE_URL` should be `https://shiny-platypus-495.convex.site`
 
@@ -248,8 +249,7 @@ convex/
 ├── auth.config.ts       # Better Auth configuration
 ├── auth.ts              # Auth helper functions
 ├── http.ts              # HTTP endpoints (for auth)
-├── schema.ts            # Database schema definition
-└── myFunctions.ts       # Example Convex functions
+└── schema.ts            # Database schema definition
 ```
 
 ### Open Convex Dashboard

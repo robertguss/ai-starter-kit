@@ -46,8 +46,8 @@ describe("myFunction", () => {
 ```typescript
 it("should query data", async () => {
   const t = convexTest(schema, modules);
-  const result = await t.query(api.myFunctions.listNumbers, { count: 10 });
-  expect(result.numbers).toEqual([]);
+  const result = await t.query(api.myModule.listItems, { count: 10 });
+  expect(result).toEqual([]);
 });
 ```
 
@@ -56,15 +56,15 @@ it("should query data", async () => {
 ```typescript
 it("should insert data", async () => {
   const t = convexTest(schema, modules);
-  await t.mutation(api.myFunctions.addNumber, { value: 42 });
+  await t.mutation(api.myModule.createItem, { name: "test" });
 
   // Verify with direct database query
-  const numbers = await t.run(async (ctx) => {
-    return await ctx.db.query("numbers").collect();
+  const items = await t.run(async (ctx) => {
+    return await ctx.db.query("items").collect();
   });
 
-  expect(numbers).toHaveLength(1);
-  expect(numbers[0].value).toBe(42);
+  expect(items).toHaveLength(1);
+  expect(items[0].name).toBe("test");
 });
 ```
 
@@ -73,17 +73,14 @@ it("should insert data", async () => {
 ```typescript
 it("should perform action", async () => {
   const t = convexTest(schema, modules);
-  await t.action(api.myFunctions.myAction, {
-    first: 15,
-    second: "test",
-  });
+  await t.action(api.myModule.myAction, { input: "test" });
 
   // Verify side effects
-  const numbers = await t.run(async (ctx) => {
-    return await ctx.db.query("numbers").collect();
+  const items = await t.run(async (ctx) => {
+    return await ctx.db.query("items").collect();
   });
 
-  expect(numbers).toHaveLength(1);
+  expect(items).toHaveLength(1);
 });
 ```
 
@@ -118,23 +115,13 @@ it("should work with authenticated user", async () => {
   // Set up authenticated context
   const asUser = t.withIdentity({ subject: "user123", name: "Test User" });
 
-  const result = await asUser.query(api.myFunctions.listNumbers, {
+  const result = await asUser.query(api.myModule.listItems, {
     count: 10,
   });
 
-  expect(result.viewer).toBe("Test User");
+  expect(result).toEqual([]);
 });
 ```
-
-## Example Test File
-
-See `convex/myFunctions.test.ts` for a comprehensive example that covers:
-
-- Testing mutations (inserting data)
-- Testing queries (reading data with filters/limits)
-- Testing actions (complex workflows)
-- Integration tests (full workflows)
-- Edge cases (empty database, limits, etc.)
 
 ## Best Practices
 

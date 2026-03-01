@@ -44,6 +44,7 @@ This project adheres to a [Code of Conduct](./CODE_OF_CONDUCT.md). By participat
 ### Improving Documentation
 
 Documentation improvements are always welcome! You can:
+
 - Fix typos or clarify existing docs
 - Add missing documentation
 - Improve examples and code samples
@@ -112,16 +113,19 @@ pnpm run test
 - Always use argument and return validators
 - Use descriptive function names
 - Add comments explaining complex queries
-- Follow patterns in `convex/myFunctions.ts`
+- Follow patterns documented in `CLAUDE.md` and `.cursor/rules/convex_rules.mdc`
 
 Example:
+
 ```typescript
 export const getTodos = query({
   args: { userId: v.id("users") },
-  returns: v.array(v.object({
-    _id: v.id("todos"),
-    text: v.string(),
-  })),
+  returns: v.array(
+    v.object({
+      _id: v.id("todos"),
+      text: v.string(),
+    }),
+  ),
   handler: async (ctx, args) => {
     // Implementation
   },
@@ -136,6 +140,7 @@ export const getTodos = query({
 - Use TypeScript interfaces for props
 
 Example:
+
 ```typescript
 interface TodoCardProps {
   text: string;
@@ -160,6 +165,7 @@ export function TodoCard({ text, onComplete }: TodoCardProps) {
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -169,6 +175,7 @@ export function TodoCard({ text, onComplete }: TodoCardProps) {
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```
 feat: add todo list component
 
@@ -192,6 +199,7 @@ Closes #123
 ### Before Submitting
 
 1. **Update your fork**
+
    ```bash
    git remote add upstream https://github.com/robertguss/ai-starter-kit.git
    git fetch upstream
@@ -199,6 +207,7 @@ Closes #123
    ```
 
 2. **Create a feature branch**
+
    ```bash
    git checkout -b feature/my-feature
    ```
@@ -209,6 +218,7 @@ Closes #123
    - Update documentation
 
 4. **Test your changes**
+
    ```bash
    pnpm run lint
    pnpm run test:once
@@ -216,6 +226,7 @@ Closes #123
    ```
 
 5. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: add my feature"
@@ -295,6 +306,7 @@ Closes #123
 - Follow patterns in existing tests
 
 Example:
+
 ```typescript
 describe("todos", () => {
   it("should create a new todo", async () => {
@@ -307,9 +319,7 @@ describe("todos", () => {
 
   it("should throw error for empty text", async () => {
     const t = convexTest(schema, modules);
-    await expect(
-      t.mutation(api.todos.create, { text: "" })
-    ).rejects.toThrow();
+    await expect(t.mutation(api.todos.create, { text: "" })).rejects.toThrow();
   });
 });
 ```
