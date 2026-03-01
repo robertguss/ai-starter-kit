@@ -135,8 +135,7 @@ middleware.ts              # Next.js middleware (route protection)
 ### Convex Function Patterns
 
 This project follows the new Convex function syntax with validators. See
-`.cursor/rules/convex_rules.mdc` for comprehensive Convex guidelines. Key
-patterns:
+`convex/CLAUDE.md` for comprehensive Convex guidelines. Key patterns:
 
 **Always use argument and return validators**:
 
@@ -204,47 +203,13 @@ Add components via:
 npx shadcn@latest add [component-name]
 ```
 
-## Important Convex Guidelines
+## Convex Guidelines
 
-Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
+See **`convex/CLAUDE.md`** for comprehensive Convex development rules covering
+argument validation, async handling, authentication, custom functions, error
+handling, schema design, query optimization, pagination, and more.
 
-1. **Schema**: Define in `convex/schema.ts`. Index names should include all
-   fields (e.g., `by_channelId_and_userId`)
-
-2. **Queries**: Use indexes instead of filters. Use `.unique()` for single
-   results, `.take(n)` for limits, `.collect()` or async iteration for results
-
-3. **Validators**:
-   - Use `v.int64()` not `v.bigint()`
-   - Use `v.null()` for null returns
-   - Use `v.record()` for dynamic keys
-
-4. **Actions**: Add `"use node";` directive when using Node.js built-in modules
-
-5. **TypeScript**: Be strict with `Id<"tableName">` types. Use `as const` for
-   string literals in unions
-
-6. **No ctx.db in actions**: Actions cannot access the database directly, use
-   `ctx.runQuery()` or `ctx.runMutation()`
-
-7. **Async handling**: Always await all promises. Enable `no-floating-promises`
-   ESLint rule
-
-8. **No Date.now() in queries**: Never use `Date.now()` or `new Date()` in
-   queries — breaks reactivity
-
-9. **Scheduler safety**: Only schedule `internal.*` functions, never `api.*`
-   (bypasses auth)
-
-10. **Function organization**: Keep query/mutation wrappers thin; put logic in
-    plain TS functions
-
-11. **Error handling**: Throw for exceptional cases, return null for expected
-    absences
-
-12. **ESLint**: Use `@convex-dev/eslint-plugin` for Convex-specific lint rules
-
-See **`docs/CONVEX_BEST_PRACTICES.md`** for comprehensive guidelines.
+See also **`docs/CONVEX_BEST_PRACTICES.md`** for additional best practices.
 
 ## Convex Helpers Library
 
