@@ -207,6 +207,20 @@ Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 
 6. **No ctx.db in actions**: Actions cannot access the database directly, use `ctx.runQuery()` or `ctx.runMutation()`
 
+7. **Async handling**: Always await all promises. Enable `no-floating-promises` ESLint rule
+
+8. **No Date.now() in queries**: Never use `Date.now()` or `new Date()` in queries — breaks reactivity
+
+9. **Scheduler safety**: Only schedule `internal.*` functions, never `api.*` (bypasses auth)
+
+10. **Function organization**: Keep query/mutation wrappers thin; put logic in plain TS functions
+
+11. **Error handling**: Throw for exceptional cases, return null for expected absences
+
+12. **ESLint**: Use `@convex-dev/eslint-plugin` for Convex-specific lint rules
+
+See **`docs/CONVEX_BEST_PRACTICES.md`** for comprehensive guidelines.
+
 ## Convex Helpers Library
 
 This project includes **convex-helpers** (v0.1.108) for utility functions and common patterns. Always prefer these helpers over custom implementations.
