@@ -212,10 +212,6 @@ Now that you have the starter kit running, here are some suggested next steps:
 
 ### 2. Review Example Code
 
-- **Convex Functions**: `convex/myFunctions.ts`
-  - Example queries, mutations, and actions
-  - See how to interact with the database
-
 - **Auth Components**: `components/login-form.tsx` and `components/signup-form.tsx`
   - Form handling and validation
   - Better Auth integration
@@ -244,9 +240,12 @@ echo 'export default function Hello() { return <h1>Hello, World!</h1> }' > app/h
 
 ### 5. Add a New Convex Function
 
-Edit `convex/myFunctions.ts` and add:
+Create a new file `convex/greetings.ts`:
 
 ```typescript
+import { v } from "convex/values";
+import { query } from "./_generated/server";
+
 export const sayHello = query({
   args: { name: v.string() },
   returns: v.string(),
@@ -262,7 +261,7 @@ Then in your React components, call it with:
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-const greeting = useQuery(api.myFunctions.sayHello, { name: "World" });
+const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 ```
 
 ---

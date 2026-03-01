@@ -88,28 +88,24 @@ A modern, production-ready starter kit for building full-stack applications with
 ### Core Capabilities
 
 - **Authentication** - Complete auth system with Better Auth + Convex integration
-
   - Email/password authentication (no verification required for quick setup)
   - Protected routes with middleware
   - Session management
   - Ready for OAuth providers (see [Roadmap](./ROADMAP.md))
 
 - **Real-time Database** - Powered by Convex
-
   - Serverless backend with zero infrastructure management
   - Automatic TypeScript generation
   - Real-time subscriptions out of the box
   - ACID transactions
 
 - **Modern UI Components** - 20+ shadcn/ui components pre-installed
-
   - Buttons, Forms, Modals, Tables, Charts, Sidebar
   - Fully customizable with Tailwind CSS 4
   - Dark mode support with next-themes
   - Responsive design patterns
 
 - **Testing Infrastructure** - Complete testing setup
-
   - Vitest for unit and integration tests
   - convex-test for isolated backend testing
   - Example tests included
@@ -144,6 +140,7 @@ cd ai-starter-kit
 ```
 
 The setup script will:
+
 1. Check and install prerequisites (including pnpm if missing)
 2. Install all dependencies
 3. Guide you through Convex authentication (opens browser)
@@ -189,7 +186,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. You should 
 
 1. Create an account at `/signup`
 2. Log in and explore the dashboard
-3. Check out the example Convex functions in `convex/myFunctions.ts`
+3. Add your own Convex functions in the `convex/` directory
 4. Read the [Setup Guide](./docs/SETUP.md) for detailed configuration
 
 > **Tip**: See [docs/QUICK_START.md](./docs/QUICK_START.md) for a more detailed quick start guide with troubleshooting.
@@ -283,8 +280,6 @@ ai-starter-kit/
 │   ├── auth.ts                   # Auth helper functions
 │   ├── http.ts                   # HTTP routes (auth endpoints)
 │   ├── schema.ts                 # Database schema
-│   ├── myFunctions.ts            # Example Convex functions
-│   ├── myFunctions.test.ts       # Example tests
 │   ├── test.setup.ts             # Test configuration
 │   └── TESTING.md                # Testing documentation
 │
@@ -426,13 +421,10 @@ pnpm run test:once
 pnpm run test:coverage
 ```
 
-**Example test structure:**
+**Key patterns:**
 
-- `convex/myFunctions.test.ts` - Example Convex function tests
 - Tests run in isolated environment with mock database
 - See [convex/TESTING.md](./convex/TESTING.md) for comprehensive testing guide
-
-**Key patterns:**
 
 ```typescript
 import { convexTest } from "convex-test";
@@ -441,8 +433,8 @@ import schema from "./schema";
 
 it("should test something", async () => {
   const t = convexTest(schema, modules);
-  const result = await t.query(api.myFunctions.listNumbers, { count: 10 });
-  expect(result.numbers).toEqual([]);
+  const result = await t.query(api.myModule.listItems, { count: 10 });
+  expect(result).toEqual([]);
 });
 ```
 
@@ -459,7 +451,6 @@ it("should test something", async () => {
    ```
 
 2. **Deploy Frontend**
-
    - Go to [vercel.com](https://vercel.com)
    - Import your GitHub repository
    - Vercel will auto-detect Next.js

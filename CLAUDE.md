@@ -64,24 +64,20 @@ npx convex codegen                          # Generate TypeScript types (require
 **Better Auth + Convex Integration**: This project uses Better Auth with the Convex plugin, which stores auth data directly in Convex tables managed by a component.
 
 1. **Backend (convex/auth.ts)**:
-
    - `authComponent`: Client for the Better Auth Convex component
    - `createAuth()`: Factory function that creates Better Auth instance
    - Validates `SITE_URL` and `BETTER_AUTH_SECRET` environment variables
    - Email/password auth enabled with `requireEmailVerification: false`
 
 2. **Frontend (lib/auth-client.ts)**:
-
    - Creates auth client with `convexClient()` plugin
    - Used throughout React components for auth operations
 
 3. **Provider (app/ConvexClientProvider.tsx)**:
-
    - Wraps app with `ConvexBetterAuthProvider`
    - Convex client configured with `expectAuth: true` (pauses queries until authenticated)
 
 4. **HTTP Routes (convex/http.ts)**:
-
    - Auth routes registered via `authComponent.registerRoutes(http, createAuth)`
    - Available at `/api/auth/*` endpoints
 
@@ -115,8 +111,6 @@ npx convex codegen                          # Generate TypeScript types (require
   auth.config.ts           # Better Auth configuration
   auth.ts                  # Auth setup and helper functions
   http.ts                  # HTTP router (registers auth routes)
-  myFunctions.ts           # Example Convex functions
-  myFunctions.test.ts      # Example test file
   schema.ts                # Database schema
   test.setup.ts            # Test configuration for convex-test
   convex.config.ts         # Convex configuration
@@ -154,7 +148,7 @@ export const myQuery = query({
 
 **Calling functions**:
 
-- Import from `api` for public functions: `api.myFunctions.listNumbers`
+- Import from `api` for public functions: `api.myModule.myFunction`
 - Import from `internal` for internal functions: `internal.myModule.privateFunction`
 - Use `ctx.runQuery()`, `ctx.runMutation()`, `ctx.runAction()` to call functions
 
@@ -203,7 +197,6 @@ Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 2. **Queries**: Use indexes instead of filters. Use `.unique()` for single results, `.take(n)` for limits, `.collect()` or async iteration for results
 
 3. **Validators**:
-
    - Use `v.int64()` not `v.bigint()`
    - Use `v.null()` for null returns
    - Use `v.record()` for dynamic keys
@@ -213,6 +206,20 @@ Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 5. **TypeScript**: Be strict with `Id<"tableName">` types. Use `as const` for string literals in unions
 
 6. **No ctx.db in actions**: Actions cannot access the database directly, use `ctx.runQuery()` or `ctx.runMutation()`
+
+7. **Async handling**: Always await all promises. Enable `no-floating-promises` ESLint rule
+
+8. **No Date.now() in queries**: Never use `Date.now()` or `new Date()` in queries — breaks reactivity
+
+9. **Scheduler safety**: Only schedule `internal.*` functions, never `api.*` (bypasses auth)
+
+10. **Function organization**: Keep query/mutation wrappers thin; put logic in plain TS functions
+
+11. **Error handling**: Throw for exceptional cases, return null for expected absences
+
+12. **ESLint**: Use `@convex-dev/eslint-plugin` for Convex-specific lint rules
+
+See **`docs/CONVEX_BEST_PRACTICES.md`** for comprehensive guidelines.
 
 ## Convex Helpers Library
 
@@ -244,7 +251,7 @@ This project uses **Vitest** with **convex-test** for testing Convex functions. 
 
 ### Key Testing Concepts
 
-**Test File Location**: Place test files in the `convex/` directory with a `.test.ts` extension (e.g., `myFunctions.test.ts`)
+**Test File Location**: Place test files in the `convex/` directory with a `.test.ts` extension (e.g., `todos.test.ts`)
 
 **Test Setup**: Always import the test setup configuration:
 
@@ -274,8 +281,8 @@ it("should test something", async () => {
 ```typescript
 it("should query data", async () => {
   const t = convexTest(schema, modules);
-  const result = await t.query(api.myFunctions.listNumbers, { count: 10 });
-  expect(result.numbers).toEqual([]);
+  const result = await t.query(api.myModule.listItems, { count: 10 });
+  expect(result).toEqual([]);
 });
 ```
 
@@ -284,15 +291,15 @@ it("should query data", async () => {
 ```typescript
 it("should insert data", async () => {
   const t = convexTest(schema, modules);
-  await t.mutation(api.myFunctions.addNumber, { value: 42 });
+  await t.mutation(api.myModule.createItem, { name: "test" });
 
   // Verify with direct database access
-  const numbers = await t.run(async (ctx) => {
-    return await ctx.db.query("numbers").collect();
+  const items = await t.run(async (ctx) => {
+    return await ctx.db.query("items").collect();
   });
 
-  expect(numbers).toHaveLength(1);
-  expect(numbers[0].value).toBe(42);
+  expect(items).toHaveLength(1);
+  expect(items[0].name).toBe("test");
 });
 ```
 
@@ -301,14 +308,14 @@ it("should insert data", async () => {
 ```typescript
 it("should perform action", async () => {
   const t = convexTest(schema, modules);
-  await t.action(api.myFunctions.myAction, { first: 15, second: "test" });
+  await t.action(api.myModule.myAction, { input: "test" });
 
   // Verify side effects
-  const numbers = await t.run(async (ctx) => {
-    return await ctx.db.query("numbers").collect();
+  const items = await t.run(async (ctx) => {
+    return await ctx.db.query("items").collect();
   });
 
-  expect(numbers).toHaveLength(1);
+  expect(items).toHaveLength(1);
 });
 ```
 
@@ -319,8 +326,8 @@ it("should work with authenticated user", async () => {
   const t = convexTest(schema, modules);
   const asUser = t.withIdentity({ subject: "user123", name: "Test User" });
 
-  const result = await asUser.query(api.myFunctions.listNumbers, { count: 10 });
-  expect(result.viewer).toBe("Test User");
+  const result = await asUser.query(api.myModule.listItems, { count: 10 });
+  expect(result).toEqual([]);
 });
 ```
 
@@ -383,16 +390,6 @@ it("should access database directly", async () => {
 
 3. **❌ Not running codegen before tests**:
    Always run `npx convex codegen` after changing Convex functions and before running tests.
-
-### Example Test File
-
-See `convex/myFunctions.test.ts` for a comprehensive example covering:
-
-- Testing mutations (inserting data)
-- Testing queries (reading with filters/limits)
-- Testing actions (complex workflows)
-- Integration tests (full workflows)
-- Edge cases (empty database, limits, etc.)
 
 ### More Information
 
