@@ -1,14 +1,18 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Project Overview
 
-This is a Next.js 16 starter kit with Convex backend and Better Auth authentication. The stack includes:
+This is a Next.js 16 starter kit with Convex backend and Better Auth
+authentication. The stack includes:
 
-- **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS 4, shadcn/ui components
+- **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS 4, shadcn/ui
+  components
 - **Backend**: Convex (real-time database and serverless functions)
-- **Auth**: Better Auth with Convex integration (email/password, no verification required)
+- **Auth**: Better Auth with Convex integration (email/password, no verification
+  required)
 - **UI**: shadcn/ui (New York style) with Lucide icons
 
 ## Development Commands
@@ -61,7 +65,9 @@ npx convex codegen                          # Generate TypeScript types (require
 
 ### Authentication Flow
 
-**Better Auth + Convex Integration**: This project uses Better Auth with the Convex plugin, which stores auth data directly in Convex tables managed by a component.
+**Better Auth + Convex Integration**: This project uses Better Auth with the
+Convex plugin, which stores auth data directly in Convex tables managed by a
+component.
 
 1. **Backend (convex/auth.ts)**:
    - `authComponent`: Client for the Better Auth Convex component
@@ -75,7 +81,8 @@ npx convex codegen                          # Generate TypeScript types (require
 
 3. **Provider (app/ConvexClientProvider.tsx)**:
    - Wraps app with `ConvexBetterAuthProvider`
-   - Convex client configured with `expectAuth: true` (pauses queries until authenticated)
+   - Convex client configured with `expectAuth: true` (pauses queries until
+     authenticated)
 
 4. **HTTP Routes (convex/http.ts)**:
    - Auth routes registered via `authComponent.registerRoutes(http, createAuth)`
@@ -127,7 +134,9 @@ middleware.ts              # Next.js middleware (route protection)
 
 ### Convex Function Patterns
 
-This project follows the new Convex function syntax with validators. See `.cursor/rules/convex_rules.mdc` for comprehensive Convex guidelines. Key patterns:
+This project follows the new Convex function syntax with validators. See
+`.cursor/rules/convex_rules.mdc` for comprehensive Convex guidelines. Key
+patterns:
 
 **Always use argument and return validators**:
 
@@ -144,12 +153,14 @@ export const myQuery = query({
 **Function types and visibility**:
 
 - `query`, `mutation`, `action` - Public functions (part of API)
-- `internalQuery`, `internalMutation`, `internalAction` - Private functions (only callable by other Convex functions)
+- `internalQuery`, `internalMutation`, `internalAction` - Private functions
+  (only callable by other Convex functions)
 
 **Calling functions**:
 
 - Import from `api` for public functions: `api.myModule.myFunction`
-- Import from `internal` for internal functions: `internal.myModule.privateFunction`
+- Import from `internal` for internal functions:
+  `internal.myModule.privateFunction`
 - Use `ctx.runQuery()`, `ctx.runMutation()`, `ctx.runAction()` to call functions
 
 **Getting current user**:
@@ -162,15 +173,20 @@ const user = await authComponent.getAuthUser(ctx);
 
 **Convex (set via `npx convex env set`)**:
 
-- `BETTER_AUTH_SECRET` - Auth encryption secret (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_SECRET` - Auth encryption secret (generate with
+  `openssl rand -base64 32`)
 - `SITE_URL` - Site URL (e.g., `http://localhost:3000`)
 
 **Next.js (.env.local)**:
 
-- `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL (auto-created by `npx convex dev`)
-- `NEXT_PUBLIC_CONVEX_SITE_URL` - Convex HTTP endpoint for auth proxy (MUST be manually added)
-  - **CRITICAL**: Must end in `.convex.site` (e.g., `https://your-deployment.convex.site`)
-  - **DO NOT** set this to `localhost:3000` - it will cause infinite loops and 500 errors
+- `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL (auto-created by
+  `npx convex dev`)
+- `NEXT_PUBLIC_CONVEX_SITE_URL` - Convex HTTP endpoint for auth proxy (MUST be
+  manually added)
+  - **CRITICAL**: Must end in `.convex.site` (e.g.,
+    `https://your-deployment.convex.site`)
+  - **DO NOT** set this to `localhost:3000` - it will cause infinite loops and
+    500 errors
   - Used by `app/api/auth/[...all]/route.ts` to proxy auth requests to Convex
 
 ### shadcn/ui Configuration
@@ -192,9 +208,11 @@ npx shadcn@latest add [component-name]
 
 Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 
-1. **Schema**: Define in `convex/schema.ts`. Index names should include all fields (e.g., `by_channelId_and_userId`)
+1. **Schema**: Define in `convex/schema.ts`. Index names should include all
+   fields (e.g., `by_channelId_and_userId`)
 
-2. **Queries**: Use indexes instead of filters. Use `.unique()` for single results, `.take(n)` for limits, `.collect()` or async iteration for results
+2. **Queries**: Use indexes instead of filters. Use `.unique()` for single
+   results, `.take(n)` for limits, `.collect()` or async iteration for results
 
 3. **Validators**:
    - Use `v.int64()` not `v.bigint()`
@@ -203,19 +221,26 @@ Reference `.cursor/rules/convex_rules.mdc` for detailed guidelines. Key points:
 
 4. **Actions**: Add `"use node";` directive when using Node.js built-in modules
 
-5. **TypeScript**: Be strict with `Id<"tableName">` types. Use `as const` for string literals in unions
+5. **TypeScript**: Be strict with `Id<"tableName">` types. Use `as const` for
+   string literals in unions
 
-6. **No ctx.db in actions**: Actions cannot access the database directly, use `ctx.runQuery()` or `ctx.runMutation()`
+6. **No ctx.db in actions**: Actions cannot access the database directly, use
+   `ctx.runQuery()` or `ctx.runMutation()`
 
-7. **Async handling**: Always await all promises. Enable `no-floating-promises` ESLint rule
+7. **Async handling**: Always await all promises. Enable `no-floating-promises`
+   ESLint rule
 
-8. **No Date.now() in queries**: Never use `Date.now()` or `new Date()` in queries — breaks reactivity
+8. **No Date.now() in queries**: Never use `Date.now()` or `new Date()` in
+   queries — breaks reactivity
 
-9. **Scheduler safety**: Only schedule `internal.*` functions, never `api.*` (bypasses auth)
+9. **Scheduler safety**: Only schedule `internal.*` functions, never `api.*`
+   (bypasses auth)
 
-10. **Function organization**: Keep query/mutation wrappers thin; put logic in plain TS functions
+10. **Function organization**: Keep query/mutation wrappers thin; put logic in
+    plain TS functions
 
-11. **Error handling**: Throw for exceptional cases, return null for expected absences
+11. **Error handling**: Throw for exceptional cases, return null for expected
+    absences
 
 12. **ESLint**: Use `@convex-dev/eslint-plugin` for Convex-specific lint rules
 
@@ -223,35 +248,50 @@ See **`docs/CONVEX_BEST_PRACTICES.md`** for comprehensive guidelines.
 
 ## Convex Helpers Library
 
-This project includes **convex-helpers** (v0.1.108) for utility functions and common patterns. Always prefer these helpers over custom implementations.
+This project includes **convex-helpers** (v0.1.108) for utility functions and
+common patterns. Always prefer these helpers over custom implementations.
 
 **Key Categories:**
 
-- **Relationships**: `getOneFromOrThrow`, `getManyFrom`, `getManyViaOrThrow` - traverse database relationships
-- **Validators**: `nullable`, `literals`, `partial`, `brandedString` - enhanced validators beyond standard `v.*`
-- **Custom Functions**: `customQuery`, `customMutation` - add auth, RLS, or custom context to all functions
-- **Pagination**: `getPage`, `paginator`, `stream` - advanced pagination patterns
+- **Relationships**: `getOneFromOrThrow`, `getManyFrom`, `getManyViaOrThrow` -
+  traverse database relationships
+- **Validators**: `nullable`, `literals`, `partial`, `brandedString` - enhanced
+  validators beyond standard `v.*`
+- **Custom Functions**: `customQuery`, `customMutation` - add auth, RLS, or
+  custom context to all functions
+- **Pagination**: `getPage`, `paginator`, `stream` - advanced pagination
+  patterns
 - **Utilities**: `asyncMap`, `pick`, `omit`, `nullThrows`, `withoutSystemFields`
 - **React**: Enhanced `useQuery` with status, query caching, session tracking
 
-See **`docs/CONVEX_HELPERS.md`** for comprehensive documentation, import paths, and examples.
+See **`docs/CONVEX_HELPERS.md`** for comprehensive documentation, import paths,
+and examples.
 
 ## Authentication Notes
 
-- Email/password authentication is enabled without email verification (for quick setup)
+- Email/password authentication is enabled without email verification (for quick
+  setup)
 - Session validation happens via `/api/auth/get-session` endpoint
-- Protected routes use middleware to check session and redirect to `/login` if unauthenticated
-- Auth data is stored in Convex via the Better Auth component (not in separate auth tables you manage)
-- **Auth Proxy**: The `app/api/auth/[...all]/route.ts` file proxies all auth requests to Convex via `NEXT_PUBLIC_CONVEX_SITE_URL`
-  - If you see 500 errors with ~10 second timeouts on `/api/auth/*`, check that `NEXT_PUBLIC_CONVEX_SITE_URL` is set correctly (must be `.convex.site`, NOT `localhost:3000`)
+- Protected routes use middleware to check session and redirect to `/login` if
+  unauthenticated
+- Auth data is stored in Convex via the Better Auth component (not in separate
+  auth tables you manage)
+- **Auth Proxy**: The `app/api/auth/[...all]/route.ts` file proxies all auth
+  requests to Convex via `NEXT_PUBLIC_CONVEX_SITE_URL`
+  - If you see 500 errors with ~10 second timeouts on `/api/auth/*`, check that
+    `NEXT_PUBLIC_CONVEX_SITE_URL` is set correctly (must be `.convex.site`, NOT
+    `localhost:3000`)
 
 ## Testing Convex Functions
 
-This project uses **Vitest** with **convex-test** for testing Convex functions. Tests run in an isolated mock environment that closely mimics the Convex backend.
+This project uses **Vitest** with **convex-test** for testing Convex functions.
+Tests run in an isolated mock environment that closely mimics the Convex
+backend.
 
 ### Key Testing Concepts
 
-**Test File Location**: Place test files in the `convex/` directory with a `.test.ts` extension (e.g., `todos.test.ts`)
+**Test File Location**: Place test files in the `convex/` directory with a
+`.test.ts` extension (e.g., `todos.test.ts`)
 
 **Test Setup**: Always import the test setup configuration:
 
@@ -270,9 +310,12 @@ it("should test something", async () => {
 
 **Important Testing Rules**:
 
-1. **Always use `modules`**: Import `{ modules }` from `"./test.setup"` and pass it to `convexTest(schema, modules)`
-2. **Fresh instances**: Create a new `convexTest(schema, modules)` instance in each test for isolation
-3. **Run codegen first**: Tests require `npx convex codegen` to be run first to generate the `_generated` directory
+1. **Always use `modules`**: Import `{ modules }` from `"./test.setup"` and pass
+   it to `convexTest(schema, modules)`
+2. **Fresh instances**: Create a new `convexTest(schema, modules)` instance in
+   each test for isolation
+3. **Run codegen first**: Tests require `npx convex codegen` to be run first to
+   generate the `_generated` directory
 
 ### Testing Patterns
 
@@ -388,9 +431,10 @@ it("should access database directly", async () => {
    });
    ```
 
-3. **❌ Not running codegen before tests**:
-   Always run `npx convex codegen` after changing Convex functions and before running tests.
+3. **❌ Not running codegen before tests**: Always run `npx convex codegen`
+   after changing Convex functions and before running tests.
 
 ### More Information
 
-For detailed testing documentation, patterns, and best practices, see **`docs/TESTING.md`**.
+For detailed testing documentation, patterns, and best practices, see
+**`docs/TESTING.md`**.
