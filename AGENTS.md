@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
+This file provides guidance to Codex (Codex.ai/code) when working with
 code in this repository.
 
 ## Project Overview
@@ -135,7 +135,7 @@ middleware.ts              # Next.js middleware (route protection)
 ### Convex Function Patterns
 
 This project follows the new Convex function syntax with validators. See
-`convex/CLAUDE.md` for comprehensive Convex guidelines. Key patterns:
+`convex/AGENTS.md` for comprehensive Convex guidelines. Key patterns:
 
 **Always use argument and return validators**:
 
@@ -205,7 +205,7 @@ npx shadcn@latest add [component-name]
 
 ## Convex Guidelines
 
-See **`convex/CLAUDE.md`** for comprehensive Convex development rules covering
+See **`convex/AGENTS.md`** for comprehensive Convex development rules covering
 argument validation, async handling, authentication, custom functions, error
 handling, schema design, query optimization, pagination, and more.
 

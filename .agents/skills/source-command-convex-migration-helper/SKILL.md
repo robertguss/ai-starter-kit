@@ -1,6 +1,13 @@
 ---
-description: Guide for safely migrating Convex schema changes - adding fields, changing types, renaming, and batch processing
+name: "source-command-convex-migration-helper"
+description: "Guide for safely migrating Convex schema changes - adding fields, changing types, renaming, and batch processing"
 ---
+
+# source-command-convex-migration-helper
+
+Use this skill when the user asks to run the migrated source command `convex-migration-helper`.
+
+## Command Template
 
 # Convex Migration Helper
 

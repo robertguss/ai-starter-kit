@@ -1,6 +1,13 @@
 ---
-description: Set up or extend authentication patterns in this Convex + Better Auth project
+name: "source-command-convex-auth-setup"
+description: "Set up or extend authentication patterns in this Convex + Better Auth project"
 ---
+
+# source-command-convex-auth-setup
+
+Use this skill when the user asks to run the migrated source command `convex-auth-setup`.
+
+## Command Template
 
 # Convex Authentication Setup
 

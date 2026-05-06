@@ -1,6 +1,13 @@
 ---
-description: Create Convex functions (queries, mutations, actions) with proper validation, auth, and patterns for this project
+name: "source-command-convex-function-creator"
+description: "Create Convex functions (queries, mutations, actions) with proper validation, auth, and patterns for this project"
 ---
+
+# source-command-convex-function-creator
+
+Use this skill when the user asks to run the migrated source command `convex-function-creator`.
+
+## Command Template
 
 # Convex Function Creator
 

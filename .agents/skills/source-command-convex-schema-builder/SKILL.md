@@ -1,6 +1,13 @@
 ---
-description: Design Convex database schemas with proper validation, indexes, and relationship patterns
+name: "source-command-convex-schema-builder"
+description: "Design Convex database schemas with proper validation, indexes, and relationship patterns"
 ---
+
+# source-command-convex-schema-builder
+
+Use this skill when the user asks to run the migrated source command `convex-schema-builder`.
+
+## Command Template
 
 # Convex Schema Builder
 

@@ -1,6 +1,13 @@
 ---
-description: Quick reference for convex-helpers utilities available in this project - custom functions, relationships, validators, and more
+name: "source-command-convex-helpers-guide"
+description: "Quick reference for convex-helpers utilities available in this project - custom functions, relationships, validators, and more"
 ---
+
+# source-command-convex-helpers-guide
+
+Use this skill when the user asks to run the migrated source command `convex-helpers-guide`.
+
+## Command Template
 
 # Convex Helpers Quick Reference
 

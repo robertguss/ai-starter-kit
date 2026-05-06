@@ -1,6 +1,13 @@
 ---
-description: Scaffold a new feature module in this Convex project - creates schema, functions, and frontend integration
+name: "source-command-convex-quickstart"
+description: "Scaffold a new feature module in this Convex project - creates schema, functions, and frontend integration"
 ---
+
+# source-command-convex-quickstart
+
+Use this skill when the user asks to run the migrated source command `convex-quickstart`.
+
+## Command Template
 
 # Scaffold a New Feature Module
 
