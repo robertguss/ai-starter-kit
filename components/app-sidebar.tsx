@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   IconCamera,
   IconChartBar,
@@ -39,27 +40,27 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
       title: "Lifecycle",
-      url: "#",
+      url: "/dashboard#lifecycle",
       icon: IconListDetails,
     },
     {
       title: "Analytics",
-      url: "#",
+      url: "/dashboard#analytics",
       icon: IconChartBar,
     },
     {
       title: "Projects",
-      url: "#",
+      url: "/dashboard#projects",
       icon: IconFolder,
     },
     {
       title: "Team",
-      url: "#",
+      url: "/dashboard#team",
       icon: IconUsers,
     },
   ],
@@ -68,45 +69,45 @@ const data = {
       title: "Capture",
       icon: IconCamera,
       isActive: true,
-      url: "#",
+      url: "/dashboard#capture",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/dashboard#capture-active-proposals",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/dashboard#capture-archived",
         },
       ],
     },
     {
       title: "Proposal",
       icon: IconFileDescription,
-      url: "#",
+      url: "/dashboard#proposal",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/dashboard#proposal-active-proposals",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/dashboard#proposal-archived",
         },
       ],
     },
     {
       title: "Prompts",
       icon: IconFileAi,
-      url: "#",
+      url: "/dashboard#prompts",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/dashboard#prompts-active-proposals",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/dashboard#prompts-archived",
         },
       ],
     },
@@ -114,34 +115,34 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard#settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/dashboard#help",
       icon: IconHelp,
     },
     {
       title: "Search",
-      url: "#",
+      url: "/dashboard#search",
       icon: IconSearch,
     },
   ],
   documents: [
     {
       name: "Data Library",
-      url: "#",
+      url: "/dashboard#data-library",
       icon: IconDatabase,
     },
     {
       name: "Reports",
-      url: "#",
+      url: "/dashboard#reports",
       icon: IconReport,
     },
     {
       name: "Word Assistant",
-      url: "#",
+      url: "/dashboard#word-assistant",
       icon: IconFileWord,
     },
   ],
@@ -167,10 +168,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

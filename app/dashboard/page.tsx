@@ -27,11 +27,15 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <div className="px-4 lg:px-6">
+              <section id="lifecycle" className="scroll-mt-16">
+                <SectionCards />
+              </section>
+              <section id="analytics" className="scroll-mt-16 px-4 lg:px-6">
                 <ChartAreaInteractive />
-              </div>
-              <DataTable data={data} />
+              </section>
+              <section id="projects" className="scroll-mt-16">
+                <DataTable data={data} />
+              </section>
             </div>
           </div>
         </div>
