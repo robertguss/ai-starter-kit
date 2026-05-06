@@ -1,7 +1,7 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with
-code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in
+this repository.
 
 ## Project Overview
 
@@ -20,7 +20,7 @@ authentication. The stack includes:
 ### Starting Development
 
 ```bash
-pnpm run dev
+bun run dev
 # Runs both frontend and backend in parallel:
 # - Next.js dev server with Turbo (localhost:3000)
 # - Convex dev server (convex dev)
@@ -29,36 +29,36 @@ pnpm run dev
 ### Individual Services
 
 ```bash
-pnpm run dev:frontend    # Next.js only
-pnpm run dev:backend     # Convex only
-pnpm run predev          # Convex dev until success, then open dashboard
+bun run dev:frontend    # Next.js only
+bun run dev:backend     # Convex only
+bun run predev          # Convex dev until success, then open dashboard
 ```
 
 ### Build and Lint
 
 ```bash
-pnpm run build           # Build Next.js for production
-pnpm run lint            # Run ESLint
+bun run build           # Build Next.js for production
+bun run lint            # Run ESLint
 ```
 
 ### Testing
 
 ```bash
-pnpm run test            # Run tests in watch mode
-pnpm run test:once       # Run tests once
-pnpm run test:debug      # Debug tests with inspector
-pnpm run test:coverage   # Run tests with coverage report
+bun run test            # Run tests in watch mode
+bun run test:once       # Run tests once
+bun run test:debug      # Debug tests with inspector
+bun run test:coverage   # Run tests with coverage report
 ```
 
 ### Convex Management
 
 ```bash
-npx convex dev                              # Start Convex dev mode
-npx convex dashboard                        # Open Convex dashboard
-npx convex env set KEY value                # Set environment variable
-npx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32)  # Generate auth secret
-npx convex env set SITE_URL http://localhost:3000                  # Set site URL
-npx convex codegen                          # Generate TypeScript types (required before running tests)
+bunx convex dev                              # Start Convex dev mode
+bunx convex dashboard                        # Open Convex dashboard
+bunx convex env set KEY value                # Set environment variable
+bunx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32)  # Generate auth secret
+bunx convex env set SITE_URL http://localhost:3000                  # Set site URL
+bunx convex codegen                          # Generate TypeScript types (required before running tests)
 ```
 
 ## Architecture
@@ -170,7 +170,7 @@ const user = await authComponent.getAuthUser(ctx);
 
 ### Environment Variables
 
-**Convex (set via `npx convex env set`)**:
+**Convex (set via `bunx convex env set`)**:
 
 - `BETTER_AUTH_SECRET` - Auth encryption secret (generate with
   `openssl rand -base64 32`)
@@ -179,7 +179,7 @@ const user = await authComponent.getAuthUser(ctx);
 **Next.js (.env.local)**:
 
 - `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL (auto-created by
-  `npx convex dev`)
+  `bunx convex dev`)
 - `NEXT_PUBLIC_CONVEX_SITE_URL` - Convex HTTP endpoint for auth proxy (MUST be
   manually added)
   - **CRITICAL**: Must end in `.convex.site` (e.g.,
@@ -200,7 +200,7 @@ const user = await authComponent.getAuthUser(ctx);
 Add components via:
 
 ```bash
-npx shadcn@latest add [component-name]
+bunx shadcn@latest add [component-name]
 ```
 
 ## Convex Guidelines
@@ -279,7 +279,7 @@ it("should test something", async () => {
    it to `convexTest(schema, modules)`
 2. **Fresh instances**: Create a new `convexTest(schema, modules)` instance in
    each test for isolation
-3. **Run codegen first**: Tests require `npx convex codegen` to be run first to
+3. **Run codegen first**: Tests require `bunx convex codegen` to be run first to
    generate the `_generated` directory
 
 ### Testing Patterns
@@ -396,7 +396,7 @@ it("should access database directly", async () => {
    });
    ```
 
-3. **❌ Not running codegen before tests**: Always run `npx convex codegen`
+3. **❌ Not running codegen before tests**: Always run `bunx convex codegen`
    after changing Convex functions and before running tests.
 
 ### More Information
@@ -408,12 +408,12 @@ For detailed testing documentation, patterns, and best practices, see
 
 This project uses [Convex](https://convex.dev) as its backend.
 
-When working on Convex code, **always read
-`convex/_generated/ai/guidelines.md` first** for important guidelines on
-how to correctly use Convex APIs and patterns. The file contains rules that
-override what you may have learned about Convex from training data.
+When working on Convex code, **always read `convex/_generated/ai/guidelines.md`
+first** for important guidelines on how to correctly use Convex APIs and
+patterns. The file contains rules that override what you may have learned about
+Convex from training data.
 
 Convex agent skills for common tasks can be installed by running
-`npx convex ai-files install`.
+`bunx convex ai-files install`.
 
 <!-- convex-ai-end -->
