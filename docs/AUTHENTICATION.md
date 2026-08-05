@@ -14,7 +14,7 @@ backend identity via Clerk JWTs.
 
 - Email/password and social providers (configured in the Clerk Dashboard)
 - Session management (Clerk)
-- Protected routes (`proxy.ts` + `auth.protect()`)
+- Protected routes (TanStack Router `beforeLoad` + Clerk server auth)
 - Backend identity via `ctx.auth.getUserIdentity()`
 
 Official references:
@@ -42,24 +42,24 @@ User → Clerk SignIn/SignUp → Clerk session cookie
 
 - `convex/auth.config.ts` - Clerk JWT issuer domain
 - `convex/auth.ts` - `getCurrentUser` helper query
-- `app/layout.tsx` - `ClerkProvider`
+- `app/routes/__root.tsx` - `ClerkProvider`
 - `app/ConvexClientProvider.tsx` - `ConvexProviderWithClerk`
-- `proxy.ts` - bare `clerkMiddleware()` (session wiring)
-- `app/dashboard/layout.tsx` - `auth.protect()` page gate
-- `app/login/[[...sign-in]]/page.tsx` - Clerk `<SignIn />`
-- `app/signup/[[...sign-up]]/page.tsx` - Clerk `<SignUp />`
+- `app/start.ts` - TanStack Start entry with `clerkMiddleware()` (session wiring)
+- `app/routes/dashboard.tsx` - TanStack Router `beforeLoad` + server `auth()` page gate
+- `app/routes/login.tsx` - Clerk `<SignIn />`
+- `app/routes/signup.tsx` - Clerk `<SignUp />`
 
 ### Environment Variables Required
 
 ```bash
 # In .env.local
-NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_CONVEX_URL=https://your-deployment.convex.cloud
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_IN_URL=/login
+VITE_CLERK_SIGN_UP_URL=/signup
+VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
 # In Convex (bunx convex env set)
 CLERK_JWT_ISSUER_DOMAIN=https://verb-noun-00.clerk.accounts.dev
@@ -101,16 +101,16 @@ Copy:
 
 | Clerk Dashboard label | Put in `.env.local` as |
 | --- | --- |
-| Publishable key (`pk_test_…` or `pk_live_…`) | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |
+| Publishable key (`pk_test_…` or `pk_live_…`) | `VITE_CLERK_PUBLISHABLE_KEY` |
 | Secret key (`sk_test_…` or `sk_live_…`) | `CLERK_SECRET_KEY` |
 
 Also keep the kit route defaults (already in `.env.example`):
 
 ```bash
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_IN_URL=/login
+VITE_CLERK_SIGN_UP_URL=/signup
+VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 ### 4. Turn on the Convex integration (required)
@@ -199,7 +199,7 @@ bun run dev
 Use the kit routes `/signup` and `/login`, or Clerk components:
 
 ```tsx
-import { SignIn, SignUp } from "@clerk/nextjs";
+import { SignIn, SignUp } from "@clerk/tanstack-react-start";
 
 <SignIn routing="path" path="/login" signUpUrl="/signup" />
 <SignUp routing="path" path="/signup" signInUrl="/login" />
@@ -208,7 +208,7 @@ import { SignIn, SignUp } from "@clerk/nextjs";
 ### Sign Out
 
 ```tsx
-import { useClerk } from "@clerk/nextjs";
+import { useClerk } from "@clerk/tanstack-react-start";
 
 const { signOut } = useClerk();
 await signOut({ redirectUrl: "/" });
@@ -217,7 +217,7 @@ await signOut({ redirectUrl: "/" });
 ### Client User State
 
 ```tsx
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/tanstack-react-start";
 import { useConvexAuth } from "convex/react";
 
 const { isSignedIn, user } = useUser();
@@ -260,9 +260,12 @@ const user = useQuery(api.auth.getCurrentUser);
 
 ## Protected Routes
 
-`/dashboard` is gated by `auth.protect()` in `app/dashboard/layout.tsx`.
-`proxy.ts` runs bare `clerkMiddleware()` so Clerk session state is available;
-it does not duplicate route auth checks.
+`/dashboard` is gated by a TanStack Router `beforeLoad` function in
+`app/routes/dashboard.tsx`. That function calls a server function which uses
+`auth()` from `@clerk/tanstack-react-start/server` to check the current user;
+if absent, the route throws a redirect to `/login`. `app/start.ts` runs
+`clerkMiddleware()` so Clerk session state is available on the request; it does
+not duplicate route auth checks.
 
 Backend data access must still check `ctx.auth.getUserIdentity()` (or call
 `api.auth.getCurrentUser`) inside Convex functions.

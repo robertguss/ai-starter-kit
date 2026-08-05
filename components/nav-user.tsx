@@ -7,7 +7,7 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
-import { SignOutButton, useUser } from "@clerk/nextjs"
+import { SignOutButton, useUser } from "@clerk/tanstack-react-start"
 
 import {
   Avatar,

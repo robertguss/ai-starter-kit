@@ -13,7 +13,7 @@
 #
 # Requirements:
 #   - Node.js 18 or later
-#   - npm (for installing pnpm if needed)
+#   - bun (https://bun.sh)
 #   - Internet connection (for Convex cloud services)
 #
 # Works on: macOS, Linux, Windows (Git Bash/WSL)
@@ -96,24 +96,13 @@ check_prerequisites() {
         all_ok=false
     fi
 
-    # Check npm (needed to install pnpm if missing)
-    if ! command_exists npm; then
-        print_error "npm not found (should come with Node.js)"
-        all_ok=false
-    fi
-
-    # Check pnpm (auto-install if missing)
-    if command_exists pnpm; then
-        print_success "pnpm $(pnpm -v) found"
+    # Check bun
+    if command_exists bun; then
+        print_success "bun $(bun -v) found"
     else
-        print_warning "pnpm not found - installing..."
-        if npm install -g pnpm; then
-            print_success "pnpm installed successfully"
-        else
-            print_error "Failed to install pnpm"
-            print_info "Try manually: npm install -g pnpm"
-            all_ok=false
-        fi
+        print_error "bun not found"
+        print_info "Install from: https://bun.sh"
+        all_ok=false
     fi
 
     # Check openssl (optional, with fallback)
@@ -142,15 +131,15 @@ check_prerequisites() {
 install_dependencies() {
     print_step "Installing dependencies..."
 
-    if [ -d "node_modules" ] && [ -f "pnpm-lock.yaml" ]; then
+    if [ -d "node_modules" ] && [ -f "bun.lock" ]; then
         print_info "node_modules exists, checking if up to date..."
     fi
 
-    if pnpm install; then
+    if bun install; then
         print_success "Dependencies installed successfully"
     else
         print_error "Failed to install dependencies"
-        print_info "Try running: pnpm install --force"
+        print_info "Try running: bun install --force"
         exit 1
     fi
 }
@@ -163,7 +152,7 @@ setup_convex() {
     print_step "Setting up Convex..."
 
     # Check if already set up
-    if [ -f ".env.local" ] && grep -q "NEXT_PUBLIC_CONVEX_URL" .env.local; then
+    if [ -f ".env.local" ] && grep -qE "^(VITE_CONVEX_URL|NEXT_PUBLIC_CONVEX_URL)=" .env.local; then
         print_warning ".env.local already exists with Convex URL"
         read -p "  Do you want to skip Convex initialization? (y/N): " skip_convex
         if [[ "$skip_convex" =~ ^[Yy]$ ]]; then
@@ -216,6 +205,16 @@ setup_convex() {
         exit 1
     fi
 
+    # Convex writes NEXT_PUBLIC_CONVEX_URL; the TanStack Start frontend uses VITE_CONVEX_URL.
+    if ! grep -q "VITE_CONVEX_URL" .env.local; then
+        CONVEX_URL=$(grep "NEXT_PUBLIC_CONVEX_URL" .env.local | cut -d'=' -f2)
+        {
+            echo ""
+            echo "VITE_CONVEX_URL=${CONVEX_URL}"
+        } >> .env.local
+        print_success "Added VITE_CONVEX_URL to .env.local"
+    fi
+
     print_success "Convex setup complete!"
 }
 
@@ -226,10 +225,10 @@ setup_convex() {
 configure_environment() {
     print_step "Configuring Clerk environment..."
 
-    CONVEX_URL=$(grep "NEXT_PUBLIC_CONVEX_URL" .env.local | cut -d'=' -f2)
+    CONVEX_URL=$(grep -E "^(VITE_CONVEX_URL|NEXT_PUBLIC_CONVEX_URL)=" .env.local | cut -d'=' -f2 | head -n1)
 
     if [ -z "$CONVEX_URL" ]; then
-        print_error "Could not find NEXT_PUBLIC_CONVEX_URL in .env.local"
+        print_error "Could not find VITE_CONVEX_URL or NEXT_PUBLIC_CONVEX_URL in .env.local"
         exit 1
     fi
 
@@ -237,20 +236,20 @@ configure_environment() {
     print_info "Detected Convex deployment: $DEPLOYMENT_NAME"
 
     # Clerk route defaults for this kit
-    if ! grep -q "NEXT_PUBLIC_CLERK_SIGN_IN_URL" .env.local; then
+    if ! grep -q "VITE_CLERK_SIGN_IN_URL" .env.local; then
         {
             echo ""
-            echo "NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login"
-            echo "NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup"
-            echo "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard"
-            echo "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard"
+            echo "VITE_CLERK_SIGN_IN_URL=/login"
+            echo "VITE_CLERK_SIGN_UP_URL=/signup"
+            echo "VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard"
+            echo "VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard"
         } >> .env.local
         print_success "Added Clerk route defaults to .env.local"
     else
         print_warning "Clerk route URLs already set in .env.local"
     fi
 
-    if grep -q "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_" .env.local 2>/dev/null; then
+    if grep -q "VITE_CLERK_PUBLISHABLE_KEY=pk_" .env.local 2>/dev/null; then
         print_success "Clerk publishable key found in .env.local"
     else
         print_warning "Add Clerk keys to .env.local before developing"
@@ -299,7 +298,7 @@ start_dev_server() {
     echo ""
 
     # Start the dev server
-    exec pnpm run dev
+    exec bun run dev
 }
 
 # =============================================================================

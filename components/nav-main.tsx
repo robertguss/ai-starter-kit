@@ -1,7 +1,7 @@
 "use client"
 
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
-import Link from "next/link"
+import { Link } from "@tanstack/react-router"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,6 +11,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
+function parseHashLink(url: string) {
+  const [path, hash] = url.split("#")
+  return { path, hash }
+}
 
 export function NavMain({
   items,
@@ -31,7 +36,7 @@ export function NavMain({
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
-              <Link href="/dashboard#create">
+              <Link to="/dashboard" hash="create">
                 <IconCirclePlusFilled />
                 <span>Quick Create</span>
               </Link>
@@ -42,7 +47,7 @@ export function NavMain({
               className="size-8 group-data-[collapsible=icon]:opacity-0"
               variant="outline"
             >
-              <Link href="/dashboard#inbox">
+              <Link to="/dashboard" hash="inbox">
                 <IconMail />
                 <span className="sr-only">Inbox</span>
               </Link>
@@ -50,16 +55,19 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const { path, hash } = parseHashLink(item.url)
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link to={path as "/dashboard"} hash={hash}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
