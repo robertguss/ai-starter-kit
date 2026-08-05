@@ -1,7 +1,5 @@
-"use client"
-
 import * as React from "react"
-import Link from "next/link"
+import { Link } from "@tanstack/react-router"
 import {
   IconCamera,
   IconChartBar,
@@ -20,6 +18,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 
+import { ModeToggle } from "@/components/mode-toggle"
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -33,31 +32,36 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
 const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/dashboard",
+      to: "/dashboard" as const,
       icon: IconDashboard,
     },
     {
       title: "Lifecycle",
-      url: "/dashboard#lifecycle",
+      to: "/dashboard" as const,
+      hash: "lifecycle",
       icon: IconListDetails,
     },
     {
       title: "Analytics",
-      url: "/dashboard#analytics",
+      to: "/dashboard" as const,
+      hash: "analytics",
       icon: IconChartBar,
     },
     {
       title: "Projects",
-      url: "/dashboard#projects",
+      to: "/dashboard" as const,
+      hash: "projects",
       icon: IconFolder,
     },
     {
       title: "Team",
-      url: "/dashboard#team",
+      to: "/dashboard" as const,
+      hash: "team",
       icon: IconUsers,
     },
   ],
@@ -66,45 +70,54 @@ const data = {
       title: "Capture",
       icon: IconCamera,
       isActive: true,
-      url: "/dashboard#capture",
+      to: "/dashboard" as const,
+      hash: "capture",
       items: [
         {
           title: "Active Proposals",
-          url: "/dashboard#capture-active-proposals",
+          to: "/dashboard" as const,
+          hash: "capture-active-proposals",
         },
         {
           title: "Archived",
-          url: "/dashboard#capture-archived",
+          to: "/dashboard" as const,
+          hash: "capture-archived",
         },
       ],
     },
     {
       title: "Proposal",
       icon: IconFileDescription,
-      url: "/dashboard#proposal",
+      to: "/dashboard" as const,
+      hash: "proposal",
       items: [
         {
           title: "Active Proposals",
-          url: "/dashboard#proposal-active-proposals",
+          to: "/dashboard" as const,
+          hash: "proposal-active-proposals",
         },
         {
           title: "Archived",
-          url: "/dashboard#proposal-archived",
+          to: "/dashboard" as const,
+          hash: "proposal-archived",
         },
       ],
     },
     {
       title: "Prompts",
       icon: IconFileAi,
-      url: "/dashboard#prompts",
+      to: "/dashboard" as const,
+      hash: "prompts",
       items: [
         {
           title: "Active Proposals",
-          url: "/dashboard#prompts-active-proposals",
+          to: "/dashboard" as const,
+          hash: "prompts-active-proposals",
         },
         {
           title: "Archived",
-          url: "/dashboard#prompts-archived",
+          to: "/dashboard" as const,
+          hash: "prompts-archived",
         },
       ],
     },
@@ -112,34 +125,40 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "/dashboard#settings",
+      to: "/dashboard" as const,
+      hash: "settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "/dashboard#help",
+      to: "/dashboard" as const,
+      hash: "help",
       icon: IconHelp,
     },
     {
       title: "Search",
-      url: "/dashboard#search",
+      to: "/dashboard" as const,
+      hash: "search",
       icon: IconSearch,
     },
   ],
   documents: [
     {
       name: "Data Library",
-      url: "/dashboard#data-library",
+      to: "/dashboard" as const,
+      hash: "data-library",
       icon: IconDatabase,
     },
     {
       name: "Reports",
-      url: "/dashboard#reports",
+      to: "/dashboard" as const,
+      hash: "reports",
       icon: IconReport,
     },
     {
       name: "Word Assistant",
-      url: "/dashboard#word-assistant",
+      to: "/dashboard" as const,
+      hash: "word-assistant",
       icon: IconFileWord,
     },
   ],
@@ -155,7 +174,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href="/dashboard">
+              <Link to="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </Link>
@@ -169,6 +188,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
+        <div className="flex items-center justify-between gap-2 p-2 group-data-[collapsible=icon]:justify-center">
+          <ModeToggle />
+        </div>
         <NavUser />
       </SidebarFooter>
     </Sidebar>

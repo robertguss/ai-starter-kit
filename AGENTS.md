@@ -5,11 +5,11 @@ this repository.
 
 ## Project Overview
 
-This is a Next.js 16 starter kit with Convex backend and Clerk
+This is a TanStack Start starter kit with a Convex backend and Clerk
 authentication. The stack includes:
 
-- **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS 4, shadcn/ui
-  components
+- **Frontend**: TanStack Start with React 19, TypeScript, Tailwind CSS 4,
+  shadcn/ui components
 - **Backend**: Convex (real-time database and serverless functions)
 - **Auth**: Clerk with Convex JWT validation
 - **UI**: shadcn/ui (New York style) with Lucide icons
@@ -19,44 +19,44 @@ authentication. The stack includes:
 ### Starting Development
 
 ```bash
-bun run dev
+aubr dev
 # Runs both frontend and backend in parallel:
-# - Next.js dev server with Turbo (localhost:3000)
+# - TanStack Start Vite dev server (localhost:3000)
 # - Convex dev server (convex dev)
 ```
 
 ### Individual Services
 
 ```bash
-bun run dev:frontend # Next.js only
-bun run dev:backend # Convex only
-bun run predev # Convex dev until success, then open dashboard
+aubr dev:frontend # TanStack Start Vite dev server
+aubr dev:backend # Convex only
+aubr predev # Convex dev until success, then open dashboard
 ```
 
 ### Build and Lint
 
 ```bash
-bun run build # Build Next.js for production
-bun run lint # Run ESLint
+aubr build # Build for production (Vite + SSR + type check)
+aubr lint # Run ESLint
 ```
 
 ### Testing
 
 ```bash
-bun run test # Run tests in watch mode
-bun run test:once # Run tests once
-bun run test:debug # Debug tests with inspector
-bun run test:coverage # Run tests with coverage report
+aubr test # Run tests in watch mode
+aubr test:once # Run tests once
+aubr test:debug # Debug tests with inspector
+aubr test:coverage # Run tests with coverage report
 ```
 
 ### Convex Management
 
 ```bash
-bunx convex dev # Start Convex dev mode
-bunx convex dashboard # Open Convex dashboard
-bunx convex env set KEY value # Set environment variable
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
-bunx convex codegen # Generate TypeScript types (required before running tests)
+aubx convex dev # Start Convex dev mode
+aubx convex dashboard # Open Convex dashboard
+aubx convex env set KEY value # Set environment variable
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
+aubx convex codegen # Generate TypeScript types (required before running tests)
 ```
 
 ## Architecture
@@ -75,29 +75,37 @@ Clerk JWTs configured in `convex/auth.config.ts`.
    - Returns `{ subject, name, email, image? } | null`
 
 3. **Frontend providers**:
-   - `ClerkProvider` in `app/layout.tsx`
+   - `ClerkProvider` in `app/routes/__root.tsx`
    - `ConvexProviderWithClerk` + Clerk `useAuth` in
      `app/ConvexClientProvider.tsx`
 4. **Route protection**:
-   - Next.js 16 uses `proxy.ts` with bare `clerkMiddleware()` (session wiring)
-   - `app/dashboard/layout.tsx` calls `auth.protect()` as the page gate
+   - `app/start.ts` wires up `clerkMiddleware()` for request/session handling
+   - `app/routes/_authenticated/route.tsx` uses `beforeLoad` + server `auth()`
+     to gate all authenticated routes (e.g. `/dashboard`)
    - Convex functions must check `ctx.auth.getUserIdentity()` for data access
 
 5. **Auth UI**:
-   - `/login` → Clerk `<SignIn />` (`app/login/[[...sign-in]]/page.tsx`)
-   - `/signup` → Clerk `<SignUp />` (`app/signup/[[...sign-up]]/page.tsx`)
-   - Sidebar / home use Clerk `useUser` / `SignOutButton` for client display
+   - `/login` → Clerk `<SignIn />` splat route (`app/routes/login.$.tsx`)
+   - `/signup` → Clerk `<SignUp />` splat route (`app/routes/signup.$.tsx`)
+   - Prefer `useConvexAuth()` for Convex-auth UI gates; Clerk `useUser` /
+     `SignOutButton` for display / sign-out
 
 ### Directory Structure
 
 ```text
-/app                         # Next.js App Router pages
-  /dashboard                 # Protected dashboard pages
-  /login/[[...sign-in]]      # Clerk sign-in
-  /signup/[[...sign-up]]     # Clerk sign-up
+/app                         # TanStack Start application source
+  /routes                    # TanStack Router routes
+    __root.tsx               # Root route (providers + document shell)
+    index.tsx                # Home page
+    _authenticated/          # Pathless auth layout + protected routes
+      route.tsx              # Shared beforeLoad auth gate
+      dashboard.tsx          # Protected dashboard page
+    login.$.tsx              # Clerk sign-in (splat for multi-step paths)
+    signup.$.tsx             # Clerk sign-up (splat for multi-step paths)
+  router.tsx                 # Router factory
+  start.ts                   # TanStack Start entry + Clerk middleware
   ConvexClientProvider.tsx   # Convex + Clerk provider
-  layout.tsx                 # Root layout (ClerkProvider)
-  page.tsx                   # Home page
+  globals.css                # Tailwind CSS entry
 
 /components                  # React components
   /ui                        # shadcn/ui components
@@ -120,7 +128,7 @@ Clerk JWTs configured in `convex/auth.config.ts`.
 /hooks                       # React hooks
   use-mobile.ts              # Mobile detection hook
 
-proxy.ts                     # Next.js proxy (Clerk middleware)
+vite.config.ts               # Vite + TanStack Start plugin configuration
 .mcp.json                    # Includes Clerk MCP (https://mcp.clerk.com/mcp)
 ```
 
@@ -163,21 +171,21 @@ const identity = await ctx.auth.getUserIdentity();
 
 ### Environment Variables
 
-**Convex (set via `bunx convex env set`)**:
+**Convex (set via `aubx convex env set`)**:
 
 - `CLERK_JWT_ISSUER_DOMAIN` - Clerk Frontend API URL / JWT issuer
   (from https://dashboard.clerk.com/apps/setup/convex)
 
-**Next.js (`.env.local`)**:
+**Frontend (`.env.local`)**:
 
-- `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL (auto-created by
-  `bunx convex dev`)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- `VITE_CONVEX_URL` - Convex deployment URL (written by `aubx convex dev`;
+  `setup.sh` ensures the `VITE_` key is present)
+- `VITE_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
 - `CLERK_SECRET_KEY` - Clerk secret key
-- `NEXT_PUBLIC_CLERK_SIGN_IN_URL` - `/login`
-- `NEXT_PUBLIC_CLERK_SIGN_UP_URL` - `/signup`
-- `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` - `/dashboard`
-- `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` - `/dashboard`
+- `VITE_CLERK_SIGN_IN_URL` - `/login`
+- `VITE_CLERK_SIGN_UP_URL` - `/signup`
+- `VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` - `/dashboard`
+- `VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` - `/dashboard`
 
 ### Clerk Dashboard Steps (Required Once Per Project)
 
@@ -185,10 +193,10 @@ const identity = await ctx.auth.getUserIdentity();
 2. Create an application: https://dashboard.clerk.com/apps/new
 3. Copy API keys from
    https://dashboard.clerk.com/last-active?path=api-keys into `.env.local`
-   (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
+   (`VITE_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
 4. Enable Convex at https://dashboard.clerk.com/apps/setup/convex and copy the
    Frontend API URL
-5. `bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
+5. `aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
 6. Allow `http://localhost:3000` (+ `/login`, `/signup`, `/dashboard`) in Clerk
    path / redirect settings
 7. After activating the JWT template, sign out completely and sign back in
@@ -196,6 +204,10 @@ const identity = await ctx.auth.getUserIdentity();
    `ctx.auth.getUserIdentity()` is non-null
 
 Canonical walkthrough: `docs/AUTHENTICATION.md`.
+
+For an agent-guided, interactive setup that walks through these steps and can
+use a Clerk token when one is available, invoke the `setup-starter-kit` agent
+skill in `.agents/skills/setup-starter-kit/`.
 
 ### Clerk MCP
 
@@ -222,7 +234,7 @@ MCP. Tools include `clerk_sdk_snippet` and `list_clerk_sdk_snippets`.
 Add components via:
 
 ```bash
-bunx shadcn@latest add [component-name]
+aubx shadcn@latest add [component-name]
 ```
 
 ## Convex Guidelines
@@ -258,7 +270,8 @@ and examples.
 
 - Clerk hosts sign-in/sign-up UI and session cookies
 - Convex trusts Clerk JWTs via `auth.config.ts`
-- Protected routes use `clerkMiddleware` + `auth.protect()` on `/dashboard`
+- Protected routes use `clerkMiddleware` + `_authenticated` `beforeLoad` /
+  server `auth()` (not Next.js `auth.protect()`)
 - Prefer `useConvexAuth()` over raw Clerk state when deciding whether
   Convex-authenticated UI can render
 - After activating the Convex JWT template, sign out and sign in fully before
@@ -296,7 +309,7 @@ it("should test something", async () => {
    it to `convexTest(schema, modules)`
 2. **Fresh instances**: Create a new `convexTest(schema, modules)` instance in
    each test for isolation
-3. **Run codegen first**: Tests require `bunx convex codegen` to be run first to
+3. **Run codegen first**: Tests require `aubx convex codegen` to be run first to
    generate the `_generated` directory
 
 ### Testing with Authentication
@@ -320,12 +333,12 @@ For detailed testing documentation, patterns, and best practices, see
 
 This project uses [Convex](https://convex.dev) as its backend.
 
-When working on Convex code, **always read `convex/_generated/ai/guidelines.md`
-first** for important guidelines on how to correctly use Convex APIs and
-patterns. The file contains rules that override what you may have learned about
-Convex from training data.
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
 
 Convex agent skills for common tasks can be installed by running
-`bunx convex ai-files install`.
+`npx convex ai-files install`.
 
 <!-- convex-ai-end -->

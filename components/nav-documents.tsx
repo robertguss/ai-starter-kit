@@ -1,6 +1,4 @@
-"use client"
-
-import Link from "next/link"
+import { Link } from "@tanstack/react-router"
 import {
   IconDots,
   IconFolder,
@@ -26,15 +24,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavDocuments({
-  items,
-}: {
-  items: {
-    name: string
-    url: string
-    icon: Icon
-  }[]
-}) {
+export type NavDocumentItem = {
+  name: string
+  to: "/dashboard"
+  hash?: string
+  icon: Icon
+}
+
+export function NavDocuments({ items }: { items: NavDocumentItem[] }) {
   const { isMobile } = useSidebar()
 
   return (
@@ -44,7 +41,7 @@ export function NavDocuments({
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <Link href={item.url}>
+              <Link to={item.to} hash={item.hash}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
@@ -83,7 +80,7 @@ export function NavDocuments({
         ))}
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="text-sidebar-foreground/70">
-            <Link href="/dashboard#more">
+            <Link to="/dashboard" hash="more">
               <IconDots className="text-sidebar-foreground/70" />
               <span>More</span>
             </Link>

@@ -1,21 +1,20 @@
-"use client";
+import { useAuth } from '@clerk/tanstack-react-start'
+import { ConvexProviderWithClerk } from 'convex/react-clerk'
+import { ConvexReactClient } from 'convex/react'
+import { type ReactNode } from 'react'
 
-import { ReactNode } from "react";
-import { ConvexReactClient } from "convex/react";
-import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { useAuth } from "@clerk/nextjs";
+const convexUrl = import.meta.env.VITE_CONVEX_URL
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 if (!convexUrl) {
-  throw new Error("Missing NEXT_PUBLIC_CONVEX_URL in your .env.local file");
+  throw new Error('Missing VITE_CONVEX_URL in your .env.local file')
 }
 
-const convex = new ConvexReactClient(convexUrl);
+const convex = new ConvexReactClient(convexUrl)
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
       {children}
     </ConvexProviderWithClerk>
-  );
+  )
 }

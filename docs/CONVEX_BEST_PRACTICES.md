@@ -305,7 +305,7 @@ export const deleteTask = authedMutation({
 Use `@convex-dev/eslint-plugin` to catch Convex-specific issues automatically.
 
 ```bash
-pnpm add -D @convex-dev/eslint-plugin
+aube add -D @convex-dev/eslint-plugin
 ```
 
 Add to your ESLint config:

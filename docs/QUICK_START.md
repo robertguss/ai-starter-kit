@@ -27,14 +27,14 @@ Before you begin, make sure you have the following installed:
   node --version  # Should be 18.x or higher
   ```
 
-- ✅ **pnpm** (recommended) or npm
+- ✅ **aube** ([install](https://aube.jdx.dev))
 
   ```bash
-  # Install pnpm globally if you don't have it
-  npm install -g pnpm
+  # Install aube: https://aube.jdx.dev
+  # install aube: https://aube.jdx.dev
 
   # Verify installation
-  pnpm --version
+  aube --version
   ```
 
 ### Optional but Helpful
@@ -60,8 +60,8 @@ cd ai-starter-kit
 
 **What the setup script does:**
 
-1. ✅ Checks prerequisites (Node.js 18+, pnpm)
-2. ✅ Installs pnpm automatically if missing
+1. ✅ Checks prerequisites (Node.js 20.9+, aube)
+2. ✅ Fails fast if aube is missing (install from https://aube.jdx.dev)
 3. ✅ Installs all dependencies
 4. ✅ Guides you through Convex authentication (browser login)
 5. ✅ Configures all environment variables automatically
@@ -93,7 +93,7 @@ cd ai-starter-kit
 ### Step 2: Install Dependencies
 
 ```bash
-pnpm install
+aube install
 ```
 
 This will install all required packages (~2-3 minutes depending on your internet speed).
@@ -117,7 +117,7 @@ npx convex dev
    - Give it a name (e.g., "ai-starter-kit-dev")
 
 3. Convex will:
-   - Create a `.env.local` file with `NEXT_PUBLIC_CONVEX_URL`
+   - Create a `.env.local` file with `VITE_CONVEX_URL`
    - Start the Convex development server
    - Begin watching for changes in your `convex/` directory
 
@@ -133,7 +133,7 @@ The kit already includes Clerk code. You still configure Clerk once in the UI.
 2. **Copy API keys** from  
    https://dashboard.clerk.com/last-active?path=api-keys  
    into `.env.local`:
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...`
+   - `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...`
    - `CLERK_SECRET_KEY=sk_test_...`
    - Plus the kit route defaults from `.env.example` (`/login`, `/signup`,
      fallback `/dashboard`)
@@ -145,7 +145,7 @@ The kit already includes Clerk code. You still configure Clerk once in the UI.
 4. **Set the issuer on Convex**:
 
 ```bash
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
 `CLERK_JWT_ISSUER_DOMAIN` is the issuer Convex uses to validate Clerk JWTs.
@@ -161,12 +161,12 @@ Full UI walkthrough: [docs/AUTHENTICATION.md](./AUTHENTICATION.md).
 In your second terminal (or a third if you prefer), run:
 
 ```bash
-pnpm run dev
+aubr dev
 ```
 
 This starts both:
 
-- **Next.js frontend** on `http://localhost:3000`
+- **TanStack Start frontend** on `http://localhost:3000`
 - **Convex backend** (if not already running)
 
 ---
@@ -190,7 +190,7 @@ This starts both:
 
 4. **Verify Convex auth:**
    - Open the Convex Dashboard: [https://dashboard.convex.dev](https://dashboard.convex.dev)
-   - Or run: `bunx convex dashboard`
+   - Or run: `aubx convex dashboard`
    - Confirm `CLERK_JWT_ISSUER_DOMAIN` is set and `getCurrentUser` returns a user
 
 5. **Run tests** (optional but recommended):
@@ -200,7 +200,7 @@ This starts both:
    npx convex codegen
 
    # Run tests
-   pnpm run test:once
+   aubr test:once
    ```
 
 ### 🎉 Success!
@@ -224,8 +224,8 @@ Now that you have the starter kit running, here are some suggested next steps:
 - **Auth UI**: `app/login/[[...sign-in]]/page.tsx` and `app/signup/[[...sign-up]]/page.tsx`
   - Clerk `<SignIn />` and `<SignUp />`
 
-- **Protected Routes**: `proxy.ts` and `app/dashboard/layout.tsx`
-  - `clerkMiddleware` plus `auth.protect()`
+- **Protected Routes**: `app/start.ts` and `app/routes/_authenticated/route.tsx`
+  - `clerkMiddleware` plus `beforeLoad` + server `auth()`
 
 ### 3. Read Detailed Documentation
 
@@ -284,13 +284,13 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 - Check that port 3210 isn't already in use
 - Try: `npx convex dev --admin-key <key>` if you have credentials
 
-### Problem: `NEXT_PUBLIC_CONVEX_URL` not found
+### Problem: `VITE_CONVEX_URL` not found
 
 **Solution:**
 
 - Make sure `.env.local` exists in the project root
 - Run `npx convex dev` again - it auto-generates this file
-- Restart your Next.js dev server after the file is created
+- Restart your TanStack Start / Vite dev server after the file is created
 
 ### Problem: "Unauthorized" or auth errors
 
@@ -298,7 +298,7 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 - Verify Convex has the issuer:
   ```bash
-  bunx convex env list
+  aubx convex env list
   ```
 - You should see `CLERK_JWT_ISSUER_DOMAIN`
 - Confirm Clerk keys exist in `.env.local`
@@ -312,7 +312,7 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 1. Activate Convex at https://dashboard.clerk.com/apps/setup/convex
 2. Set `CLERK_JWT_ISSUER_DOMAIN` to the Frontend API URL shown there
-3. Restart `bunx convex dev`
+3. Restart `aubx convex dev`
 4. Sign out completely and sign back in
 
 ### Problem: Port 3000 already in use
@@ -320,9 +320,9 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 **Solution:**
 
 - Stop other processes on port 3000, or
-- Run Next.js on a different port:
+- Run the frontend on a different port:
   ```bash
-  pnpm run dev:frontend -- -p 3001
+  aubr dev:frontend -- -p 3001
   ```
 
 ### Problem: Tests fail with "Cannot find \_generated"
@@ -335,14 +335,14 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
   ```
 - This generates TypeScript types needed for tests
 
-### Problem: `pnpm install` fails
+### Problem: `aube install` fails
 
 **Solution:**
 
 - Try clearing the cache:
   ```bash
-  pnpm store prune
-  pnpm install --force
+  aube cache clean
+  aube install --force
   ```
 - Or use npm instead:
   ```bash
@@ -359,14 +359,14 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 ## Summary Checklist
 
-- [ ] Node.js 18+ installed
-- [ ] pnpm installed
+- [ ] Node.js 20.9+ installed
+- [ ] aube installed
 - [ ] Project cloned
-- [ ] Dependencies installed (`pnpm install`)
-- [ ] Convex initialized (`bunx convex dev`)
+- [ ] Dependencies installed (`aube install`)
+- [ ] Convex initialized (`aubx convex dev`)
 - [ ] Clerk keys set in `.env.local`
-- [ ] `CLERK_JWT_ISSUER_DOMAIN` set via `bunx convex env set`
-- [ ] Dev server running (`pnpm run dev`)
+- [ ] `CLERK_JWT_ISSUER_DOMAIN` set via `aubx convex env set`
+- [ ] Dev server running (`aubr dev`)
 - [ ] Can access http://localhost:3000
 - [ ] Can sign up and log in
 - [ ] Can access dashboard

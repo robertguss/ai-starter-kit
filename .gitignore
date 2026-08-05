@@ -13,12 +13,19 @@
 # testing
 /coverage
 
-# next.js
+# tanstack start
+/.output/
+/.nitro/
+/build/
+/api/
+/server/build/
+/public/build/
+/dist/
+.tanstack
+
+# next.js (legacy)
 /.next/
 /out/
-
-# production
-/build
 
 # misc
 .DS_Store
@@ -38,7 +45,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # Claude Settings
 .claude/settings.local.json

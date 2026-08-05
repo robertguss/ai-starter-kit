@@ -12,8 +12,8 @@
 #   bash setup.sh
 #
 # Requirements:
-#   - Node.js 18 or later
-#   - npm (for installing pnpm if needed)
+#   - Node.js 20.9 or later (@clerk/tanstack-react-start)
+#   - aube (https://aube.jdx.dev)
 #   - Internet connection (for Convex cloud services)
 #
 # Works on: macOS, Linux, Windows (Git Bash/WSL)
@@ -80,13 +80,14 @@ check_prerequisites() {
 
     local all_ok=true
 
-    # Check Node.js
+    # Check Node.js (Clerk TanStack Start requires >= 20.9)
     if command_exists node; then
-        node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-        if [ "$node_version" -ge 18 ]; then
+        node_major=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+        node_minor=$(node -v | cut -d'v' -f2 | cut -d'.' -f2)
+        if [ "$node_major" -gt 20 ] || { [ "$node_major" -eq 20 ] && [ "$node_minor" -ge 9 ]; }; then
             print_success "Node.js $(node -v) found"
         else
-            print_error "Node.js 18+ required. Current version: $(node -v)"
+            print_error "Node.js 20.9+ required. Current version: $(node -v)"
             print_info "Download from: https://nodejs.org/"
             all_ok=false
         fi
@@ -96,24 +97,13 @@ check_prerequisites() {
         all_ok=false
     fi
 
-    # Check npm (needed to install pnpm if missing)
-    if ! command_exists npm; then
-        print_error "npm not found (should come with Node.js)"
-        all_ok=false
-    fi
-
-    # Check pnpm (auto-install if missing)
-    if command_exists pnpm; then
-        print_success "pnpm $(pnpm -v) found"
+    # Check aube
+    if command_exists aube; then
+        print_success "aube $(aube --version | head -n 1) found"
     else
-        print_warning "pnpm not found - installing..."
-        if npm install -g pnpm; then
-            print_success "pnpm installed successfully"
-        else
-            print_error "Failed to install pnpm"
-            print_info "Try manually: npm install -g pnpm"
-            all_ok=false
-        fi
+        print_error "aube not found"
+        print_info "Install from: https://aube.jdx.dev"
+        all_ok=false
     fi
 
     # Check openssl (optional, with fallback)
@@ -142,15 +132,15 @@ check_prerequisites() {
 install_dependencies() {
     print_step "Installing dependencies..."
 
-    if [ -d "node_modules" ] && [ -f "pnpm-lock.yaml" ]; then
+    if [ -d "node_modules" ] && [ -f "aube-lock.yaml" ]; then
         print_info "node_modules exists, checking if up to date..."
     fi
 
-    if pnpm install; then
+    if aube install; then
         print_success "Dependencies installed successfully"
     else
         print_error "Failed to install dependencies"
-        print_info "Try running: pnpm install --force"
+        print_info "Try running: aube install --force"
         exit 1
     fi
 }
@@ -163,7 +153,7 @@ setup_convex() {
     print_step "Setting up Convex..."
 
     # Check if already set up
-    if [ -f ".env.local" ] && grep -q "NEXT_PUBLIC_CONVEX_URL" .env.local; then
+    if [ -f ".env.local" ] && grep -qE "^VITE_CONVEX_URL=" .env.local; then
         print_warning ".env.local already exists with Convex URL"
         read -p "  Do you want to skip Convex initialization? (y/N): " skip_convex
         if [[ "$skip_convex" =~ ^[Yy]$ ]]; then
@@ -193,27 +183,37 @@ setup_convex() {
     print_info "Starting Convex initialization..."
     echo ""
 
-    if npx convex dev --until-success; then
+    if aubx convex dev --until-success; then
         echo ""
         print_success "Convex initialized successfully!"
     else
         echo ""
         print_error "Convex initialization failed"
-        print_info "Try running: npx convex dev"
+        print_info "Try running: aubx convex dev"
         exit 1
     fi
 
     # Verify .env.local was created
     if [ ! -f ".env.local" ]; then
         print_error ".env.local was not created. Convex setup may have failed."
-        print_info "Try running: npx convex dev"
+        print_info "Try running: aubx convex dev"
         exit 1
     fi
 
-    if ! grep -q "NEXT_PUBLIC_CONVEX_URL" .env.local; then
-        print_error "NEXT_PUBLIC_CONVEX_URL not found in .env.local"
-        print_info "Convex setup may have failed. Try running: npx convex dev"
-        exit 1
+    # Prefer VITE_CONVEX_URL; if Convex wrote a legacy NEXT_PUBLIC_ key, copy it.
+    if ! grep -q "^VITE_CONVEX_URL=" .env.local; then
+        if grep -q "^NEXT_PUBLIC_CONVEX_URL=" .env.local; then
+            CONVEX_URL=$(grep "^NEXT_PUBLIC_CONVEX_URL=" .env.local | cut -d'=' -f2)
+            {
+                echo ""
+                echo "VITE_CONVEX_URL=${CONVEX_URL}"
+            } >> .env.local
+            print_success "Added VITE_CONVEX_URL to .env.local (from NEXT_PUBLIC_CONVEX_URL)"
+        else
+            print_error "VITE_CONVEX_URL not found in .env.local"
+            print_info "Convex setup may have failed. Try running: aubx convex dev"
+            exit 1
+        fi
     fi
 
     print_success "Convex setup complete!"
@@ -226,10 +226,10 @@ setup_convex() {
 configure_environment() {
     print_step "Configuring Clerk environment..."
 
-    CONVEX_URL=$(grep "NEXT_PUBLIC_CONVEX_URL" .env.local | cut -d'=' -f2)
+    CONVEX_URL=$(grep -E "^VITE_CONVEX_URL=" .env.local | cut -d'=' -f2 | head -n1)
 
     if [ -z "$CONVEX_URL" ]; then
-        print_error "Could not find NEXT_PUBLIC_CONVEX_URL in .env.local"
+        print_error "Could not find VITE_CONVEX_URL in .env.local"
         exit 1
     fi
 
@@ -237,27 +237,27 @@ configure_environment() {
     print_info "Detected Convex deployment: $DEPLOYMENT_NAME"
 
     # Clerk route defaults for this kit
-    if ! grep -q "NEXT_PUBLIC_CLERK_SIGN_IN_URL" .env.local; then
+    if ! grep -q "VITE_CLERK_SIGN_IN_URL" .env.local; then
         {
             echo ""
-            echo "NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login"
-            echo "NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup"
-            echo "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard"
-            echo "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard"
+            echo "VITE_CLERK_SIGN_IN_URL=/login"
+            echo "VITE_CLERK_SIGN_UP_URL=/signup"
+            echo "VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard"
+            echo "VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard"
         } >> .env.local
         print_success "Added Clerk route defaults to .env.local"
     else
         print_warning "Clerk route URLs already set in .env.local"
     fi
 
-    if grep -q "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_" .env.local 2>/dev/null; then
+    if grep -q "VITE_CLERK_PUBLISHABLE_KEY=pk_" .env.local 2>/dev/null; then
         print_success "Clerk publishable key found in .env.local"
     else
         print_warning "Add Clerk keys to .env.local before developing"
         print_info "1. Create an app:  https://dashboard.clerk.com/apps/new"
         print_info "2. API keys:       https://dashboard.clerk.com/last-active?path=api-keys"
         print_info "3. Enable Convex:  https://dashboard.clerk.com/apps/setup/convex"
-        print_info "4. Set issuer:     bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
+        print_info "4. Set issuer:     aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
         print_info "See docs/AUTHENTICATION.md for the full Clerk UI walkthrough"
     fi
 
@@ -266,7 +266,7 @@ configure_environment() {
     else
         print_warning "CLERK_JWT_ISSUER_DOMAIN is not set in Convex yet"
         print_info "Enable Convex at https://dashboard.clerk.com/apps/setup/convex, then run:"
-        print_info "  bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
+        print_info "  aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
     fi
 
     print_success "Environment configured (complete Clerk keys + JWT issuer to finish auth)!"
@@ -299,7 +299,7 @@ start_dev_server() {
     echo ""
 
     # Start the dev server
-    exec pnpm run dev
+    exec aubr dev
 }
 
 # =============================================================================

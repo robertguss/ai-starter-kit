@@ -53,7 +53,7 @@ export default async function SettingsPage() {
 }
 ```
 
-`proxy.ts` and `app/dashboard/layout.tsx` protect `/dashboard/*` routes.
+`app/start.ts` and `app/routes/_authenticated/route.tsx` protect `/dashboard/*` routes.
 
 ---
 
@@ -354,7 +354,7 @@ describe("todos", () => {
 Run tests:
 
 ```bash
-pnpm run test
+aubr test
 ```
 
 See [Testing Guide](./TESTING.md) for comprehensive patterns.
@@ -366,7 +366,7 @@ See [Testing Guide](./TESTING.md) for comprehensive patterns.
 ### File Naming Conventions
 
 - **Components**: `kebab-case.tsx` (e.g., `todo-card.tsx`)
-- **Pages**: `page.tsx` (Next.js convention)
+- **Routes**: `app/routes/*.tsx` (TanStack Router file routes)
 - **Convex files**: `camelCase.ts` (e.g., `todoFunctions.ts`)
 - **Types**: `types.ts` or inline with components
 

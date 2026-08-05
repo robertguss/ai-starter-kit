@@ -1,9 +1,9 @@
 # AI Starter Kit
 
-A modern, production-ready starter kit for building full-stack applications with **Next.js 16**, **Convex** real-time database, **Clerk** authentication, **TypeScript**, and **shadcn/ui** components.
+A modern, production-ready starter kit for building full-stack applications with **TanStack Start**, **Convex** real-time database, **Clerk** authentication, **TypeScript**, and **shadcn/ui** components.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-16.x-black.svg)](https://nextjs.org/)
+[![TanStack Start](https://img.shields.io/badge/TanStack%20Start-latest-black.svg)](https://tanstack.com/start/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -89,7 +89,7 @@ A modern, production-ready starter kit for building full-stack applications with
 
 - **Authentication** - Clerk + Convex JWT integration
   - Hosted Clerk sign-in / sign-up UI
-  - Protected `/dashboard` routes via `proxy.ts` + `auth.protect()`
+  - Protected `/dashboard` route via TanStack Router `beforeLoad` + Clerk server auth
   - Convex identity from Clerk JWTs (`ctx.auth.getUserIdentity()`)
   - Social providers and MFA configurable in the Clerk Dashboard
 
@@ -102,7 +102,7 @@ A modern, production-ready starter kit for building full-stack applications with
 - **Modern UI Components** - 20+ shadcn/ui components pre-installed
   - Buttons, Forms, Modals, Tables, Charts, Sidebar
   - Fully customizable with Tailwind CSS 4
-  - Dark mode support with next-themes
+  - Dark mode support with Tailwind CSS variables
   - Responsive design patterns
 
 - **Testing Infrastructure** - Complete testing setup
@@ -125,8 +125,8 @@ Get up and running in **5 minutes**:
 
 ### Prerequisites
 
-- **Node.js** 18.x or later
-- **pnpm** (recommended) or npm - the setup script will install pnpm if missing
+- **Node.js** 20.9 or later
+- **aube** ([install](https://aube.jdx.dev)) — required by `./setup.sh` and the kit scripts (`aubr` / `aubx`)
 
 ### Option 1: Automated Setup (Recommended)
 
@@ -141,7 +141,7 @@ cd ai-starter-kit
 
 The setup script will:
 
-1. Check and install prerequisites (including pnpm if missing)
+1. Check prerequisites (Node.js 20.9+, aube)
 2. Install all dependencies
 3. Guide you through Convex authentication (opens browser)
 4. Configure all environment variables automatically
@@ -160,10 +160,10 @@ git clone https://github.com/robertguss/ai-starter-kit.git
 cd ai-starter-kit
 
 # Install dependencies
-bun install
+aube install
 
 # Set up Convex (follow the prompts to create/link a project)
-bunx convex dev
+aubx convex dev
 
 # Finish Clerk in the Dashboard (required once):
 # 1) Create app:      https://dashboard.clerk.com/apps/new
@@ -171,10 +171,10 @@ bunx convex dev
 #    → put publishable + secret keys in .env.local (see .env.example)
 # 3) Enable Convex:   https://dashboard.clerk.com/apps/setup/convex
 #    → copy Frontend API URL, then:
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://YOUR-APP.clerk.accounts.dev
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://YOUR-APP.clerk.accounts.dev
 
 # Start the development servers (frontend + backend)
-bun run dev
+aubr dev
 ```
 
 Full Clerk UI walkthrough: [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
@@ -234,7 +234,7 @@ The BMAD Method is a comprehensive framework that combines human expertise with 
 
 | Category            | Technology   | Version | Purpose                              |
 | ------------------- | ------------ | ------- | ------------------------------------ |
-| **Framework**       | Next.js      | 16.x    | React framework with App Router      |
+| **Framework**       | TanStack Start | latest | Full-stack React framework with Vite SSR |
 | **Frontend**        | React        | 19.x    | UI library                           |
 | **Language**        | TypeScript   | 5.x     | Type-safe JavaScript                 |
 | **Backend**         | Convex       | 1.28+   | Real-time serverless database        |
@@ -243,11 +243,11 @@ The BMAD Method is a comprehensive framework that combines human expertise with 
 | **Components**      | shadcn/ui    | Latest  | Radix UI + Tailwind components       |
 | **Icons**           | Lucide React | Latest  | Beautiful consistent icons           |
 | **Testing**         | Vitest       | 4.x     | Fast unit testing framework          |
-| **Package Manager** | pnpm         | 8.x+    | Fast, disk-efficient package manager |
+| **Package Manager** | aube         | 1.x+    | Fast, secure JavaScript package manager   |
 
 ### Why These Technologies?
 
-- **Next.js 16**: Cutting-edge React framework with App Router, Server Components, and excellent DX
+- **TanStack Start**: Full-stack React framework with TanStack Router, Vite, SSR, and server functions
 - **Convex**: Eliminates the complexity of traditional backends - no REST/GraphQL APIs to build, real-time by default
 - **Clerk**: Hosted auth with a first-party Convex JWT integration
 - **shadcn/ui**: Copy-paste components you own, built on Radix UI primitives for accessibility
@@ -259,17 +259,17 @@ The BMAD Method is a comprehensive framework that combines human expertise with 
 
 ```
 ai-starter-kit/
-├── app/                          # Next.js App Router
-│   ├── dashboard/                # Protected dashboard pages
-│   │   ├── layout.tsx            # auth.protect()
-│   │   ├── page.tsx              # Dashboard home with charts
-│   │   └── data.json             # Sample data
-│   ├── login/[[...sign-in]]/     # Clerk SignIn
-│   ├── signup/[[...sign-up]]/    # Clerk SignUp
+├── app/                          # TanStack Start application source
+│   ├── routes/                   # TanStack Router routes
+│   │   ├── __root.tsx            # Root route (providers + document shell)
+│   │   ├── index.tsx             # Home page
+│   │   ├── dashboard.tsx         # Protected dashboard page
+│   │   ├── login.tsx             # Clerk sign-in
+│   │   └── signup.tsx            # Clerk sign-up
+│   ├── router.tsx                # Router factory
+│   ├── start.ts                  # TanStack Start entry + Clerk middleware
 │   ├── ConvexClientProvider.tsx  # Convex + Clerk provider
-│   ├── layout.tsx                # Root layout (ClerkProvider)
-│   ├── page.tsx                  # Home/landing page
-│   └── globals.css               # Global styles
+│   └── globals.css               # Tailwind CSS entry
 │
 ├── components/                   # React components
 │   ├── ui/                       # shadcn/ui components (20+)
@@ -296,7 +296,7 @@ ai-starter-kit/
 │   ├── AUTHENTICATION.md         # Clerk + Convex auth guide
 │   └── ...                       # Setup, architecture, etc.
 │
-├── proxy.ts                      # Next.js 16 proxy (clerkMiddleware)
+├── vite.config.ts                # Vite + TanStack Start plugin configuration
 ├── .mcp.json                     # Includes Clerk MCP
 ├── CLAUDE.md                     # Claude AI development guide
 └── LICENSE                       # MIT License
@@ -335,61 +335,62 @@ Comprehensive guides for all aspects of the starter kit:
 
 ```bash
 # Development
-pnpm run dev              # Run both frontend and backend in parallel
-pnpm run dev:frontend     # Run Next.js only
-pnpm run dev:backend      # Run Convex only
-pnpm run predev           # Convex dev + auto-open dashboard
+aubr dev               # Run both frontend and backend in parallel
+aubr dev:frontend      # Run TanStack Start Vite dev server
+aubr dev:backend       # Run Convex only
+aubr predev            # Convex dev + auto-open dashboard
 
 # Building
-pnpm run build            # Build Next.js for production
-pnpm run start            # Start production server
+aubr build             # Build for production (Vite + SSR + type check)
+aubr start             # Start production Node server
 
 # Code Quality
-pnpm run lint             # Run ESLint
+aubr lint              # Run ESLint
 
 # Testing
-pnpm run test             # Run tests in watch mode
-pnpm run test:once        # Run tests once
-pnpm run test:debug       # Debug tests with inspector
-pnpm run test:coverage    # Run with coverage report
+aubr test              # Run tests in watch mode
+aubr test:once         # Run tests once
+aubr test:debug        # Debug tests with inspector
+aubr test:coverage     # Run with coverage report
 ```
 
 ### Adding New Features
 
 ```bash
 # Add a new shadcn/ui component
-npx shadcn@latest add [component-name]
+aubx shadcn@latest add [component-name]
 
 # Generate Convex types (after schema changes)
-npx convex codegen
+aubx convex codegen
 
 # Open Convex dashboard
-npx convex dashboard
+aubx convex dashboard
 ```
 
 ### Environment Variables
 
-Create a `.env.local` file for Next.js. Convex writes `NEXT_PUBLIC_CONVEX_URL`.
-Add Clerk keys yourself:
+Create a `.env.local` file for the Vite frontend. Convex writes
+`VITE_CONVEX_URL` (setup.sh ensures this key is present if Convex wrote a legacy name) for the
+TanStack Start client.
 
 ```bash
-# Auto-generated by `bunx convex dev`
-NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+# Auto-generated by `aubx convex dev`
+VITE_CONVEX_URL=https://your-deployment.convex.cloud
 
 # From Clerk Dashboard → API keys
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_IN_URL=/login
+VITE_CLERK_SIGN_UP_URL=/signup
+VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 Set the Clerk issuer on Convex:
 
 ```bash
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-clerk-frontend-api-url
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-clerk-frontend-api-url
 ```
 
 See [`.env.example`](./.env.example) and [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
@@ -402,13 +403,13 @@ This starter includes a complete testing setup with Vitest and convex-test:
 
 ```bash
 # Run tests in watch mode
-pnpm run test
+aubr test
 
 # Run tests once (CI mode)
-pnpm run test:once
+aubr test:once
 
 # Run with coverage
-pnpm run test:coverage
+aubr test:coverage
 ```
 
 **Key patterns:**
@@ -432,7 +433,7 @@ it("should test something", async () => {
 
 ## Deployment
 
-### Deploy to Vercel (Recommended)
+### Default Node Server Preset (Recommended for local / self-host)
 
 1. **Push to GitHub**
 
@@ -440,28 +441,36 @@ it("should test something", async () => {
    git push origin main
    ```
 
-2. **Deploy Frontend**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Vercel will auto-detect Next.js
+2. **Build the application**
+
+   ```bash
+   aubr build
+   ```
 
 3. **Deploy Backend**
 
    ```bash
-   npx convex deploy
+   aubx convex deploy
    ```
 
 4. **Set Production Environment Variables**
 
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://clerk.your-domain.com --prod
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://clerk.your-domain.com --prod
    ```
 
-5. **Update Vercel Environment Variables**
-   - Add `NEXT_PUBLIC_CONVEX_URL` with your production Convex URL
-   - Add production Clerk publishable and secret keys
+5. **Start the production Node server**
 
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment instructions, custom domains, and other platforms.
+   ```bash
+   aubr start
+   ```
+
+This project uses the default TanStack Start Node SSR preset. Vercel, Cloudflare,
+and other presets can be added later by adjusting `vite.config.ts` and the
+`start` script.
+
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment
+instructions, custom domains, and other platforms.
 
 ---
 
@@ -474,7 +483,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for gu
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run tests (`pnpm run test:once`)
+4. Run tests (`aubr test:once`)
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
@@ -512,7 +521,7 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 Built with amazing open-source technologies:
 
-- [Next.js](https://nextjs.org/) - The React Framework
+- [TanStack Start](https://tanstack.com/start/) - Full-stack React framework with Vite SSR
 - [Convex](https://convex.dev/) - The reactive backend
 - [Clerk](https://clerk.com/) - Authentication and user management
 - [shadcn/ui](https://ui.shadcn.com/) - Beautifully designed components

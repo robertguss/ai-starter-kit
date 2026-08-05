@@ -74,7 +74,7 @@ Configures various development tool servers that can be used by AI assistants:
 - **n8n MCP server** - Automation tool integration
 - **Convex MCP server** - Convex development helpers
 - **Chrome DevTools** - Browser debugging integration
-- **Next.js MCP** - Next.js specific tooling
+- **Clerk MCP** - Clerk tooling (see `.mcp.json`)
 
 ### Should You Use It?
 
@@ -136,7 +136,7 @@ Create `.vscode/settings.json`:
 
 ### WebStorm Configuration
 
-WebStorm auto-detects Next.js and TypeScript configuration.
+WebStorm auto-detects Vite/TypeScript configuration.
 
 ---
 
