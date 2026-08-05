@@ -19,7 +19,7 @@ authentication. The stack includes:
 ### Starting Development
 
 ```bash
-bun run dev
+aubr dev
 # Runs both frontend and backend in parallel:
 # - TanStack Start Vite dev server (localhost:3000)
 # - Convex dev server (convex dev)
@@ -28,35 +28,35 @@ bun run dev
 ### Individual Services
 
 ```bash
-bun run dev:frontend # TanStack Start Vite dev server
-bun run dev:backend # Convex only
-bun run predev # Convex dev until success, then open dashboard
+aubr dev:frontend # TanStack Start Vite dev server
+aubr dev:backend # Convex only
+aubr predev # Convex dev until success, then open dashboard
 ```
 
 ### Build and Lint
 
 ```bash
-bun run build # Build for production (Vite + SSR + type check)
-bun run lint # Run ESLint
+aubr build # Build for production (Vite + SSR + type check)
+aubr lint # Run ESLint
 ```
 
 ### Testing
 
 ```bash
-bun run test # Run tests in watch mode
-bun run test:once # Run tests once
-bun run test:debug # Debug tests with inspector
-bun run test:coverage # Run tests with coverage report
+aubr test # Run tests in watch mode
+aubr test:once # Run tests once
+aubr test:debug # Debug tests with inspector
+aubr test:coverage # Run tests with coverage report
 ```
 
 ### Convex Management
 
 ```bash
-bunx convex dev # Start Convex dev mode
-bunx convex dashboard # Open Convex dashboard
-bunx convex env set KEY value # Set environment variable
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
-bunx convex codegen # Generate TypeScript types (required before running tests)
+aubx convex dev # Start Convex dev mode
+aubx convex dashboard # Open Convex dashboard
+aubx convex env set KEY value # Set environment variable
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
+aubx convex codegen # Generate TypeScript types (required before running tests)
 ```
 
 ## Architecture
@@ -168,7 +168,7 @@ const identity = await ctx.auth.getUserIdentity();
 
 ### Environment Variables
 
-**Convex (set via `bunx convex env set`)**:
+**Convex (set via `aubx convex env set`)**:
 
 - `CLERK_JWT_ISSUER_DOMAIN` - Clerk Frontend API URL / JWT issuer
   (from https://dashboard.clerk.com/apps/setup/convex)
@@ -176,7 +176,7 @@ const identity = await ctx.auth.getUserIdentity();
 **Frontend (`.env.local`)**:
 
 - `VITE_CONVEX_URL` - Convex deployment URL (copy of `NEXT_PUBLIC_CONVEX_URL`
-  auto-created by `bunx convex dev`; setup.sh writes this for you)
+  auto-created by `aubx convex dev`; setup.sh writes this for you)
 - `VITE_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
 - `CLERK_SECRET_KEY` - Clerk secret key
 - `VITE_CLERK_SIGN_IN_URL` - `/login`
@@ -193,7 +193,7 @@ const identity = await ctx.auth.getUserIdentity();
    (`VITE_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
 4. Enable Convex at https://dashboard.clerk.com/apps/setup/convex and copy the
    Frontend API URL
-5. `bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
+5. `aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
 6. Allow `http://localhost:3000` (+ `/login`, `/signup`, `/dashboard`) in Clerk
    path / redirect settings
 7. After activating the JWT template, sign out completely and sign back in
@@ -231,7 +231,7 @@ MCP. Tools include `clerk_sdk_snippet` and `list_clerk_sdk_snippets`.
 Add components via:
 
 ```bash
-bunx shadcn@latest add [component-name]
+aubx shadcn@latest add [component-name]
 ```
 
 ## Convex Guidelines
@@ -305,7 +305,7 @@ it("should test something", async () => {
    it to `convexTest(schema, modules)`
 2. **Fresh instances**: Create a new `convexTest(schema, modules)` instance in
    each test for isolation
-3. **Run codegen first**: Tests require `bunx convex codegen` to be run first to
+3. **Run codegen first**: Tests require `aubx convex codegen` to be run first to
    generate the `_generated` directory
 
 ### Testing with Authentication

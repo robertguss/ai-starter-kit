@@ -6,7 +6,7 @@ description: Set up a fresh clone of the TanStack Start + Convex + Clerk starter
 # Set up the TanStack Start + Convex + Clerk starter kit
 
 ## Goal
-Take an already-cloned starter-kit repo from a fresh state to `bun run dev` with Clerk authentication working end-to-end.
+Take an already-cloned starter-kit repo from a fresh state to `aubr dev` with Clerk authentication working end-to-end.
 
 ## When to use
 - "Set up this starter kit"
@@ -23,24 +23,24 @@ Take an already-cloned starter-kit repo from a fresh state to `bun run dev` with
 ## Before starting
 Run these checks and stop with a clear message if anything fails:
 1. `node -v` must be `>= 18` (prefer 20+).
-2. `bun -v` must work. If not, point the user to https://bun.sh.
+2. `aube --version | head -n 1` must work. If not, point the user to https://aube.jdx.dev.
 3. `package.json`, `convex/`, `app/`, and `setup.sh` must exist in the working directory. If not, the repo is not cloned here.
 4. `.env.local` and `.env` files must never be committed. They should already be in `.gitignore`.
 
 ## Step 1 — Install dependencies
 
 ```bash
-bun install
+aube install
 ```
 
-Verify `node_modules/` and `bun.lock` are present. If installation fails, try `bun install --force` once.
+Verify `node_modules/` and `aube-lock.yaml` are present. If installation fails, try `aube install --force` once.
 
 ## Step 2 — Start Convex dev and create `.env.local`
 
 Run Convex dev until it succeeds. This may open a browser for Convex login.
 
 ```bash
-bunx convex dev --until-success
+aubx convex dev --until-success
 ```
 
 This will:
@@ -53,10 +53,10 @@ The process lost its TTY. Try one of:
 
 ```bash
 # Option A: run inside a pseudo-TTY
-script -q /dev/null bunx convex dev --until-success
+script -q /dev/null aubx convex dev --until-success
 
 # Option B: use the predev script, which exits after Convex is ready and then opens the dashboard
-bun run predev
+aubr predev
 ```
 
 After it succeeds, confirm `.env.local` contains `NEXT_PUBLIC_CONVEX_URL`:
@@ -169,7 +169,7 @@ This path creates the Convex JWT template and sets `CLERK_JWT_ISSUER_DOMAIN` wit
 4. Set `CLERK_JWT_ISSUER_DOMAIN` in Convex. If your agent has the Convex MCP, use the `envSet` tool. Otherwise:
 
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
    ```
 
 5. Make sure `.env.local` has the Clerk keys. The secret key is already in the environment. The publishable key may also be; if not, ask the user for it.
@@ -203,21 +203,21 @@ Use this when you want a brand-new Clerk app per project and the Clerk CLI is al
 1. Make sure the Clerk CLI is available:
 
    ```bash
-   bunx clerk@latest --version
+   aubx clerk@latest --version
    ```
 
 2. If the CLI is not yet authenticated, the user must run this once in their own terminal (the agent cannot complete OAuth in a headless shell):
 
    ```bash
-   bunx clerk@latest auth login
+   aubx clerk@latest auth login
    ```
 
-   Then ask them to confirm `bunx clerk@latest whoami` shows their account.
+   Then ask them to confirm `aubx clerk@latest whoami` shows their account.
 
 3. Create a new Clerk app. Write the JSON to a file first to avoid a broken pipe, then extract `application_id`.
 
    ```bash
-   bunx clerk@latest apps create "Starter Kit" --json > /tmp/clerk_app.json
+   aubx clerk@latest apps create "Starter Kit" --json > /tmp/clerk_app.json
    APP_ID=$(node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('/tmp/clerk_app.json','utf8')); console.log(j.application_id||'');")
    rm -f /tmp/clerk_app.json
    ```
@@ -225,14 +225,14 @@ Use this when you want a brand-new Clerk app per project and the Clerk CLI is al
    If `APP_ID` is empty, list existing apps and ask the user which one to link:
 
    ```bash
-   bunx clerk@latest apps list --json
+   aubx clerk@latest apps list --json
    ```
 
 4. Link the project and pull the Clerk environment variables.
 
    ```bash
-   bunx clerk@latest link --app "$APP_ID"
-   bunx clerk@latest env pull
+   aubx clerk@latest link --app "$APP_ID"
+   aubx clerk@latest env pull
    ```
 
    This writes `VITE_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `.env.local`.
@@ -260,14 +260,14 @@ Use this when you want a brand-new Clerk app per project and the Clerk CLI is al
    }
    EOF
 
-   bunx clerk@latest api /jwt_templates --file /tmp/convex_jwt_template.json --yes
+   aubx clerk@latest api /jwt_templates --file /tmp/convex_jwt_template.json --yes
    rm -f /tmp/convex_jwt_template.json
    ```
 
 6. Get the Frontend API URL using the Clerk CLI's `/domains` endpoint.
 
    ```bash
-   FAPI_URL=$(bunx clerk@latest api /domains | node - << 'NODE'
+   FAPI_URL=$(aubx clerk@latest api /domains | node - << 'NODE'
    let d = '';
    process.stdin.on('data', c => d += c);
    process.stdin.on('end', () => {
@@ -282,7 +282,7 @@ Use this when you want a brand-new Clerk app per project and the Clerk CLI is al
 7. Set the Convex env var. If your agent has the Convex MCP, use the `envSet` tool. Otherwise:
 
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
    ```
 
 ### Path C — Manual dashboard walkthrough
@@ -298,7 +298,7 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 4. Set the Convex env var with the value they pasted:
 
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>
    ```
 
 ## Step 5 — Verify the setup
@@ -312,7 +312,7 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 2. Confirm the Convex env var is set:
 
    ```bash
-   bunx convex env list | grep CLERK_JWT_ISSUER_DOMAIN
+   aubx convex env list | grep CLERK_JWT_ISSUER_DOMAIN
    ```
 
    If your agent has the Convex MCP, you can also use the `envGet` tool for `CLERK_JWT_ISSUER_DOMAIN`.
@@ -320,7 +320,7 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 3. Run the build/type-check to catch any remaining wiring issues:
 
    ```bash
-   bun run build
+   aubr build
    ```
 
    If this fails because `CLERK_JWT_ISSUER_DOMAIN` is still the placeholder, repeat Step 4.
@@ -328,7 +328,7 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 4. Start the dev server:
 
    ```bash
-   bun run dev
+   aubr dev
    ```
 
 5. Ask the user to open `http://localhost:3000`, go to `/signup`, sign up, and confirm the dashboard loads. If sign-up loops or redirects to `/login`, make sure `VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` and `VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` are both `/dashboard`.
@@ -338,13 +338,13 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 ## Step 6 — Common errors and fixes
 
 - `CLERK_JWT_ISSUER_DOMAIN is used in auth config file but its value was not set`
-  - This is the exact error the skill exists to fix. Run `bunx convex env list`. If `CLERK_JWT_ISSUER_DOMAIN` is missing, repeat Step 4 with the Frontend API URL from https://dashboard.clerk.com/apps/setup/convex.
+  - This is the exact error the skill exists to fix. Run `aubx convex env list`. If `CLERK_JWT_ISSUER_DOMAIN` is missing, repeat Step 4 with the Frontend API URL from https://dashboard.clerk.com/apps/setup/convex.
 
 - `setRawMode EIO`
-  - Convex dev is not attached to a TTY. Run it in an interactive terminal or with `script -q /dev/null bunx convex dev --until-success`.
+  - Convex dev is not attached to a TTY. Run it in an interactive terminal or with `script -q /dev/null aubx convex dev --until-success`.
 
-- `bunx convex env set` fails with an auth error
-  - You are not logged into the Convex CLI for this project. Run `bunx convex dev --until-success` again or `bunx convex login`.
+- `aubx convex env set` fails with an auth error
+  - You are not logged into the Convex CLI for this project. Run `aubx convex dev --until-success` again or `aubx convex login`.
 
 - Clerk sign-up redirects back to `/login` in a loop
   - Check that `VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard` and `VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard` are in `.env.local`.

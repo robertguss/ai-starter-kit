@@ -163,7 +163,7 @@ bunx convex dev
 Leave it running so `auth.config.ts` stays synced. Then start the app:
 
 ```bash
-bun run dev
+aubr dev
 ```
 
 ### 7. Verify end to end

@@ -1,6 +1,14 @@
 /// <reference types="vite/client" />
 
 // Export modules glob for convex-test
-// This glob matches all files in the convex directory with a single extension ending in 's' or 'x'
-// (like .ts, .js, .tsx, .jsx) but excludes files with multiple extensions (like .test.ts, .config.ts)
-export const modules = import.meta.glob("./**/!(*.*.*)*.*s{,x}");
+// This glob matches all Convex source files (.ts, .tsx, .js, .jsx) while
+// excluding generated declaration files, test files, and config files.
+export const modules = import.meta.glob([
+  "./**/*.ts",
+  "./**/*.tsx",
+  "./**/*.js",
+  "./**/*.jsx",
+  "!./**/*.test.*",
+  "!./**/*.config.*",
+  "!./**/*.d.ts",
+]);

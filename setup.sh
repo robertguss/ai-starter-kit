@@ -13,7 +13,7 @@
 #
 # Requirements:
 #   - Node.js 18 or later
-#   - bun (https://bun.sh)
+#   - aube (https://aube.jdx.dev)
 #   - Internet connection (for Convex cloud services)
 #
 # Works on: macOS, Linux, Windows (Git Bash/WSL)
@@ -96,12 +96,12 @@ check_prerequisites() {
         all_ok=false
     fi
 
-    # Check bun
-    if command_exists bun; then
-        print_success "bun $(bun -v) found"
+    # Check aube
+    if command_exists aube; then
+        print_success "aube $(aube --version | head -n 1) found"
     else
-        print_error "bun not found"
-        print_info "Install from: https://bun.sh"
+        print_error "aube not found"
+        print_info "Install from: https://aube.jdx.dev"
         all_ok=false
     fi
 
@@ -131,15 +131,15 @@ check_prerequisites() {
 install_dependencies() {
     print_step "Installing dependencies..."
 
-    if [ -d "node_modules" ] && [ -f "bun.lock" ]; then
+    if [ -d "node_modules" ] && [ -f "aube-lock.yaml" ]; then
         print_info "node_modules exists, checking if up to date..."
     fi
 
-    if bun install; then
+    if aube install; then
         print_success "Dependencies installed successfully"
     else
         print_error "Failed to install dependencies"
-        print_info "Try running: bun install --force"
+        print_info "Try running: aube install --force"
         exit 1
     fi
 }
@@ -256,7 +256,7 @@ configure_environment() {
         print_info "1. Create an app:  https://dashboard.clerk.com/apps/new"
         print_info "2. API keys:       https://dashboard.clerk.com/last-active?path=api-keys"
         print_info "3. Enable Convex:  https://dashboard.clerk.com/apps/setup/convex"
-        print_info "4. Set issuer:     bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
+        print_info "4. Set issuer:     aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
         print_info "See docs/AUTHENTICATION.md for the full Clerk UI walkthrough"
     fi
 
@@ -265,7 +265,7 @@ configure_environment() {
     else
         print_warning "CLERK_JWT_ISSUER_DOMAIN is not set in Convex yet"
         print_info "Enable Convex at https://dashboard.clerk.com/apps/setup/convex, then run:"
-        print_info "  bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
+        print_info "  aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
     fi
 
     print_success "Environment configured (complete Clerk keys + JWT issuer to finish auth)!"
@@ -298,7 +298,7 @@ start_dev_server() {
     echo ""
 
     # Start the dev server
-    exec bun run dev
+    exec aubr dev
 }
 
 # =============================================================================

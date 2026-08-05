@@ -47,8 +47,8 @@ templates → Convex.
 ### Step 1: Build the Application
 
 ```bash
-bun install
-bun run build
+aube install
+aubr build
 ```
 
 The build outputs:
@@ -59,7 +59,7 @@ The build outputs:
 ### Step 2: Start the Production Server
 
 ```bash
-bun run start
+aubr start
 ```
 
 This runs `srvx --prod -s ../client dist/server/server.js` and serves the app on

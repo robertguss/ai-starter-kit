@@ -7,7 +7,7 @@
       "expected_output": "Installs @clerk/nextjs, wraps layout with ClerkProvider inside <body>, creates middleware.ts with clerkMiddleware, sets up .env.local with publishable and secret keys, detects shadcn if present",
       "files": [],
       "expectations": [
-        "Installs @clerk/nextjs via npm/pnpm/bun",
+        "Installs @clerk/nextjs via npm/pnpm/aube",
         "Adds ClerkProvider to root layout.tsx inside <body> tag, not wrapping <html>",
         "Creates middleware.ts (or proxy.ts for Next.js 16+) with clerkMiddleware export",
         "Creates or updates .env.local with NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY",
@@ -59,11 +59,11 @@
     },
     {
       "id": 5,
-      "prompt": "i have an astro site with some react islands, its mostly static but i want to add a members-only section. never used clerk before. using bun as my package manager",
-      "expected_output": "Installs @clerk/astro via bun, configures Astro integration, sets up protected routes for members-only section",
+      "prompt": "i have an astro site with some react islands, its mostly static but i want to add a members-only section. never used clerk before. using aube as my package manager",
+      "expected_output": "Installs @clerk/astro via aube, configures Astro integration, sets up protected routes for members-only section",
       "files": [],
       "expectations": [
-        "Installs @clerk/astro using bun (not npm or pnpm)",
+        "Installs @clerk/astro using aube (not npm or pnpm)",
         "Configures Clerk as an Astro integration in astro.config",
         "Shows how to protect specific routes for the members-only section",
         "Sets up environment variables for Clerk keys",

@@ -77,7 +77,7 @@ Otherwise fall back to a package runner, in this order (matches the CLI's own `p
 
 | Project package manager   | Invocation                       |
 | ------------------------- | -------------------------------- |
-| bun (`bun.lock*`)         | `bunx clerk@latest`     |
+| aube (`aube-lock.yaml`)   | `aubx clerk@latest`     |
 | npm (`package-lock.json`) | `npx -y clerk@latest`   |
 | pnpm (`pnpm-lock.yaml`)   | `pnpm dlx clerk@latest` |
 | yarn >= 2 (`yarn.lock`)   | `yarn dlx clerk@latest` |
