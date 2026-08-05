@@ -202,6 +202,10 @@ const identity = await ctx.auth.getUserIdentity();
 
 Canonical walkthrough: `docs/AUTHENTICATION.md`.
 
+For an agent-guided, interactive setup that walks through these steps and can
+use a Clerk token when one is available, invoke the `setup-starter-kit` agent
+skill in `.agents/skills/setup-starter-kit/`.
+
 ### Clerk MCP
 
 This kit ships Clerk's MCP server in `.mcp.json`:
@@ -325,12 +329,12 @@ For detailed testing documentation, patterns, and best practices, see
 
 This project uses [Convex](https://convex.dev) as its backend.
 
-When working on Convex code, **always read `convex/_generated/ai/guidelines.md`
-first** for important guidelines on how to correctly use Convex APIs and
-patterns. The file contains rules that override what you may have learned about
-Convex from training data.
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
 
 Convex agent skills for common tasks can be installed by running
-`bunx convex ai-files install`.
+`npx convex ai-files install`.
 
 <!-- convex-ai-end -->
