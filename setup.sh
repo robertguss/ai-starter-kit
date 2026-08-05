@@ -254,17 +254,18 @@ configure_environment() {
         print_success "Clerk publishable key found in .env.local"
     else
         print_warning "Add Clerk keys to .env.local before developing"
-        print_info "1. Create an app at https://dashboard.clerk.com/apps/new"
-        print_info "2. Enable Convex at https://dashboard.clerk.com/apps/setup/convex"
-        print_info "3. Copy NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY from API keys"
-        print_info "4. Set issuer: bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
+        print_info "1. Create an app:  https://dashboard.clerk.com/apps/new"
+        print_info "2. API keys:       https://dashboard.clerk.com/last-active?path=api-keys"
+        print_info "3. Enable Convex:  https://dashboard.clerk.com/apps/setup/convex"
+        print_info "4. Set issuer:     bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
+        print_info "See docs/AUTHENTICATION.md for the full Clerk UI walkthrough"
     fi
 
     if npx convex env list 2>/dev/null | grep -q "CLERK_JWT_ISSUER_DOMAIN"; then
         print_success "CLERK_JWT_ISSUER_DOMAIN already set in Convex"
     else
         print_warning "CLERK_JWT_ISSUER_DOMAIN is not set in Convex yet"
-        print_info "After enabling the Clerk Convex integration, run:"
+        print_info "Enable Convex at https://dashboard.clerk.com/apps/setup/convex, then run:"
         print_info "  bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
     fi
 

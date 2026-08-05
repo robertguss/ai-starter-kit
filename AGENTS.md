@@ -182,14 +182,21 @@ const identity = await ctx.auth.getUserIdentity();
 
 ### Clerk Dashboard Steps (Required Once Per Project)
 
-1. Create a Clerk application at https://dashboard.clerk.com/apps/new
-2. Enable the Convex integration at
-   https://dashboard.clerk.com/apps/setup/convex
-3. Copy API keys into `.env.local`
-4. Set `CLERK_JWT_ISSUER_DOMAIN` on Convex to the Frontend API URL shown there
-5. After activating the JWT template, sign out completely and sign back in
-6. Confirm `useConvexAuth()` is authenticated and
+1. Account (if needed): https://dashboard.clerk.com/sign-up
+2. Create an application: https://dashboard.clerk.com/apps/new
+3. Copy API keys from
+   https://dashboard.clerk.com/last-active?path=api-keys into `.env.local`
+   (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
+4. Enable Convex at https://dashboard.clerk.com/apps/setup/convex and copy the
+   Frontend API URL
+5. `bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
+6. Allow `http://localhost:3000` (+ `/login`, `/signup`, `/dashboard`) in Clerk
+   path / redirect settings
+7. After activating the JWT template, sign out completely and sign back in
+8. Confirm `useConvexAuth()` is authenticated and
    `ctx.auth.getUserIdentity()` is non-null
+
+Canonical walkthrough: `docs/AUTHENTICATION.md`.
 
 ### Clerk MCP
 

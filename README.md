@@ -165,14 +165,19 @@ bun install
 # Set up Convex (follow the prompts to create/link a project)
 bunx convex dev
 
-# Create a Clerk app, enable Convex at:
-# https://dashboard.clerk.com/apps/setup/convex
-# Then add keys to .env.local (see .env.example) and:
+# Finish Clerk in the Dashboard (required once):
+# 1) Create app:      https://dashboard.clerk.com/apps/new
+# 2) API keys:        https://dashboard.clerk.com/last-active?path=api-keys
+#    → put publishable + secret keys in .env.local (see .env.example)
+# 3) Enable Convex:   https://dashboard.clerk.com/apps/setup/convex
+#    → copy Frontend API URL, then:
 bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://YOUR-APP.clerk.accounts.dev
 
 # Start the development servers (frontend + backend)
 bun run dev
 ```
+
+Full Clerk UI walkthrough: [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
 
 </details>
 
@@ -182,8 +187,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. You should 
 
 **Next steps:**
 
-1. Create an account at `/signup`
-2. Log in and explore the dashboard
+1. Finish Clerk Dashboard setup (API keys + Convex integration). See
+   [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md)
+2. Create an account at `/signup`, then open `/dashboard`
 3. Add your own Convex functions in the `convex/` directory
 4. Read the [Setup Guide](./docs/SETUP.md) for detailed configuration
 

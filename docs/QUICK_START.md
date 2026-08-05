@@ -121,27 +121,40 @@ npx convex dev
    - Start the Convex development server
    - Begin watching for changes in your `convex/` directory
 
-4. Add Clerk keys to `.env.local` (see `.env.example`):
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-   - `CLERK_SECRET_KEY`
-   - `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login`
-   - `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup`
-   - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard`
-   - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard`
-
 **Leave this terminal running!** The Convex dev server needs to stay active.
 
-### Step 4: Set Convex Auth Variable
+### Step 4: Finish Clerk in the Dashboard (UI)
 
-In the Clerk Dashboard, open
-https://dashboard.clerk.com/apps/setup/convex and copy the Frontend API URL.
-Then set it on Convex:
+The kit already includes Clerk code. You still configure Clerk once in the UI.
+
+1. **Create an app** at https://dashboard.clerk.com/apps/new  
+   (account first if needed: https://dashboard.clerk.com/sign-up)
+
+2. **Copy API keys** from  
+   https://dashboard.clerk.com/last-active?path=api-keys  
+   into `.env.local`:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...`
+   - `CLERK_SECRET_KEY=sk_test_...`
+   - Plus the kit route defaults from `.env.example` (`/login`, `/signup`,
+     fallback `/dashboard`)
+
+3. **Turn on Convex** at  
+   https://dashboard.clerk.com/apps/setup/convex  
+   Activate the integration and copy the **Frontend API URL**.
+
+4. **Set the issuer on Convex**:
 
 ```bash
 bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
 `CLERK_JWT_ISSUER_DOMAIN` is the issuer Convex uses to validate Clerk JWTs.
+Without this step, Clerk login can work while Convex stays unauthenticated.
+
+5. Allow `http://localhost:3000` (and `/login`, `/signup`, `/dashboard`) in
+   Clerk path / redirect settings if prompted.
+
+Full UI walkthrough: [docs/AUTHENTICATION.md](./AUTHENTICATION.md).
 
 ### Step 5: Start the Development Server
 
