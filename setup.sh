@@ -12,7 +12,7 @@
 #   bash setup.sh
 #
 # Requirements:
-#   - Node.js 18 or later
+#   - Node.js 20.9 or later (@clerk/tanstack-react-start)
 #   - aube (https://aube.jdx.dev)
 #   - Internet connection (for Convex cloud services)
 #
@@ -80,13 +80,14 @@ check_prerequisites() {
 
     local all_ok=true
 
-    # Check Node.js
+    # Check Node.js (Clerk TanStack Start requires >= 20.9)
     if command_exists node; then
-        node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-        if [ "$node_version" -ge 18 ]; then
+        node_major=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+        node_minor=$(node -v | cut -d'v' -f2 | cut -d'.' -f2)
+        if [ "$node_major" -gt 20 ] || { [ "$node_major" -eq 20 ] && [ "$node_minor" -ge 9 ]; }; then
             print_success "Node.js $(node -v) found"
         else
-            print_error "Node.js 18+ required. Current version: $(node -v)"
+            print_error "Node.js 20.9+ required. Current version: $(node -v)"
             print_info "Download from: https://nodejs.org/"
             all_ok=false
         fi
@@ -152,7 +153,7 @@ setup_convex() {
     print_step "Setting up Convex..."
 
     # Check if already set up
-    if [ -f ".env.local" ] && grep -qE "^(VITE_CONVEX_URL|NEXT_PUBLIC_CONVEX_URL)=" .env.local; then
+    if [ -f ".env.local" ] && grep -qE "^VITE_CONVEX_URL=" .env.local; then
         print_warning ".env.local already exists with Convex URL"
         read -p "  Do you want to skip Convex initialization? (y/N): " skip_convex
         if [[ "$skip_convex" =~ ^[Yy]$ ]]; then
@@ -182,37 +183,37 @@ setup_convex() {
     print_info "Starting Convex initialization..."
     echo ""
 
-    if npx convex dev --until-success; then
+    if aubx convex dev --until-success; then
         echo ""
         print_success "Convex initialized successfully!"
     else
         echo ""
         print_error "Convex initialization failed"
-        print_info "Try running: npx convex dev"
+        print_info "Try running: aubx convex dev"
         exit 1
     fi
 
     # Verify .env.local was created
     if [ ! -f ".env.local" ]; then
         print_error ".env.local was not created. Convex setup may have failed."
-        print_info "Try running: npx convex dev"
+        print_info "Try running: aubx convex dev"
         exit 1
     fi
 
-    if ! grep -q "NEXT_PUBLIC_CONVEX_URL" .env.local; then
-        print_error "NEXT_PUBLIC_CONVEX_URL not found in .env.local"
-        print_info "Convex setup may have failed. Try running: npx convex dev"
-        exit 1
-    fi
-
-    # Convex writes NEXT_PUBLIC_CONVEX_URL; the TanStack Start frontend uses VITE_CONVEX_URL.
-    if ! grep -q "VITE_CONVEX_URL" .env.local; then
-        CONVEX_URL=$(grep "NEXT_PUBLIC_CONVEX_URL" .env.local | cut -d'=' -f2)
-        {
-            echo ""
-            echo "VITE_CONVEX_URL=${CONVEX_URL}"
-        } >> .env.local
-        print_success "Added VITE_CONVEX_URL to .env.local"
+    # Prefer VITE_CONVEX_URL; if Convex wrote a legacy NEXT_PUBLIC_ key, copy it.
+    if ! grep -q "^VITE_CONVEX_URL=" .env.local; then
+        if grep -q "^NEXT_PUBLIC_CONVEX_URL=" .env.local; then
+            CONVEX_URL=$(grep "^NEXT_PUBLIC_CONVEX_URL=" .env.local | cut -d'=' -f2)
+            {
+                echo ""
+                echo "VITE_CONVEX_URL=${CONVEX_URL}"
+            } >> .env.local
+            print_success "Added VITE_CONVEX_URL to .env.local (from NEXT_PUBLIC_CONVEX_URL)"
+        else
+            print_error "VITE_CONVEX_URL not found in .env.local"
+            print_info "Convex setup may have failed. Try running: aubx convex dev"
+            exit 1
+        fi
     fi
 
     print_success "Convex setup complete!"
@@ -225,10 +226,10 @@ setup_convex() {
 configure_environment() {
     print_step "Configuring Clerk environment..."
 
-    CONVEX_URL=$(grep -E "^(VITE_CONVEX_URL|NEXT_PUBLIC_CONVEX_URL)=" .env.local | cut -d'=' -f2 | head -n1)
+    CONVEX_URL=$(grep -E "^VITE_CONVEX_URL=" .env.local | cut -d'=' -f2 | head -n1)
 
     if [ -z "$CONVEX_URL" ]; then
-        print_error "Could not find VITE_CONVEX_URL or NEXT_PUBLIC_CONVEX_URL in .env.local"
+        print_error "Could not find VITE_CONVEX_URL in .env.local"
         exit 1
     fi
 

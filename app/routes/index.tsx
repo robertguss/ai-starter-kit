@@ -1,5 +1,6 @@
 import { SignOutButton, useUser } from '@clerk/tanstack-react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useConvexAuth } from 'convex/react'
 
 import { Button } from '@/components/ui/button'
 
@@ -8,7 +9,8 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-  const { isSignedIn, user } = useUser()
+  const { isAuthenticated, isLoading } = useConvexAuth()
+  const { user } = useUser()
 
   const displayName =
     user?.fullName || user?.primaryEmailAddress?.emailAddress || 'there'
@@ -16,27 +18,25 @@ function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <img
-          className="dark:invert"
-          src="/next.svg"
-          alt="TanStack Start logo"
-          width={100}
-          height={20}
-        />
+        <p className="text-sm font-semibold tracking-[0.2em] text-zinc-500 uppercase dark:text-zinc-400">
+          AI Starter Kit
+        </p>
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            {isSignedIn
-              ? `Welcome back, ${displayName}!`
-              : 'Welcome to TanStack Start with Convex + Clerk'}
+            {isLoading
+              ? 'Loading…'
+              : isAuthenticated
+                ? `Welcome back, ${displayName}!`
+                : 'Welcome to TanStack Start with Convex + Clerk'}
           </h1>
           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            {isSignedIn
+            {isAuthenticated
               ? 'Your authentication is set up and working. Visit your dashboard to see your personalized content.'
               : 'Get started by creating an account or signing in to access your personalized dashboard.'}
           </p>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          {isSignedIn ? (
+          {isAuthenticated ? (
             <>
               <Link to="/dashboard">
                 <Button size="lg" className="w-full sm:w-auto">
@@ -51,12 +51,12 @@ function Home() {
             </>
           ) : (
             <>
-              <Link to="/signup">
+              <Link to="/signup/$" params={{ _splat: '' }}>
                 <Button size="lg" className="w-full sm:w-auto">
                   Sign Up
                 </Button>
               </Link>
-              <Link to="/login">
+              <Link to="/login/$" params={{ _splat: '' }}>
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
                   Sign In
                 </Button>

@@ -1,5 +1,3 @@
-"use client"
-
 import { Link } from "@tanstack/react-router"
 import {
   IconDots,
@@ -26,69 +24,60 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-function parseHashLink(url: string) {
-  const [path, hash] = url.split("#")
-  return { path, hash }
+export type NavDocumentItem = {
+  name: string
+  to: "/dashboard"
+  hash?: string
+  icon: Icon
 }
 
-export function NavDocuments({
-  items,
-}: {
-  items: {
-    name: string
-    url: string
-    icon: Icon
-  }[]
-}) {
+export function NavDocuments({ items }: { items: NavDocumentItem[] }) {
   const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Documents</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
-          const { path, hash } = parseHashLink(item.url)
-          return (
-            <SidebarMenuItem key={item.name}>
-              <SidebarMenuButton asChild>
-                <Link to={path as "/dashboard"} hash={hash}>
-                  <item.icon />
-                  <span>{item.name}</span>
-                </Link>
-              </SidebarMenuButton>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuAction
-                    showOnHover
-                    className="data-[state=open]:bg-accent rounded-sm"
-                  >
-                    <IconDots />
-                    <span className="sr-only">More</span>
-                  </SidebarMenuAction>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-24 rounded-lg"
-                  side={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "end" : "start"}
+        {items.map((item) => (
+          <SidebarMenuItem key={item.name}>
+            <SidebarMenuButton asChild>
+              <Link to={item.to} hash={item.hash}>
+                <item.icon />
+                <span>{item.name}</span>
+              </Link>
+            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuAction
+                  showOnHover
+                  className="data-[state=open]:bg-accent rounded-sm"
                 >
-                  <DropdownMenuItem>
-                    <IconFolder />
-                    <span>Open</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <IconShare3 />
-                    <span>Share</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
-                    <IconTrash />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          )
-        })}
+                  <IconDots />
+                  <span className="sr-only">More</span>
+                </SidebarMenuAction>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-24 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align={isMobile ? "end" : "start"}
+              >
+                <DropdownMenuItem>
+                  <IconFolder />
+                  <span>Open</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <IconShare3 />
+                  <span>Share</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive">
+                  <IconTrash />
+                  <span>Delete</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        ))}
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="text-sidebar-foreground/70">
             <Link to="/dashboard" hash="more">

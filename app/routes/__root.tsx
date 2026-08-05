@@ -63,11 +63,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           attribute="class"
           defaultTheme="system"
           enableSystem
-            disableTransitionOnChange
+          disableTransitionOnChange
         >
           {children}
         </ThemeProvider>
-        <TanStackRouterDevtools position="bottom-right" />
+        {import.meta.env.DEV ? (
+          <TanStackRouterDevtools position="bottom-right" />
+        ) : null}
         <Scripts />
       </body>
     </html>

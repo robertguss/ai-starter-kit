@@ -21,7 +21,7 @@ This document explains the system architecture, design patterns, and key decisio
 ┌─────────────────────────────────────────────────────────────┐
 │                        User's Browser                        │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │              Next.js 16 (Frontend)                     │ │
+│  │              TanStack Start (Frontend)                     │ │
 │  │  • React 19 Components                                 │ │
 │  │  • App Router (app/)                                   │ │
 │  │  • Server & Client Components                          │ │
@@ -49,7 +49,7 @@ This document explains the system architecture, design patterns, and key decisio
 | Layer            | Responsibility                            | Technologies                             |
 | ---------------- | ----------------------------------------- | ---------------------------------------- |
 | **Presentation** | UI rendering, user interactions           | React 19, shadcn/ui, Tailwind            |
-| **Application**  | Business logic, routing, state management | Next.js 16, React hooks                  |
+| **Application**  | Business logic, routing, state management | TanStack Start, React hooks                  |
 | **API**          | Client-server communication               | Convex Client, WebSocket                 |
 | **Backend**      | Data processing, auth, business rules     | Convex functions (Query/Mutation/Action) |
 | **Database**     | Data persistence, real-time subscriptions | Convex database (PostgreSQL-compatible)  |
@@ -67,7 +67,7 @@ app/
 ├── login/[[...sign-in]]/       # Clerk SignIn
 ├── signup/[[...sign-up]]/      # Clerk SignUp
 ├── dashboard/                  # Protected area
-│   └── layout.tsx              # auth.protect()
+│   └── layout.tsx              # `beforeLoad` + server `auth()`
 ├── ConvexClientProvider.tsx    # ConvexProviderWithClerk
 ├── layout.tsx                  # ClerkProvider + root layout
 └── globals.css                 # Global styles
@@ -80,13 +80,13 @@ components/
 lib/
 └── utils.ts                    # Utility functions (cn, etc.)
 
-proxy.ts                        # clerkMiddleware (Next.js 16)
+app/start.ts                        # clerkMiddleware (TanStack Start)
 ```
 
 ### Component Hierarchy
 
 ```
-RootLayout (app/layout.tsx)
+RootLayout (app/routes/__root.tsx)
 ├─ ClerkProvider
 │  └─ ConvexClientProvider (ConvexProviderWithClerk)
 │     └─ Page Routes
@@ -188,11 +188,11 @@ Redirect to /dashboard
 ```
 User navigates to /dashboard
        ↓
-proxy.ts clerkMiddleware runs
+app/start.ts clerkMiddleware runs
        ↓
 If not authenticated: redirectToSignIn()
        ↓
-app/dashboard/layout.tsx awaits auth.protect()
+app/routes/_authenticated/route.tsx awaits `beforeLoad` + server `auth()`
        ↓
 Page renders; Convex queries use the Clerk JWT
 ```
@@ -298,7 +298,7 @@ Frontend ← WebSocket → Convex (Backend + Database unified)
 - Session cookies and user management outside your Convex schema
 - MCP support at `https://mcp.clerk.com/mcp`
 
-### Why Next.js 16?
+### Why TanStack Start?
 
 - Latest React 19 features (Server Components, Actions)
 - App Router for modern routing
@@ -318,11 +318,11 @@ Alternatives: Material UI, Ant Design, Chakra UI
 - ✅ No bloat (only install what you use)
 - ✅ Consistent design system
 
-### Why pnpm?
+### Why aube?
 
-- **Faster** than npm/yarn (symlinked node_modules)
-- **Disk efficient** (global store)
-- **Strict** (prevents phantom dependencies)
+- Fast installs with a shared global virtual store where compatible
+- First-class `aubr` / `aubx` scripts used throughout this kit
+- Deterministic lockfile (`aube-lock.yaml`)
 
 ---
 
@@ -353,7 +353,7 @@ Alternatives: Material UI, Ant Design, Chakra UI
 
 ### Frontend
 
-- **Next.js Turbo** mode for faster builds
+- **Vite** + TanStack Start for fast local builds
 - **React 19** automatic optimizations
 - **Code splitting** per route
 - **Image optimization** built-in
@@ -420,7 +420,7 @@ See [Testing Guide](../convex/TESTING.md) for details.
 
 ```
 Local Machine
-├─ Next.js dev server (localhost:3000)
+├─ TanStack Start / Vite dev server (localhost:3000)
 └─ Convex dev environment (cloud-hosted)
 ```
 

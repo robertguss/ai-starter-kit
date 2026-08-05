@@ -45,9 +45,10 @@ User → Clerk SignIn/SignUp → Clerk session cookie
 - `app/routes/__root.tsx` - `ClerkProvider`
 - `app/ConvexClientProvider.tsx` - `ConvexProviderWithClerk`
 - `app/start.ts` - TanStack Start entry with `clerkMiddleware()` (session wiring)
-- `app/routes/dashboard.tsx` - TanStack Router `beforeLoad` + server `auth()` page gate
-- `app/routes/login.tsx` - Clerk `<SignIn />`
-- `app/routes/signup.tsx` - Clerk `<SignUp />`
+- `app/routes/_authenticated/route.tsx` - shared `beforeLoad` + server `auth()` gate
+- `app/routes/_authenticated/dashboard.tsx` - protected dashboard page
+- `app/routes/login.$.tsx` - Clerk `<SignIn />` (splat for multi-step paths)
+- `app/routes/signup.$.tsx` - Clerk `<SignUp />` (splat for multi-step paths)
 
 ### Environment Variables Required
 
@@ -61,7 +62,7 @@ VITE_CLERK_SIGN_UP_URL=/signup
 VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
 VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
-# In Convex (bunx convex env set)
+# In Convex (aubx convex env set)
 CLERK_JWT_ISSUER_DOMAIN=https://verb-noun-00.clerk.accounts.dev
 ```
 
@@ -129,7 +130,7 @@ Or navigate: Clerk Dashboard → your application → **Configure** →
 3. Set it on your Convex deployment:
 
 ```bash
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
 This value is what `convex/auth.config.ts` uses with `applicationID: "convex"`.
@@ -157,7 +158,7 @@ If Clerk shows allowlists for redirect URLs or origins, add
 With your Convex project linked:
 
 ```bash
-bunx convex dev
+aubx convex dev
 ```
 
 Leave it running so `auth.config.ts` stays synced. Then start the app:
@@ -261,7 +262,7 @@ const user = useQuery(api.auth.getCurrentUser);
 ## Protected Routes
 
 `/dashboard` is gated by a TanStack Router `beforeLoad` function in
-`app/routes/dashboard.tsx`. That function calls a server function which uses
+`app/routes/_authenticated/dashboard.tsx`. That function calls a server function which uses
 `auth()` from `@clerk/tanstack-react-start/server` to check the current user;
 if absent, the route throws a redirect to `/login`. `app/start.ts` runs
 `clerkMiddleware()` so Clerk session state is available on the request; it does
@@ -302,7 +303,7 @@ Tools & MCP. Useful tools: `clerk_sdk_snippet`, `list_clerk_sdk_snippets`.
 1. Check Clerk keys in `.env.local` from
    https://dashboard.clerk.com/last-active?path=api-keys
 2. Confirm sign-in/sign-up URLs match `/login` and `/signup`
-3. Confirm `auth.config.ts` was synced with `bunx convex dev`
+3. Confirm `auth.config.ts` was synced with `aubx convex dev`
 
 ### Clerk session works but Convex identity is null
 

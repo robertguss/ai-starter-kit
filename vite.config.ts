@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+  envPrefix: ['VITE_'],
   plugins: [
     tailwindcss(),
     tanstackStart({ srcDirectory: 'app' }),
@@ -16,6 +16,8 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
     alias: [
+      // Clerk / React 19: some deps still import the external-store shim path.
+      // React 19 bundles that API; alias avoids a duplicate/broken shim resolution.
       {
         find: 'use-sync-external-store/shim/index.js',
         replacement: 'react',

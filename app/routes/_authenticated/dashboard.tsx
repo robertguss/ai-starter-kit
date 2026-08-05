@@ -1,6 +1,5 @@
-import { auth } from '@clerk/tanstack-react-start/server'
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import { createFileRoute } from '@tanstack/react-router'
+import type { CSSProperties } from 'react'
 
 import { AppSidebar } from '@/components/app-sidebar'
 import { ChartAreaInteractive } from '@/components/chart-area-interactive'
@@ -11,34 +10,18 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 import data from './data.json'
 
-const verifyAuth = createServerFn({ method: 'GET' }).handler(async () => {
-  const { userId } = await auth()
-  return { userId }
+export const Route = createFileRoute('/_authenticated/dashboard')({
+  component: DashboardPage,
 })
 
-export const Route = createFileRoute('/dashboard')({
-  component: DashboardPage,
-  beforeLoad: async ({ location }) => {
-    const { userId } = await verifyAuth()
-    if (!userId) {
-      throw redirect({
-        to: '/login',
-        search: { redirect: location.href },
-      })
-    }
-  },
-})
+const sidebarStyle = {
+  '--sidebar-width': 'calc(var(--spacing) * 72)',
+  '--header-height': 'calc(var(--spacing) * 12)',
+} as CSSProperties
 
 function DashboardPage() {
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 12)',
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider style={sidebarStyle}>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />

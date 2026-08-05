@@ -80,14 +80,15 @@ Clerk JWTs configured in `convex/auth.config.ts`.
      `app/ConvexClientProvider.tsx`
 4. **Route protection**:
    - `app/start.ts` wires up `clerkMiddleware()` for request/session handling
-   - `app/routes/dashboard.tsx` uses a server function + `auth()` + a
-     `beforeLoad` redirect to gate the dashboard
+   - `app/routes/_authenticated/route.tsx` uses `beforeLoad` + server `auth()`
+     to gate all authenticated routes (e.g. `/dashboard`)
    - Convex functions must check `ctx.auth.getUserIdentity()` for data access
 
 5. **Auth UI**:
-   - `/login` → Clerk `<SignIn />` (`app/routes/login.tsx`)
-   - `/signup` → Clerk `<SignUp />` (`app/routes/signup.tsx`)
-   - Sidebar / home use Clerk `useUser` / `SignOutButton` for client display
+   - `/login` → Clerk `<SignIn />` splat route (`app/routes/login.$.tsx`)
+   - `/signup` → Clerk `<SignUp />` splat route (`app/routes/signup.$.tsx`)
+   - Prefer `useConvexAuth()` for Convex-auth UI gates; Clerk `useUser` /
+     `SignOutButton` for display / sign-out
 
 ### Directory Structure
 
@@ -96,9 +97,11 @@ Clerk JWTs configured in `convex/auth.config.ts`.
   /routes                    # TanStack Router routes
     __root.tsx               # Root route (providers + document shell)
     index.tsx                # Home page
-    dashboard.tsx            # Protected dashboard page
-    login.tsx                # Clerk sign-in
-    signup.tsx               # Clerk sign-up
+    _authenticated/          # Pathless auth layout + protected routes
+      route.tsx              # Shared beforeLoad auth gate
+      dashboard.tsx          # Protected dashboard page
+    login.$.tsx              # Clerk sign-in (splat for multi-step paths)
+    signup.$.tsx             # Clerk sign-up (splat for multi-step paths)
   router.tsx                 # Router factory
   start.ts                   # TanStack Start entry + Clerk middleware
   ConvexClientProvider.tsx   # Convex + Clerk provider
@@ -175,8 +178,8 @@ const identity = await ctx.auth.getUserIdentity();
 
 **Frontend (`.env.local`)**:
 
-- `VITE_CONVEX_URL` - Convex deployment URL (copy of `NEXT_PUBLIC_CONVEX_URL`
-  auto-created by `aubx convex dev`; setup.sh writes this for you)
+- `VITE_CONVEX_URL` - Convex deployment URL (written by `aubx convex dev`;
+  `setup.sh` ensures the `VITE_` key is present)
 - `VITE_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
 - `CLERK_SECRET_KEY` - Clerk secret key
 - `VITE_CLERK_SIGN_IN_URL` - `/login`
@@ -267,7 +270,8 @@ and examples.
 
 - Clerk hosts sign-in/sign-up UI and session cookies
 - Convex trusts Clerk JWTs via `auth.config.ts`
-- Protected routes use `clerkMiddleware` + `auth.protect()` on `/dashboard`
+- Protected routes use `clerkMiddleware` + `_authenticated` `beforeLoad` /
+  server `auth()` (not Next.js `auth.protect()`)
 - Prefer `useConvexAuth()` over raw Clerk state when deciding whether
   Convex-authenticated UI can render
 - After activating the Convex JWT template, sign out and sign in fully before

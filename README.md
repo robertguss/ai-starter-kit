@@ -125,8 +125,8 @@ Get up and running in **5 minutes**:
 
 ### Prerequisites
 
-- **Node.js** 18.x or later
-- **pnpm** (recommended) or npm - the setup script will install pnpm if missing
+- **Node.js** 20.9 or later
+- **aube** ([install](https://aube.jdx.dev)) — required by `./setup.sh` and the kit scripts (`aubr` / `aubx`)
 
 ### Option 1: Automated Setup (Recommended)
 
@@ -141,7 +141,7 @@ cd ai-starter-kit
 
 The setup script will:
 
-1. Check and install prerequisites (including pnpm if missing)
+1. Check prerequisites (Node.js 20.9+, aube)
 2. Install all dependencies
 3. Guide you through Convex authentication (opens browser)
 4. Configure all environment variables automatically
@@ -370,7 +370,7 @@ aubx convex dashboard
 ### Environment Variables
 
 Create a `.env.local` file for the Vite frontend. Convex writes
-`NEXT_PUBLIC_CONVEX_URL`; setup.sh copies it to `VITE_CONVEX_URL` for the
+`VITE_CONVEX_URL` (setup.sh ensures this key is present if Convex wrote a legacy name) for the
 TanStack Start client.
 
 ```bash

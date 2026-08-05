@@ -29,7 +29,7 @@ Complete installation and configuration guide for the AI Starter Kit. This guide
 
 ### Recommended Development Tools
 
-- **Package Manager**: pnpm 8.x+ (faster than npm)
+- **Package Manager**: aube 1.x+ (faster than npm)
 - **Code Editor**: VS Code with recommended extensions:
   - ESLint
   - Prettier
@@ -93,31 +93,25 @@ If you need to install or upgrade Node.js:
   sudo dnf install nodejs
   ```
 
-### Step 3: Install pnpm
+### Step 3: Install aube
 
 ```bash
-# Using npm (comes with Node.js)
-npm install -g pnpm
-
-# Or using corepack (built into Node 16.13+)
-corepack enable
-corepack prepare pnpm@latest --activate
-
-# Verify installation
-pnpm --version
+# Install from https://aube.jdx.dev (required for aubr / aubx scripts)
+# Then verify:
+aube --version
 ```
 
 ### Step 4: Install Project Dependencies
 
 ```bash
-pnpm install
+aube install
 ```
 
 This installs all dependencies defined in `package.json`. The process typically takes 2-5 minutes depending on your internet speed.
 
 **What gets installed:**
 
-- Next.js 16 and React 19
+- TanStack Start and React 19
 - Convex client and Clerk
 - Tailwind CSS 4 and shadcn/ui components
 - Vitest and testing utilities
@@ -136,17 +130,17 @@ This project uses two types of environment variables:
    - Used by backend (Convex functions)
    - Secure and not exposed to the frontend
 
-2. **Next.js Environment Variables** (stored in `.env.local`)
+2. **Frontend Environment Variables (Vite)** (stored in `.env.local`)
    - Used by frontend
-   - Only `NEXT_PUBLIC_*` variables are exposed to the browser
+   - Only `VITE_*` variables are exposed to the browser
 
 ### Create .env.local
 
-When you run `bunx convex dev`, Convex creates `.env.local` with:
+When you run `aubx convex dev`, Convex creates `.env.local` with:
 
 ```bash
 # Convex deployment URL (auto-generated)
-NEXT_PUBLIC_CONVEX_URL=https://your-deployment-name.convex.cloud
+VITE_CONVEX_URL=https://your-deployment-name.convex.cloud
 ```
 
 Add Clerk keys and route URLs. Get keys from
@@ -154,12 +148,12 @@ https://dashboard.clerk.com/last-active?path=api-keys (see
 [Clerk Configuration](#clerk-configuration) below).
 
 ```bash
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_IN_URL=/login
+VITE_CLERK_SIGN_UP_URL=/signup
+VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 ### Set Convex Environment Variables
@@ -168,14 +162,14 @@ Enable Convex in Clerk at https://dashboard.clerk.com/apps/setup/convex, copy
 the Frontend API URL, then set it on Convex:
 
 ```bash
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
 ### Verify Environment Variables
 
 ```bash
 # List Convex environment variables
-bunx convex env list
+aubx convex env list
 
 # Expected:
 # CLERK_JWT_ISSUER_DOMAIN=https://verb-noun-00.clerk.accounts.dev
@@ -268,7 +262,7 @@ UI once per project.
 3. **Copy API keys**  
    https://dashboard.clerk.com/last-active?path=api-keys  
    (or Dashboard → your app → **Configure** → **API keys**)  
-   - Publishable key → `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` in `.env.local`  
+   - Publishable key → `VITE_CLERK_PUBLISHABLE_KEY` in `.env.local`  
    - Secret key → `CLERK_SECRET_KEY` in `.env.local`
 
 4. **Turn on Convex**  
@@ -279,7 +273,7 @@ UI once per project.
 5. **Set the issuer on Convex**
 
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
    ```
 
 6. **Allow local URLs** in Clerk paths / redirect settings:
@@ -295,10 +289,10 @@ Full walkthrough with cheat-sheet URLs: [Authentication Guide](./AUTHENTICATION.
 
 ### What the kit wires up
 
-- `ClerkProvider` in `app/layout.tsx`
+- `ClerkProvider` in `app/routes/__root.tsx`
 - `ConvexProviderWithClerk` in `app/ConvexClientProvider.tsx`
-- `proxy.ts` with bare `clerkMiddleware()` (session wiring)
-- `app/dashboard/layout.tsx` with `auth.protect()` (page gate)
+- `app/start.ts` with bare `clerkMiddleware()` (session wiring)
+- `app/routes/_authenticated/route.tsx` with `beforeLoad` + server `auth()` (page gate)
 - Clerk `<SignIn />` at `/login` and `<SignUp />` at `/signup`
 - Clerk MCP in `.mcp.json`
 
@@ -306,15 +300,15 @@ Full walkthrough with cheat-sheet URLs: [Authentication Guide](./AUTHENTICATION.
 
 ```bash
 # .env.local (keys from https://dashboard.clerk.com/last-active?path=api-keys)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+VITE_CLERK_PUBLISHABLE_KEY
 CLERK_SECRET_KEY
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_IN_URL=/login
+VITE_CLERK_SIGN_UP_URL=/signup
+VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
 # Convex (issuer from https://dashboard.clerk.com/apps/setup/convex)
-# bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>
+# aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>
 CLERK_JWT_ISSUER_DOMAIN
 ```
 
@@ -332,16 +326,16 @@ You need **two terminals**:
 npx convex dev
 ```
 
-**Terminal 2: Next.js Frontend**
+**Terminal 2: TanStack Start frontend**
 
 ```bash
-pnpm run dev:frontend
+aubr dev:frontend
 ```
 
 **Or use the combined script** (runs both in parallel):
 
 ```bash
-pnpm run dev
+aubr dev
 ```
 
 ### Development URLs
@@ -352,7 +346,7 @@ pnpm run dev
 
 ### Hot Reload Behavior
 
-**Frontend (Next.js):**
+**Frontend (TanStack Start):**
 
 - Changes to `.tsx`, `.ts`, `.css` files trigger instant hot reload
 - No page refresh needed (Fast Refresh)
@@ -383,24 +377,24 @@ npx convex codegen
 
 ### Step-by-Step Verification Checklist
 
-#### 1. Check Node.js and pnpm
+#### 1. Check Node.js and aube
 
 ```bash
 node --version    # Should be 18.x or higher
-pnpm --version    # Should be 8.x or higher
+aube --version    # Should be 8.x or higher
 ```
 
 #### 2. Verify Dependencies Installed
 
 ```bash
 ls node_modules   # Should see many packages
-pnpm list --depth=0
+aube list --depth=0
 ```
 
 #### 3. Check Convex Connection
 
 ```bash
-bunx convex env list   # Should show CLERK_JWT_ISSUER_DOMAIN
+aubx convex env list   # Should show CLERK_JWT_ISSUER_DOMAIN
 ```
 
 #### 4. Verify .env.local
@@ -408,11 +402,11 @@ bunx convex env list   # Should show CLERK_JWT_ISSUER_DOMAIN
 ```bash
 cat .env.local
 # Expected:
-# NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+# VITE_CONVEX_URL=https://your-deployment.convex.cloud
+# VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 # CLERK_SECRET_KEY=sk_test_...
-# NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-# NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+# VITE_CLERK_SIGN_IN_URL=/login
+# VITE_CLERK_SIGN_UP_URL=/signup
 ```
 
 #### 5. Test Frontend
@@ -430,7 +424,7 @@ cat .env.local
 
 ```bash
 # Run tests
-pnpm run test:once
+aubr test:once
 
 # All tests should pass
 ```
@@ -438,7 +432,7 @@ pnpm run test:once
 #### 8. Check Convex Dashboard
 
 ```bash
-bunx convex dashboard
+aubx convex dashboard
 ```
 
 Confirm `useConvexAuth()` is authenticated and `getCurrentUser` is non-null
@@ -450,7 +444,7 @@ after a full sign-out and sign-in.
 
 ### Enable Strict Mode
 
-For production-ready code, enable React strict mode in `app/layout.tsx`:
+For production-ready code, enable React strict mode in `app/routes/__root.tsx`:
 
 ```typescript
 <React.StrictMode>
@@ -477,9 +471,9 @@ Adjust `.eslintrc.json` or create one:
 Install Husky for Git hooks:
 
 ```bash
-pnpm add -D husky
+aube add -D husky
 npx husky init
-echo "pnpm run lint && pnpm run test:once" > .husky/pre-commit
+echo "aubr lint && aubr test:once" > .husky/pre-commit
 ```
 
 ### Configure Tailwind CSS
@@ -528,8 +522,8 @@ For common setup issues, see the [Troubleshooting Guide](./TROUBLESHOOTING.md).
 
 **Quick fixes:**
 
-- **Port conflicts**: Use `PORT=3001 pnpm run dev:frontend`
-- **Stale dependencies**: Run `pnpm install --force`
+- **Port conflicts**: Use `PORT=3001 aubr dev:frontend`
+- **Stale dependencies**: Run `aube install --force`
 - **Convex auth errors**: Verify environment variables with `npx convex env list`
 - **TypeScript errors**: Run `npx convex codegen`
 

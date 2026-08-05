@@ -6,16 +6,16 @@ Common issues and solutions for the AI Starter Kit.
 
 ## Installation Issues
 
-### `pnpm install` fails
+### `aube install` fails
 
 **Solution:**
 
 ```bash
 # Clear cache
-pnpm store prune
+aube cache clean
 
 # Try again
-pnpm install --force
+aube install --force
 
 # Or use npm
 npm install
@@ -65,7 +65,7 @@ npx convex codegen
 
 ```bash
 # Verify environment variables
-bunx convex env list
+aubx convex env list
 
 # Should see:
 # CLERK_JWT_ISSUER_DOMAIN
@@ -102,16 +102,16 @@ npx convex codegen
 1. Activate Convex at https://dashboard.clerk.com/apps/setup/convex
 2. Set the Frontend API URL on Convex:
    ```bash
-   bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+   aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
    ```
-3. Restart `bunx convex dev`
+3. Restart `aubx convex dev`
 4. Sign out completely and sign back in
 
 ### Can't sign up or log in
 
 **Checklist:**
 
-- [ ] `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are in `.env.local`
+- [ ] `VITE_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are in `.env.local`
 - [ ] `CLERK_JWT_ISSUER_DOMAIN` is set on Convex
 - [ ] Sign-in and sign-up URLs are `/login` and `/signup`
 - [ ] Convex dev is running
@@ -121,10 +121,10 @@ npx convex codegen
 
 ```bash
 # Verify Convex issuer
-bunx convex env list
+aubx convex env list
 
 # Restart Convex dev
-bunx convex dev
+aubx convex dev
 ```
 
 ### Redirected to login after signing up
@@ -133,7 +133,7 @@ bunx convex dev
 
 1. Confirm Clerk keys in `.env.local`
 2. Confirm fallback redirect URLs point at `/dashboard`
-3. Confirm `app/dashboard/layout.tsx` calls `auth.protect()`
+3. Confirm `app/routes/_authenticated/route.tsx` calls `beforeLoad` + server `auth()`
 4. Sign out fully and sign back in after enabling the JWT template
 
 ### Clerk session works but Convex identity is null
@@ -148,14 +148,14 @@ bunx convex dev
 
 ## Build & Development Issues
 
-### `pnpm run dev` fails
+### `aubr dev` fails
 
 **Solution:**
 
 ```bash
 # Run services separately to debug
-pnpm run dev:backend   # Terminal 1
-pnpm run dev:frontend  # Terminal 2
+aubr dev:backend   # Terminal 1
+aubr dev:frontend  # Terminal 2
 ```
 
 ### Port 3000 already in use
@@ -164,7 +164,7 @@ pnpm run dev:frontend  # Terminal 2
 
 ```bash
 # Use different port
-pnpm run dev:frontend -- -p 3001
+aubr dev:frontend -- -p 3001
 ```
 
 ### Hot reload not working
@@ -172,7 +172,7 @@ pnpm run dev:frontend -- -p 3001
 **Solution:**
 
 1. Restart dev server
-2. Clear `.next` cache: `rm -rf .next`
+2. Clear Vite/TanStack caches: `rm -rf dist .tanstack node_modules/.vite`
 3. Check file changes are saving
 
 ### TypeScript errors in IDE
@@ -197,7 +197,7 @@ npx convex codegen
 
 ```bash
 npx convex codegen
-pnpm run test
+aubr test
 ```
 
 ### Tests fail with "modules not found"
@@ -227,9 +227,9 @@ export { modules };
 **Solution:**
 
 1. Check build logs for specific error
-2. Try building locally: `pnpm run build`
+2. Try building locally: `aubr build`
 3. Ensure all dependencies are in `dependencies` (not `devDependencies`)
-4. Check `NEXT_PUBLIC_CONVEX_URL` is set in Vercel
+4. Check `VITE_CONVEX_URL` is set in Vercel
 
 ### Authentication doesn't work in production
 
@@ -237,7 +237,7 @@ export { modules };
 
 ```bash
 # Verify production Convex issuer
-bunx convex env list --prod
+aubx convex env list --prod
 # Should show CLERK_JWT_ISSUER_DOMAIN
 
 # Confirm production Clerk keys are set in Vercel
@@ -250,7 +250,7 @@ bunx convex env list --prod
 1. Check Convex dashboard logs: `npx convex dashboard --prod`
 2. Verify Convex deployment: `npx convex deploy`
 3. Check browser console for errors
-4. Verify `NEXT_PUBLIC_CONVEX_URL` matches production URL
+4. Verify `VITE_CONVEX_URL` matches production URL
 
 ---
 
@@ -271,7 +271,7 @@ Add indexes in `convex/schema.ts`:
 
 1. Use dynamic imports for large components
 2. Check for duplicate dependencies
-3. Analyze bundle: `pnpm run build && npx @next/bundle-analyzer`
+3. Analyze bundle: `aubr build && vite build --mode analyze (or your preferred analyzer)`
 
 ---
 
@@ -296,8 +296,8 @@ Add indexes in `convex/schema.ts`:
 **Solution:**
 
 ```bash
-# Confirm NEXT_PUBLIC_CONVEX_URL in .env.local matches your deployment
-# Restart the Next.js and Convex dev servers
+# Confirm VITE_CONVEX_URL in .env.local matches your deployment
+# Restart the TanStack Start and Convex dev servers
 ```
 
 ---
@@ -320,7 +320,7 @@ When something isn't working:
 2. [ ] Check terminal for error logs
 3. [ ] Verify environment variables
 4. [ ] Restart dev servers
-5. [ ] Clear cache (`.next`, browser cache)
+5. [ ] Clear cache (`dist`, `.tanstack`, browser cache)
 6. [ ] Run `npx convex codegen`
 7. [ ] Check Convex dashboard for logs
 

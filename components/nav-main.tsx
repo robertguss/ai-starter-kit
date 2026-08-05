@@ -1,5 +1,3 @@
-"use client"
-
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
 
@@ -12,20 +10,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-function parseHashLink(url: string) {
-  const [path, hash] = url.split("#")
-  return { path, hash }
+export type NavMainItem = {
+  title: string
+  to: "/dashboard"
+  hash?: string
+  icon?: Icon
 }
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
+export function NavMain({ items }: { items: NavMainItem[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -55,19 +47,16 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => {
-            const { path, hash } = parseHashLink(item.url)
-            return (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
-                  <Link to={path as "/dashboard"} hash={hash}>
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )
-          })}
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link to={item.to} hash={item.hash}>
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

@@ -5,7 +5,6 @@ export default defineConfig([
   globalIgnores([
     'node_modules/**',
     'convex/_generated/**',
-    '.next/**',
     'out/**',
     'build/**',
     'dist/**',

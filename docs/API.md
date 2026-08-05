@@ -14,7 +14,7 @@ Public Convex helpers and identity patterns for this starter kit.
 
 ## Authentication
 
-Auth is handled by Clerk on the Next.js side. Convex validates Clerk JWTs.
+Auth is handled by Clerk on the TanStack Start side. Convex validates Clerk JWTs.
 There are no kit-owned `/api/auth/*` HTTP endpoints.
 
 ### Frontend

@@ -6,16 +6,16 @@ This project uses [Vitest](https://vitest.dev/) and [convex-test](https://github
 
 ```bash
 # Run tests in watch mode
-pnpm test
+aubr test
 
 # Run tests once
-pnpm test:once
+aubr test:once
 
 # Run tests with coverage
-pnpm test:coverage
+aubr test:coverage
 
 # Debug tests
-pnpm test:debug
+aubr test:debug
 ```
 
 ## Writing Tests

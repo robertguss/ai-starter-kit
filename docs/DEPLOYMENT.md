@@ -22,7 +22,7 @@ You can also add a Vercel or Cloudflare preset later by adjusting
 ### Step 1: Deploy to Convex Production
 
 ```bash
-bunx convex deploy
+aubx convex deploy
 ```
 
 This:
@@ -34,7 +34,7 @@ This:
 ### Step 2: Set Production Clerk Issuer
 
 ```bash
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-domain.clerk.accounts.dev --prod
+aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-domain.clerk.accounts.dev --prod
 ```
 
 Get the **Frontend API URL** from your Clerk Dashboard → Configure → JWT
@@ -97,7 +97,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
 export default defineConfig({
   server: { port: 3000 },
-  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+  envPrefix: ['VITE_'],
   plugins: [
     tailwindcss(),
     tanstackStart({

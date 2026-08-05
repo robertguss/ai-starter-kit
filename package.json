@@ -30,6 +30,9 @@
   ],
   "private": false,
   "type": "module",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "setup": "bash setup.sh",
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
