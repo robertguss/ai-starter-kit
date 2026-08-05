@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { ThemeProvider } from 'next-themes'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import * as React from 'react'
 import {
@@ -53,12 +54,19 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="antialiased">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+            disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>

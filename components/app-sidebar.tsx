@@ -20,6 +20,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 
+import { ModeToggle } from "@/components/mode-toggle"
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -169,6 +170,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
+        <div className="flex items-center justify-between gap-2 p-2 group-data-[collapsible=icon]:justify-center">
+          <ModeToggle />
+        </div>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
