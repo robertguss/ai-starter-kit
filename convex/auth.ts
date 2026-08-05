@@ -6,8 +6,8 @@ export const getCurrentUser = query({
   returns: v.union(
     v.object({
       subject: v.string(),
-      name: v.string(),
-      email: v.string(),
+      name: v.optional(v.string()),
+      email: v.optional(v.string()),
       image: v.optional(v.string()),
     }),
     v.null(),
@@ -20,8 +20,8 @@ export const getCurrentUser = query({
 
     return {
       subject: identity.subject,
-      name: identity.name ?? identity.nickname ?? identity.email ?? "User",
-      email: identity.email ?? "",
+      name: identity.name ?? identity.nickname,
+      email: identity.email,
       image: identity.pictureUrl,
     };
   },

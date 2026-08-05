@@ -44,8 +44,8 @@ User → Clerk SignIn/SignUp → Clerk session cookie
 - `convex/auth.ts` - `getCurrentUser` helper query
 - `app/layout.tsx` - `ClerkProvider`
 - `app/ConvexClientProvider.tsx` - `ConvexProviderWithClerk`
-- `proxy.ts` - `clerkMiddleware` early redirect for `/dashboard`
-- `app/dashboard/layout.tsx` - resource-level `auth.protect()`
+- `proxy.ts` - bare `clerkMiddleware()` (session wiring)
+- `app/dashboard/layout.tsx` - `auth.protect()` page gate
 - `app/login/[[...sign-in]]/page.tsx` - Clerk `<SignIn />`
 - `app/signup/[[...sign-up]]/page.tsx` - Clerk `<SignUp />`
 
@@ -260,10 +260,12 @@ const user = useQuery(api.auth.getCurrentUser);
 
 ## Protected Routes
 
-`/dashboard` is protected in two places:
+`/dashboard` is gated by `auth.protect()` in `app/dashboard/layout.tsx`.
+`proxy.ts` runs bare `clerkMiddleware()` so Clerk session state is available;
+it does not duplicate route auth checks.
 
-1. `proxy.ts` early redirect for signed-out users (performance UX)
-2. `app/dashboard/layout.tsx` `auth.protect()` (resource guarantee)
+Backend data access must still check `ctx.auth.getUserIdentity()` (or call
+`api.auth.getCurrentUser`) inside Convex functions.
 
 ---
 

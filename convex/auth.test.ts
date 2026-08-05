@@ -11,7 +11,7 @@ describe("auth.getCurrentUser", () => {
     expect(result).toBeNull();
   });
 
-  it("maps Clerk identity claims when authenticated", async () => {
+  it("returns identity claims without inventing values", async () => {
     const t = convexTest(schema, modules);
     const asUser = t.withIdentity({
       subject: "user_clerk_123",
@@ -26,6 +26,21 @@ describe("auth.getCurrentUser", () => {
       name: "Ada Lovelace",
       email: "ada@example.com",
       image: "https://example.com/ada.png",
+    });
+  });
+
+  it("omits missing optional claims", async () => {
+    const t = convexTest(schema, modules);
+    const asUser = t.withIdentity({
+      subject: "user_clerk_456",
+    });
+
+    const result = await asUser.query(api.auth.getCurrentUser, {});
+    expect(result).toEqual({
+      subject: "user_clerk_456",
+      name: undefined,
+      email: undefined,
+      image: undefined,
     });
   });
 });

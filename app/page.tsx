@@ -2,25 +2,11 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useClerk, useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 export default function Home() {
   const { isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSignOut = async () => {
-    setIsLoading(true);
-    try {
-      await signOut({ redirectUrl: "/" });
-    } catch (error) {
-      console.error("Sign out error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const displayName =
     user?.fullName || user?.primaryEmailAddress?.emailAddress || "there";
@@ -56,15 +42,11 @@ export default function Home() {
                   Go to Dashboard
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleSignOut}
-                disabled={isLoading}
-                className="w-full sm:w-auto"
-              >
-                {isLoading ? "Signing out..." : "Sign Out"}
-              </Button>
+              <SignOutButton redirectUrl="/">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Sign Out
+                </Button>
+              </SignOutButton>
             </>
           ) : (
             <>

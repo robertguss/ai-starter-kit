@@ -78,16 +78,15 @@ Clerk JWTs configured in `convex/auth.config.ts`.
    - `ClerkProvider` in `app/layout.tsx`
    - `ConvexProviderWithClerk` + Clerk `useAuth` in
      `app/ConvexClientProvider.tsx`
-   - Convex client uses `expectAuth: true`
-
-4. **Route protection (`proxy.ts`)**:
-   - Next.js 16 uses `proxy.ts` (not `middleware.ts`)
-   - `clerkMiddleware` early-redirects unauthenticated `/dashboard` visits
-   - `app/dashboard/layout.tsx` calls `auth.protect()` as the resource check
+4. **Route protection**:
+   - Next.js 16 uses `proxy.ts` with bare `clerkMiddleware()` (session wiring)
+   - `app/dashboard/layout.tsx` calls `auth.protect()` as the page gate
+   - Convex functions must check `ctx.auth.getUserIdentity()` for data access
 
 5. **Auth UI**:
    - `/login` → Clerk `<SignIn />` (`app/login/[[...sign-in]]/page.tsx`)
    - `/signup` → Clerk `<SignUp />` (`app/signup/[[...sign-up]]/page.tsx`)
+   - Sidebar / home use Clerk `useUser` / `SignOutButton` for client display
 
 ### Directory Structure
 

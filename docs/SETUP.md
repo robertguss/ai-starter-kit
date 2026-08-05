@@ -297,8 +297,8 @@ Full walkthrough with cheat-sheet URLs: [Authentication Guide](./AUTHENTICATION.
 
 - `ClerkProvider` in `app/layout.tsx`
 - `ConvexProviderWithClerk` in `app/ConvexClientProvider.tsx`
-- `proxy.ts` with `clerkMiddleware` for early `/dashboard` redirects
-- `app/dashboard/layout.tsx` with `auth.protect()`
+- `proxy.ts` with bare `clerkMiddleware()` (session wiring)
+- `app/dashboard/layout.tsx` with `auth.protect()` (page gate)
 - Clerk `<SignIn />` at `/login` and `<SignUp />` at `/signup`
 - Clerk MCP in `.mcp.json`
 

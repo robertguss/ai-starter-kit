@@ -133,7 +133,7 @@ bunx convex dev
 
 1. Confirm Clerk keys in `.env.local`
 2. Confirm fallback redirect URLs point at `/dashboard`
-3. Confirm `proxy.ts` and `app/dashboard/layout.tsx` use Clerk protection
+3. Confirm `app/dashboard/layout.tsx` calls `auth.protect()`
 4. Sign out fully and sign back in after enabling the JWT template
 
 ### Clerk session works but Convex identity is null
