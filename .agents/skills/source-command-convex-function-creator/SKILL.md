@@ -26,7 +26,7 @@ Create Convex functions with proper validation, authentication, and error handli
 ```typescript
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-import { authComponent } from "./auth";
+// use ctx.auth.getUserIdentity()
 
 export const list = query({
   args: {
@@ -38,12 +38,12 @@ export const list = query({
     }),
   ),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     return await ctx.db
       .query("tableName")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .collect();
   },
 });
@@ -54,7 +54,7 @@ export const list = query({
 ```typescript
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
-import { authComponent } from "./auth";
+// use ctx.auth.getUserIdentity()
 
 export const create = mutation({
   args: {
@@ -62,11 +62,11 @@ export const create = mutation({
   },
   returns: v.id("tableName"),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     return await ctx.db.insert("tableName", {
-      userId: user._id,
+      userId: identity.subject,
       title: args.title,
       createdAt: Date.now(),
     });
@@ -81,7 +81,7 @@ export const create = mutation({
 
 import { v } from "convex/values";
 import { action } from "./_generated/server";
-import { authComponent } from "./auth";
+// use ctx.auth.getUserIdentity()
 
 export const processExternal = action({
   args: {
@@ -89,8 +89,8 @@ export const processExternal = action({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     // Call external API
     const response = await fetch("https://api.example.com/...");
@@ -131,7 +131,7 @@ Every function MUST have:
 
 1. **`args` validator** - defines and validates input types
 2. **`returns` validator** - defines return type
-3. **Auth check** - `authComponent.getAuthUser(ctx)` for user-facing functions
+3. **Auth check** - `ctx.auth.getUserIdentity()` for user-facing functions
 4. **Ownership verification** - check the user owns the resource before mutations
 
 ## Validator Reference

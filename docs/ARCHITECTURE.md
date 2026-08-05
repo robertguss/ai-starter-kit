@@ -37,8 +37,8 @@ This document explains the system architecture, design patterns, and key decisio
 │  │           Convex Backend (Serverless)                  │ │
 │  │  • Real-time Database                                  │ │
 │  │  • Query/Mutation/Action Functions                     │ │
-│  │  • Better Auth Integration (Component)                 │ │
-│  │  • HTTP Endpoints (/api/auth/*)                        │ │
+│  │  • Clerk JWT validation (auth.config.ts)               │ │
+│  │  • getCurrentUser via ctx.auth.getUserIdentity()       │ │
 │  │  • Automatic TypeScript Generation                     │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
@@ -53,7 +53,7 @@ This document explains the system architecture, design patterns, and key decisio
 | **API**          | Client-server communication               | Convex Client, WebSocket                 |
 | **Backend**      | Data processing, auth, business rules     | Convex functions (Query/Mutation/Action) |
 | **Database**     | Data persistence, real-time subscriptions | Convex database (PostgreSQL-compatible)  |
-| **Auth**         | Authentication, session management        | Better Auth + Convex component           |
+| **Auth**         | Authentication, session management        | Clerk + Convex JWT validation            |
 
 ---
 
@@ -63,32 +63,32 @@ This document explains the system architecture, design patterns, and key decisio
 
 ```
 app/
-├── (routes)/
-│   ├── page.tsx              # Landing page (public)
-│   ├── login/                # Login page (public)
-│   ├── signup/               # Signup page (public)
-│   └── dashboard/            # Protected area
-├── ConvexClientProvider.tsx  # Global Convex provider
-├── layout.tsx                # Root layout
-└── globals.css               # Global styles
+├── page.tsx                    # Landing page (public)
+├── login/[[...sign-in]]/       # Clerk SignIn
+├── signup/[[...sign-up]]/      # Clerk SignUp
+├── dashboard/                  # Protected area
+│   └── layout.tsx              # auth.protect()
+├── ConvexClientProvider.tsx    # ConvexProviderWithClerk
+├── layout.tsx                  # ClerkProvider + root layout
+└── globals.css                 # Global styles
 
 components/
-├── ui/                       # shadcn/ui components (atomic)
-├── login-form.tsx            # Feature components
-├── signup-form.tsx
-└── app-sidebar.tsx           # Layout components
+├── ui/                         # shadcn/ui components (atomic)
+├── nav-user.tsx                 # Clerk signOut menu
+└── app-sidebar.tsx             # Layout components
 
 lib/
-├── auth-client.ts            # Better Auth client setup
-└── utils.ts                  # Utility functions (cn, etc.)
+└── utils.ts                    # Utility functions (cn, etc.)
+
+proxy.ts                        # clerkMiddleware (Next.js 16)
 ```
 
 ### Component Hierarchy
 
 ```
 RootLayout (app/layout.tsx)
-├─ ConvexClientProvider
-│  └─ ConvexBetterAuthProvider
+├─ ClerkProvider
+│  └─ ConvexClientProvider (ConvexProviderWithClerk)
 │     └─ Page Routes
 │        ├─ Public Pages (/, /login, /signup)
 │        └─ Protected Pages (/dashboard/*)
@@ -102,7 +102,7 @@ RootLayout (app/layout.tsx)
 1. **Server State**: Convex queries (auto-updating)
 2. **Local UI State**: React hooks (`useState`, `useReducer`)
 3. **Form State**: Controlled components
-4. **Auth State**: Managed by Better Auth + Convex
+4. **Auth State**: Clerk session + Convex JWT (`useConvexAuth`)
 
 Example reactive data flow:
 
@@ -167,68 +167,42 @@ export default defineSchema({
 
 ## Authentication Flow
 
-### Registration Flow
+### Sign-up / sign-in flow
 
 ```
-User fills signup form
+User opens /signup or /login
        ↓
-SignupForm.tsx (client)
+Clerk <SignUp> / <SignIn> (path routing)
        ↓
-POST /api/auth/sign-up (Better Auth HTTP endpoint)
+Clerk creates session cookie
        ↓
-Better Auth creates user in Convex tables:
-  • authUser
-  • authAccount
-  • authSession
+ConvexProviderWithClerk fetches JWT (template "convex")
        ↓
-Session cookie set
+Convex validates JWT via CLERK_JWT_ISSUER_DOMAIN
        ↓
 Redirect to /dashboard
 ```
 
-### Login Flow
-
-```
-User fills login form
-       ↓
-LoginForm.tsx (client)
-       ↓
-POST /api/auth/sign-in (Better Auth HTTP endpoint)
-       ↓
-Better Auth validates credentials
-       ↓
-Create session in authSession table
-       ↓
-Session cookie set
-       ↓
-Redirect to /dashboard
-```
-
-### Route Protection (Middleware)
+### Route protection
 
 ```
 User navigates to /dashboard
        ↓
-middleware.ts intercepts request
+proxy.ts clerkMiddleware runs
        ↓
-Check if route starts with /dashboard
+If not authenticated: redirectToSignIn()
        ↓
-GET /api/auth/get-session
+app/dashboard/layout.tsx awaits auth.protect()
        ↓
-If no session: Redirect to /login?redirect=/dashboard
-If session exists: Allow access
+Page renders; Convex queries use the Clerk JWT
 ```
 
-### Session Validation
+### Identity on the backend
 
-Sessions are validated on every protected route access:
-
-1. Middleware checks session cookie
-2. Calls `/api/auth/get-session`
-3. Better Auth validates session against database
-4. Returns user info or null
-
-**Session Duration**: 7 days (configurable in `auth.config.ts`)
+1. Client sends the Clerk JWT with Convex requests
+2. Convex matches the issuer in `convex/auth.config.ts`
+3. `ctx.auth.getUserIdentity()` returns claims (or null)
+4. `api.auth.getCurrentUser` maps claims to `{ subject, name, email, image? }`
 
 ---
 
@@ -315,18 +289,14 @@ Frontend ← WebSocket → Convex (Backend + Database unified)
 - **Serverless**: No infrastructure to manage
 - **ACID transactions**: Automatic consistency
 
-### Why Better Auth?
+### Why Clerk?
 
-Alternatives considered: NextAuth, Clerk, Auth0
+**Why Clerk for this kit:**
 
-**Why Better Auth:**
-
-- ✅ Native Convex integration
-- ✅ No external auth service required
-- ✅ Full control over auth logic
-- ✅ Open source
-- ✅ TypeScript-first
-- ✅ Session stored in your database
+- Hosted sign-in/sign-up UI with path routing
+- First-party Convex JWT template (`applicationID: "convex"`)
+- Session cookies and user management outside your Convex schema
+- MCP support at `https://mcp.clerk.com/mcp`
 
 ### Why Next.js 16?
 
@@ -360,10 +330,9 @@ Alternatives: Material UI, Ant Design, Chakra UI
 
 ### Authentication Security
 
-- ✅ Passwords hashed with bcrypt
-- ✅ Session tokens encrypted
-- ✅ CSRF protection via Better Auth
-- ✅ Secure cookie settings (httpOnly, sameSite)
+- Clerk hosts credentials and session cookies
+- Convex trusts only JWTs for the `convex` application ID
+- Secrets stay in `.env.local` and Convex env (not in the client bundle)
 
 ### Database Security
 

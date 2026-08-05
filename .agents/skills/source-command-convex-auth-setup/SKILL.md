@@ -1,176 +1,98 @@
 ---
-name: "source-command-convex-auth-setup"
-description: "Set up or extend authentication patterns in this Convex + Better Auth project"
+name: source-command-convex-auth-setup
+description: "Set up or extend authentication patterns in this Convex + Clerk project"
 ---
 
-# source-command-convex-auth-setup
+# Convex + Clerk Auth Setup (This Project)
 
-Use this skill when the user asks to run the migrated source command `convex-auth-setup`.
+This project uses **Clerk** with Convex JWT validation. Use this guide when
+implementing auth flows, access control, or user management.
 
-## Command Template
+## Architecture
 
-# Convex Authentication Setup
-
-This project uses **Better Auth** with the Convex plugin for authentication. Use this guide when implementing auth flows, access control, or user management.
-
-## Project Auth Architecture
-
-- **Backend**: `convex/auth.ts` - `authComponent` client + `createAuth()` factory
-- **Frontend**: `lib/auth-client.ts` - Better Auth React client with `convexClient()` plugin
-- **Provider**: `app/ConvexClientProvider.tsx` - Wraps app with `ConvexBetterAuthProvider`
-- **HTTP Routes**: `convex/http.ts` - Auth routes at `/api/auth/*`
-- **Middleware**: `middleware.ts` - Protects `/dashboard` routes
+- **Backend**: `convex/auth.config.ts` validates Clerk JWTs via
+  `CLERK_JWT_ISSUER_DOMAIN`
+- **Helpers**: `convex/auth.ts` exposes `getCurrentUser` from
+  `ctx.auth.getUserIdentity()`
+- **Frontend**: `ClerkProvider` + `ConvexProviderWithClerk` /
+  `useAuth` from `@clerk/nextjs`
+- **Route protection**: `proxy.ts` (`clerkMiddleware`) plus
+  `auth.protect()` in `app/dashboard/layout.tsx`
+- **UI**: Clerk `<SignIn />` / `<SignUp />` at `/login` and `/signup`
 
 ## Getting the Current User
 
-Always use `authComponent.getAuthUser(ctx)` from `convex/auth.ts`:
+Prefer `ctx.auth.getUserIdentity()` in Convex functions, or the shared query:
 
 ```typescript
-import { authComponent } from "./auth";
+import { api } from "./_generated/api";
+
+// Client
+const user = useQuery(api.auth.getCurrentUser);
+```
+
+```typescript
+import { query } from "./_generated/server";
 
 export const myQuery = query({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    // user is now available with full type safety
-    return null;
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    // identity.subject, identity.email, identity.name, identity.pictureUrl
   },
 });
 ```
 
-## Custom Function Wrappers
-
-For consistent auth enforcement, create custom function wrappers using `convex-helpers`:
+## Custom Authenticated Functions
 
 ```typescript
-// convex/lib/customFunctions.ts
 import {
   customQuery,
   customMutation,
 } from "convex-helpers/server/customFunctions";
 import { query, mutation } from "../_generated/server";
-import { authComponent } from "../auth";
+
+async function requireIdentity(ctx: { auth: { getUserIdentity: () => Promise<unknown> } }) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    throw new Error("Not authenticated");
+  }
+  return identity;
+}
 
 export const authedQuery = customQuery(query, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await requireIdentity(ctx);
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 
 export const authedMutation = customMutation(mutation, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await requireIdentity(ctx);
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 ```
 
-Then use throughout:
+## Clerk Dashboard Checklist
 
-```typescript
-export const getTasks = authedQuery({
-  args: {},
-  returns: v.array(
-    v.object({
-      /* ... */
-    }),
-  ),
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("tasks")
-      .withIndex("by_userId", (q) => q.eq("userId", ctx.user._id))
-      .collect();
-  },
-});
-```
+1. Create a Clerk application
+2. Enable Convex at https://dashboard.clerk.com/apps/setup/convex
+3. Set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in `.env.local`
+4. Set `bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
+5. Sign out and back in after activating the Convex JWT template
+6. Verify with `useConvexAuth()` and a protected query
 
-## Access Control Patterns
+## Rules
 
-### Owner-Only Access
-
-```typescript
-export const updateTask = authedMutation({
-  args: { taskId: v.id("tasks"), text: v.string() },
-  handler: async (ctx, args) => {
-    const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
-    if (task.userId !== ctx.user._id) throw new Error("Unauthorized");
-    await ctx.db.patch(args.taskId, { text: args.text });
-  },
-});
-```
-
-### Role-Based Access
-
-```typescript
-import { customQuery } from "convex-helpers/server/customFunctions";
-
-export const adminQuery = customQuery(authedQuery, {
-  args: {},
-  input: async (ctx, args) => {
-    if (ctx.user.role !== "admin") throw new Error("Admin access required");
-    return { ctx, args };
-  },
-});
-```
-
-### Team-Based Access
-
-```typescript
-export const teamQuery = customQuery(authedQuery, {
-  args: { teamId: v.id("teams") },
-  input: async (ctx, args) => {
-    const membership = await ctx.db
-      .query("teamMembers")
-      .withIndex("by_teamId_and_userId", (q) =>
-        q.eq("teamId", args.teamId).eq("userId", ctx.user._id),
-      )
-      .unique();
-    if (!membership) throw new Error("Not a team member");
-    return {
-      ctx: { ...ctx, teamId: args.teamId, role: membership.role },
-      args,
-    };
-  },
-});
-```
-
-## Public vs Private Queries
-
-```typescript
-// Public - no auth required
-export const listPublicPosts = query({
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("posts")
-      .withIndex("by_published", (q) => q.eq("published", true))
-      .collect();
-  },
-});
-
-// Private - requires auth
-export const listMyDrafts = authedQuery({
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("posts")
-      .withIndex("by_authorId", (q) => q.eq("authorId", ctx.user._id))
-      .collect();
-  },
-});
-```
-
-## Checklist
-
-1. Read existing auth setup in `convex/auth.ts` and `lib/auth-client.ts`
-2. Use `authComponent.getAuthUser(ctx)` for user lookup (not `ctx.auth.getUserIdentity()` directly)
-3. Create custom function wrappers for repeated auth patterns
-4. Verify resource ownership before reads/writes
-5. Use `internal.*` (not `api.*`) for scheduled functions
-6. Test auth flows with `convex-test` using `t.withIdentity()`
+1. Read `convex/auth.ts` and `app/ConvexClientProvider.tsx` before changing auth
+2. Use `ctx.auth.getUserIdentity()` (or `api.auth.getCurrentUser`) for identity
+3. Do not reintroduce Better Auth, auth proxy routes, or
+   `NEXT_PUBLIC_CONVEX_SITE_URL` for session auth

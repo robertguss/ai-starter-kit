@@ -56,7 +56,7 @@ Create `convex/yourFeature.ts`:
 ```typescript
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { authComponent } from "./auth";
+// use ctx.auth.getUserIdentity()
 
 // List items for authenticated user
 export const list = query({
@@ -74,12 +74,12 @@ export const list = query({
     }),
   ),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     return await ctx.db
       .query("yourFeature")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .collect();
   },
 });
@@ -91,11 +91,11 @@ export const create = mutation({
   },
   returns: v.id("yourFeature"),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     return await ctx.db.insert("yourFeature", {
-      userId: user._id,
+      userId: identity.subject,
       title: args.title,
       status: "draft",
       createdAt: Date.now(),
@@ -114,12 +114,12 @@ export const update = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Not found");
-    if (item.userId !== user._id) throw new Error("Unauthorized");
+    if (item.userId !== identity.subject) throw new Error("Unauthorized");
 
     const updates: Record<string, unknown> = {};
     if (args.title !== undefined) updates.title = args.title;
@@ -135,12 +135,12 @@ export const remove = mutation({
   args: { id: v.id("yourFeature") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Not found");
-    if (item.userId !== user._id) throw new Error("Unauthorized");
+    if (item.userId !== identity.subject) throw new Error("Unauthorized");
 
     await ctx.db.delete(args.id);
     return null;
@@ -219,7 +219,7 @@ pnpm run test:once    # Run tests
 
 1. Define table in `convex/schema.ts` with proper indexes
 2. Create functions with `args` and `returns` validators
-3. Add auth checks using `authComponent.getAuthUser(ctx)`
+3. Add auth checks using `ctx.auth.getUserIdentity()`
 4. Verify ownership before updates/deletes
 5. Use `internal.*` for any scheduled functions
 6. Add tests in `convex/yourFeature.test.ts`

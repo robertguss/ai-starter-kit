@@ -12,24 +12,23 @@ The AI Starter Kit is production-ready with core features for building full-stac
 
 ## Planned Features
 
-### v1.1.0 - Authentication Enhancements (Q1 2025)
+### v1.1.0 - Authentication Enhancements
+
+Auth is Clerk-based. Prefer Clerk Dashboard / Clerk components over custom
+auth servers.
 
 **OAuth Providers**
-- [ ] Google OAuth integration
-- [ ] GitHub OAuth integration
-- [ ] OAuth provider documentation
+- [ ] Document enabling Google/GitHub in the Clerk Dashboard for this kit
+- [ ] Example social buttons on marketing pages (optional)
 
 **Password Management**
-- [ ] Password reset flow
-- [ ] Email verification
-- [ ] Password strength requirements
-- [ ] "Forgot password" functionality
+- [ ] Document Clerk password reset / email verification settings for the kit
+- [ ] Example “forgot password” link wiring to Clerk
 
 **User Profile**
-- [ ] User profile management page
-- [ ] Avatar upload
-- [ ] Update email/password
-- [ ] Account deletion
+- [ ] User profile management page (Clerk `<UserProfile />` or custom)
+- [ ] Avatar sync into app-owned Convex data (optional webhook)
+- [ ] Account deletion flow
 
 ### v1.2.0 - Developer Experience (Q1 2025)
 

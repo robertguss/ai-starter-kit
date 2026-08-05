@@ -19,18 +19,18 @@ import { query, mutation } from "../_generated/server";
 export const authedQuery = customQuery(query, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 
 export const authedMutation = customMutation(mutation, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 ```
@@ -40,8 +40,8 @@ export const authedMutation = customMutation(mutation, {
 ```typescript
 export const getTasks = query({
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     // ... same boilerplate everywhere
   },
 });
@@ -208,8 +208,8 @@ export const createProject = mutation({
   args: { name: v.string(), teamId: v.id("teams") },
   handler: async (ctx, args) => {
     // 50 lines of validation, permission checks, business logic...
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     const team = await ctx.db.get(args.teamId);
     if (!team) throw new Error("Team not found");
     // ... more logic
@@ -337,14 +337,12 @@ Use the **sibling component pattern** to share data between your main app and a 
 ```typescript
 // convex/convex.config.ts
 import { defineApp } from "convex/server";
-import betterAuth from "@anthropic-ai/better-auth-convex/convex.config";
 
 const app = defineApp();
-app.use(betterAuth);
 export default app;
 ```
 
-Official components available: rate limiter, agent, embeddings, persistent text streaming, billing, and more. See `/convex-components-guide` command for details.
+This kit uses Clerk JWTs via `convex/auth.config.ts`, not an auth Convex component. Official components for other features include rate limiter, agent, embeddings, and more. See `/convex-components-guide` for details.
 
 ## Development
 

@@ -32,12 +32,12 @@ This:
 ### Step 2: Set Production Environment Variables
 
 ```bash
-# Generate a NEW secret for production
-npx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32) --prod
-
-# Set your production site URL (update after deploying frontend)
-npx convex env set SITE_URL https://your-domain.vercel.app --prod
+# Clerk Frontend API URL / JWT issuer for production
+bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://clerk.your-domain.com --prod
 ```
+
+Use the production Clerk Frontend API URL from
+https://dashboard.clerk.com/apps/setup/convex.
 
 ### Step 3: Verify Production Deployment
 
@@ -71,17 +71,20 @@ npx convex dashboard --prod
 
 3. **Configure Environment Variables**
    - Add `NEXT_PUBLIC_CONVEX_URL` = `https://prod-abc123.convex.cloud`
-   - (Use the URL from `npx convex deploy`)
+   - Add Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
+   - Add Clerk route URLs (`/login`, `/signup`, fallback `/dashboard`)
+   - Use the Convex URL from `bunx convex deploy`
 
 4. **Deploy**
    - Click "Deploy"
    - Wait 2-3 minutes
    - Get your production URL (e.g., `https://your-app.vercel.app`)
 
-5. **Update Convex SITE_URL**
+5. **Confirm Convex issuer**
 
    ```bash
-   npx convex env set SITE_URL https://your-app.vercel.app --prod
+   bunx convex env list --prod
+   # Should show CLERK_JWT_ISSUER_DOMAIN
    ```
 
 ### Option 2: Deploy via Vercel CLI
@@ -96,9 +99,11 @@ vercel login
 # Deploy to production
 vercel --prod
 
-# Set environment variable
+# Set environment variables
 vercel env add NEXT_PUBLIC_CONVEX_URL production
 # Enter: https://prod-abc123.convex.cloud
+vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production
+vercel env add CLERK_SECRET_KEY production
 ```
 
 ---
@@ -114,10 +119,8 @@ vercel env add NEXT_PUBLIC_CONVEX_URL production
 
 ### Update Environment Variables
 
-```bash
-# Update SITE_URL to your custom domain
-npx convex env set SITE_URL https://myapp.com --prod
-```
+Add the custom domain in the Clerk Dashboard allowed origins and redirect URLs.
+Convex only needs `CLERK_JWT_ISSUER_DOMAIN` for JWT validation.
 
 ### Configure DNS
 
@@ -141,28 +144,38 @@ Value: cname.vercel-dns.com
 
 ```bash
 NEXT_PUBLIC_CONVEX_URL=https://dev-abc123.convex.cloud
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 ### Production (Vercel)
 
 ```bash
 NEXT_PUBLIC_CONVEX_URL=https://prod-abc123.convex.cloud
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
+CLERK_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 ### Convex Development
 
 ```bash
-npx convex env list
-# BETTER_AUTH_SECRET=...
-# SITE_URL=http://localhost:3000
+bunx convex env list
+# CLERK_JWT_ISSUER_DOMAIN=https://verb-noun-00.clerk.accounts.dev
 ```
 
 ### Convex Production
 
 ```bash
-npx convex env list --prod
-# BETTER_AUTH_SECRET=... (different from dev!)
-# SITE_URL=https://your-domain.vercel.app
+bunx convex env list --prod
+# CLERK_JWT_ISSUER_DOMAIN=https://clerk.your-domain.com
 ```
 
 ---
@@ -256,9 +269,10 @@ npx convex logs --prod --tail
 
 **Solution:**
 
-1. Check `SITE_URL` matches your production domain
-2. Verify `BETTER_AUTH_SECRET` is set in production
-3. Clear cookies and try again
+1. Verify production Clerk keys are set in Vercel
+2. Verify `CLERK_JWT_ISSUER_DOMAIN` is set with `--prod`
+3. Confirm the Clerk Convex JWT template is active
+4. Clear cookies, sign out, and sign in again
 
 ### Database queries failing
 
@@ -332,7 +346,8 @@ Queries are automatically cached by Convex. No configuration needed!
 
 ## Security Checklist
 
-- [ ] Different `BETTER_AUTH_SECRET` for dev and production
+- [ ] Separate Clerk apps or keys for development and production
+- [ ] `CLERK_JWT_ISSUER_DOMAIN` set on the production Convex deployment
 - [ ] HTTPS enabled (automatic with Vercel)
 - [ ] Environment variables not in code
 - [ ] No `.env.local` in git

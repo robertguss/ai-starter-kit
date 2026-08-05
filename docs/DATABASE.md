@@ -8,16 +8,23 @@ Learn about the database schema, relationships, and patterns in the AI Starter K
 
 The database schema is defined in `convex/schema.ts`. Convex uses a NoSQL document database with strong TypeScript typing.
 
-### Better Auth Tables (Auto-Created)
+### Auth and user identity
 
-These tables are managed by the Better Auth Convex component:
+Clerk owns user accounts and sessions. Convex validates Clerk JWTs.
+This kit does not sync Clerk users into Convex tables by default.
 
-- **`authUser`** - User accounts
-- **`authAccount`** - Authentication methods (email/password, OAuth)
-- **`authSession`** - Active sessions
-- **`authVerification`** - Email verification tokens (if enabled)
+Store ownership with the Clerk subject string from
+`ctx.auth.getUserIdentity().subject` (or `api.auth.getCurrentUser`).
 
-**Do not manually modify these tables!** Better Auth manages them automatically.
+```typescript
+todos: defineTable({
+  text: v.string(),
+  userId: v.string(), // Clerk identity.subject
+  createdAt: v.number(),
+}).index("by_userId", ["userId"]),
+```
+
+See [Authentication Guide](./AUTHENTICATION.md) for identity helpers.
 
 ---
 
@@ -30,7 +37,7 @@ export default defineSchema({
   todos: defineTable({
     text: v.string(),
     completed: v.boolean(),
-    userId: v.id("authUser"),
+    userId: v.string(), // Clerk identity.subject
     createdAt: v.number(),
   }),
 });
@@ -44,7 +51,7 @@ Indexes make queries fast:
 todos: defineTable({
   text: v.string(),
   completed: v.boolean(),
-  userId: v.id("authUser"),
+  userId: v.string(), // Clerk identity.subject
 })
   .index("by_userId", ["userId"])
   .index("by_userId_and_completed", ["userId", "completed"])
@@ -86,7 +93,7 @@ v.id("tableName"); // Reference to another table
 posts: defineTable({
   title: v.string(),
   content: v.string(),
-  authorId: v.id("authUser"),
+  authorId: v.string(), // Clerk identity.subject
   tags: v.array(v.string()),
   metadata: v.object({
     views: v.number(),
@@ -161,7 +168,7 @@ const results = await ctx.db
 // Schema
 posts: defineTable({
   title: v.string(),
-  authorId: v.id("authUser"),
+  authorId: v.string(), // Clerk identity.subject
 }).index("by_authorId", ["authorId"]),
 
 // Query
@@ -281,7 +288,7 @@ todos: defineTable({
 ```typescript
 todos: defineTable({
   text: v.string(),
-  userId: v.id("authUser"),  // Reference to user
+  userId: v.string(), // Clerk identity.subject  // Reference to user
 }),
 ```
 

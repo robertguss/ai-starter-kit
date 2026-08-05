@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Migrated authentication from Better Auth to Clerk + Convex JWT validation
+- Replaced custom login/signup forms with Clerk `<SignIn />` / `<SignUp />`
+- Route protection now uses Next.js 16 `proxy.ts` (`clerkMiddleware`) and
+  `auth.protect()` on the dashboard layout
+- Added Clerk MCP server entry to `.mcp.json`
+
+### Removed
+- `better-auth` and `@convex-dev/better-auth` dependencies
+- Auth HTTP proxy (`app/api/auth/[...all]`) and `NEXT_PUBLIC_CONVEX_SITE_URL`
+  requirement for sessions
+
 ## [1.0.0] - 2025-11-10
 
 ### Added

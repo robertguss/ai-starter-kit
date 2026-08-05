@@ -25,14 +25,13 @@ import {
   customMutation,
 } from "convex-helpers/server/customFunctions";
 import { query, mutation } from "../_generated/server";
-import { authComponent } from "../auth";
 
 export const authedQuery = customQuery(query, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 ```

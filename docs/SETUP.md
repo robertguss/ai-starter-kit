@@ -10,7 +10,7 @@ Complete installation and configuration guide for the AI Starter Kit. This guide
 - [Installation](#installation)
 - [Environment Configuration](#environment-configuration)
 - [Convex Setup](#convex-setup)
-- [Better Auth Configuration](#better-auth-configuration)
+- [Clerk Configuration](#clerk-configuration)
 - [Development Workflow](#development-workflow)
 - [Verification](#verification)
 - [Optional Configuration](#optional-configuration)
@@ -118,7 +118,7 @@ This installs all dependencies defined in `package.json`. The process typically 
 **What gets installed:**
 
 - Next.js 16 and React 19
-- Convex client and Better Auth
+- Convex client and Clerk
 - Tailwind CSS 4 and shadcn/ui components
 - Vitest and testing utilities
 - TypeScript and development tools
@@ -140,63 +140,45 @@ This project uses two types of environment variables:
    - Used by frontend
    - Only `NEXT_PUBLIC_*` variables are exposed to the browser
 
-### Create .env.local (Partially Auto-Generated)
+### Create .env.local
 
-When you run `npx convex dev`, a `.env.local` file is automatically created with:
+When you run `bunx convex dev`, Convex creates `.env.local` with:
 
 ```bash
 # Convex deployment URL (auto-generated)
 NEXT_PUBLIC_CONVEX_URL=https://your-deployment-name.convex.cloud
 ```
 
-**You must manually add** `NEXT_PUBLIC_CONVEX_SITE_URL`:
+Add Clerk keys and route URLs. Get keys from
+https://dashboard.clerk.com/last-active?path=api-keys (see
+[Clerk Configuration](#clerk-configuration) below).
 
 ```bash
-# Convex HTTP endpoint for auth proxy (MUST be added manually)
-NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment-name.convex.site
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
-
-> **Critical**: The `NEXT_PUBLIC_CONVEX_SITE_URL` must point to your Convex HTTP endpoint (`.convex.site`), NOT `localhost:3000`. This URL is used by the Next.js auth handler to proxy authentication requests to Convex. If set incorrectly to `localhost:3000`, it creates an infinite loop causing 500 errors with ~10 second timeouts.
-
-**How to find your deployment name:**
-
-- Look at `NEXT_PUBLIC_CONVEX_URL` - if it's `https://shiny-platypus-495.convex.cloud`
-- Then `NEXT_PUBLIC_CONVEX_SITE_URL` should be `https://shiny-platypus-495.convex.site`
 
 ### Set Convex Environment Variables
 
-```bash
-# Generate a secure random secret for Better Auth
-npx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32)
-
-# Set your site URL (for local development)
-npx convex env set SITE_URL http://localhost:3000
-```
-
-**For Windows** (if openssl is not available):
-
-```powershell
-# Generate a random base64 string manually
-$secret = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
-npx convex env set BETTER_AUTH_SECRET $secret
-npx convex env set SITE_URL http://localhost:3000
-```
-
-Or simply use any random 32+ character string:
+Enable Convex in Clerk at https://dashboard.clerk.com/apps/setup/convex, copy
+the Frontend API URL, then set it on Convex:
 
 ```bash
-npx convex env set BETTER_AUTH_SECRET "your-very-long-random-secret-string-here-at-least-32-chars"
+bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
 ### Verify Environment Variables
 
 ```bash
-# List all Convex environment variables
-npx convex env list
+# List Convex environment variables
+bunx convex env list
 
-# Expected output:
-# BETTER_AUTH_SECRET=****** (hidden for security)
-# SITE_URL=http://localhost:3000
+# Expected:
+# CLERK_JWT_ISSUER_DOMAIN=https://verb-noun-00.clerk.accounts.dev
 ```
 
 ---
@@ -246,9 +228,9 @@ convex/
 │   ├── api.d.ts         # API types for your functions
 │   ├── server.d.ts      # Server-side types
 │   └── ...
-├── auth.config.ts       # Better Auth configuration
-├── auth.ts              # Auth helper functions
-├── http.ts              # HTTP endpoints (for auth)
+├── auth.config.ts       # Clerk JWT provider config
+├── auth.ts              # getCurrentUser helper
+├── http.ts              # HTTP router (empty by default)
 └── schema.ts            # Database schema definition
 ```
 
@@ -268,56 +250,73 @@ This opens the Convex web dashboard where you can:
 
 ---
 
-## Better Auth Configuration
+## Clerk Configuration
 
-Better Auth is pre-configured with Convex integration. The configuration is in `convex/auth.config.ts`.
+Clerk owns sessions and hosted UI. Convex validates Clerk JWTs via
+`convex/auth.config.ts`. The kit ships the code. You finish setup in the Clerk
+UI once per project.
 
-### Current Authentication Setup
+### Finish setup in the Clerk UI
 
-**Enabled Features:**
+1. **Account (if needed)**  
+   https://dashboard.clerk.com/sign-up
 
-- ✅ Email/password authentication
-- ✅ Session management
-- ✅ Protected routes via middleware
-- ✅ No email verification (for quick development)
+2. **Create an application**  
+   https://dashboard.clerk.com/apps/new  
+   Name it (for example `my-app-dev`) and enable email/password to start.
 
-**Disabled/Planned:**
+3. **Copy API keys**  
+   https://dashboard.clerk.com/last-active?path=api-keys  
+   (or Dashboard → your app → **Configure** → **API keys**)  
+   - Publishable key → `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` in `.env.local`  
+   - Secret key → `CLERK_SECRET_KEY` in `.env.local`
 
-- ⏳ Email verification (see [Roadmap](../ROADMAP.md))
-- ⏳ OAuth providers (Google, GitHub)
-- ⏳ Password reset flow
-- ⏳ Two-factor authentication
+4. **Turn on Convex**  
+   https://dashboard.clerk.com/apps/setup/convex  
+   Activate the Convex integration. Copy the **Frontend API URL**
+   (dev form: `https://verb-noun-00.clerk.accounts.dev`).
 
-### Environment Variables Required
+5. **Set the issuer on Convex**
+
+   ```bash
+   bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+   ```
+
+6. **Allow local URLs** in Clerk paths / redirect settings:
+   - `http://localhost:3000`
+   - `http://localhost:3000/login`
+   - `http://localhost:3000/signup`
+   - `http://localhost:3000/dashboard`
+
+7. **Verify** at `/signup`, then sign out fully and sign in at `/login`.
+   Confirm `useConvexAuth()` is authenticated (or `getCurrentUser` is non-null).
+
+Full walkthrough with cheat-sheet URLs: [Authentication Guide](./AUTHENTICATION.md).
+
+### What the kit wires up
+
+- `ClerkProvider` in `app/layout.tsx`
+- `ConvexProviderWithClerk` in `app/ConvexClientProvider.tsx`
+- `proxy.ts` with bare `clerkMiddleware()` (session wiring)
+- `app/dashboard/layout.tsx` with `auth.protect()` (page gate)
+- Clerk `<SignIn />` at `/login` and `<SignUp />` at `/signup`
+- Clerk MCP in `.mcp.json`
+
+### Environment variables
 
 ```bash
-BETTER_AUTH_SECRET   # Encryption key (32+ characters)
-SITE_URL            # Your app's base URL
+# .env.local (keys from https://dashboard.clerk.com/last-active?path=api-keys)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+CLERK_SECRET_KEY
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+
+# Convex (issuer from https://dashboard.clerk.com/apps/setup/convex)
+# bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>
+CLERK_JWT_ISSUER_DOMAIN
 ```
-
-### Customizing Auth Configuration
-
-Edit `convex/auth.config.ts` to customize:
-
-```typescript
-export const authConfig = {
-  // Require email verification
-  requireEmailVerification: false, // Change to true
-
-  // Session duration
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days (in seconds)
-  },
-
-  // Add OAuth providers (when ready)
-  socialProviders: {
-    // google: { ... },
-    // github: { ... },
-  },
-};
-```
-
-See [Authentication Guide](./AUTHENTICATION.md) for detailed customization options.
 
 ---
 
@@ -401,19 +400,20 @@ pnpm list --depth=0
 #### 3. Check Convex Connection
 
 ```bash
-npx convex env list   # Should show BETTER_AUTH_SECRET and SITE_URL
+bunx convex env list   # Should show CLERK_JWT_ISSUER_DOMAIN
 ```
 
-#### 4. Verify .env.local Created
+#### 4. Verify .env.local
 
 ```bash
 cat .env.local
 # Expected:
 # NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-# NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment.convex.site
+# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+# CLERK_SECRET_KEY=sk_test_...
+# NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+# NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
 ```
-
-> **Important**: Verify `NEXT_PUBLIC_CONVEX_SITE_URL` ends in `.convex.site` (NOT `.convex.cloud` or `localhost:3000`)
 
 #### 5. Test Frontend
 
@@ -422,7 +422,7 @@ cat .env.local
 
 #### 6. Test Authentication
 
-- Go to `/signup`
+- Go to `/signup` (Clerk `<SignUp />`)
 - Create an account
 - Should redirect to `/dashboard` after signup
 
@@ -438,16 +438,11 @@ pnpm run test:once
 #### 8. Check Convex Dashboard
 
 ```bash
-npx convex dashboard
+bunx convex dashboard
 ```
 
-Expected tables:
-
-- `authAccount`
-- `authSession`
-- `authUser`
-- `authVerification`
-- `numbers` (example table)
+Confirm `useConvexAuth()` is authenticated and `getCurrentUser` is non-null
+after a full sign-out and sign-in.
 
 ---
 

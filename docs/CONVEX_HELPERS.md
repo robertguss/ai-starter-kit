@@ -363,15 +363,14 @@ Build customized versions of Convex functions with shared logic.
 
 ```typescript
 import { customQuery, customMutation } from "convex-helpers/server/customFunctions";
-import { authComponent } from "./auth";
 
 // Create authenticated query wrapper
 export const authedQuery = customQuery(query, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 
@@ -379,9 +378,9 @@ export const authedQuery = customQuery(query, {
 export const authedMutation = customMutation(mutation, {
   args: {},
   input: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthenticated");
-    return { ctx: { ...ctx, user }, args };
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
+    return { ctx: { ...ctx, identity }, args };
   },
 });
 
@@ -389,11 +388,14 @@ export const authedMutation = customMutation(mutation, {
 export const getUserProfile = authedQuery({
   args: {},
   handler: async (ctx, args) => {
-    // ctx.user is available and typed!
-    return ctx.db.get(ctx.user._id);
+    // ctx.identity.subject is the Clerk user id
+    return ctx.identity.subject;
   },
 });
 ```
+
+For the mapped kit shape (`subject`, `name`, `email`, `image?`), call
+`api.auth.getCurrentUser` from the client with `useQuery`.
 
 ### customCtx
 
@@ -404,12 +406,13 @@ Modify context with additional data.
 ```typescript
 import { customCtx } from "convex-helpers/server/customFunctions";
 
-const withUser = customCtx(async (ctx) => {
-  const user = await authComponent.getAuthUser(ctx);
-  return { user };
+const withIdentity = customCtx(async (ctx) => {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new Error("Unauthenticated");
+  return { identity };
 });
 
-export const authedQuery = customQuery(query, withUser);
+export const authedQuery = customQuery(query, withIdentity);
 ```
 
 ---
