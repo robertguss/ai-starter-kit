@@ -40,11 +40,10 @@ export const list = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     return await ctx.db
       .query("tableName")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .collect();
   },
 });
@@ -65,10 +64,9 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     return await ctx.db.insert("tableName", {
-      userId: user._id,
+      userId: identity.subject,
       title: args.title,
       createdAt: Date.now(),
     });
@@ -93,7 +91,6 @@ export const processExternal = action({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     // Call external API
     const response = await fetch("https://api.example.com/...");

@@ -1,16 +1,20 @@
 import { AuthConfig } from "convex/server";
 
+// Placeholder keeps the first `convex dev` push working before Clerk is set up.
+// Auth stays unusable until CLERK_JWT_ISSUER_DOMAIN points at a real Clerk instance.
+const PLACEHOLDER_DOMAIN = "https://clerk-not-configured.invalid";
+
 const domain = process.env.CLERK_JWT_ISSUER_DOMAIN;
 if (!domain) {
-  throw new Error(
-    "Missing CLERK_JWT_ISSUER_DOMAIN. Set it with: bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL from https://dashboard.clerk.com/apps/setup/convex>",
+  console.warn(
+    "Missing CLERK_JWT_ISSUER_DOMAIN. Authentication is disabled until you run: bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL from https://dashboard.clerk.com/apps/setup/convex>",
   );
 }
 
 export default {
   providers: [
     {
-      domain,
+      domain: domain ?? PLACEHOLDER_DOMAIN,
       applicationID: "convex",
     },
   ],

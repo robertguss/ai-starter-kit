@@ -76,11 +76,10 @@ export const list = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     return await ctx.db
       .query("yourFeature")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .collect();
   },
 });
@@ -94,10 +93,9 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     return await ctx.db.insert("yourFeature", {
-      userId: user._id,
+      userId: identity.subject,
       title: args.title,
       status: "draft",
       createdAt: Date.now(),
@@ -118,11 +116,10 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Not found");
-    if (item.userId !== user._id) throw new Error("Unauthorized");
+    if (item.userId !== identity.subject) throw new Error("Unauthorized");
 
     const updates: Record<string, unknown> = {};
     if (args.title !== undefined) updates.title = args.title;
@@ -140,11 +137,10 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-    if (!user) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Not found");
-    if (item.userId !== user._id) throw new Error("Unauthorized");
+    if (item.userId !== identity.subject) throw new Error("Unauthorized");
 
     await ctx.db.delete(args.id);
     return null;
