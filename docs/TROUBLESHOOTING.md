@@ -65,12 +65,13 @@ npx convex codegen
 
 ```bash
 # Verify environment variables
-npx convex env list
+bunx convex env list
 
 # Should see:
-# BETTER_AUTH_SECRET
-# SITE_URL
+# CLERK_JWT_ISSUER_DOMAIN
 ```
+
+Also confirm Clerk keys exist in `.env.local`.
 
 ### Database schema errors
 
@@ -87,70 +88,61 @@ npx convex codegen
 
 ## Authentication Issues
 
-### 500 errors on `/api/auth/get-session` with ~10 second timeouts
+### Convex says no auth provider matched the token
 
 **Symptoms:**
 
-- Repeated 500 errors in the terminal: `GET /api/auth/get-session 500 in 10.6s`
-- Auth pages hang or fail to load
-- Signup/login doesn't work
+- `useConvexAuth()` stays unauthenticated after Clerk sign-in
+- `getCurrentUser` returns null while Clerk shows a signed-in user
 
-**Cause:** `NEXT_PUBLIC_CONVEX_SITE_URL` is set to `http://localhost:3000` instead of your Convex HTTP endpoint, causing an infinite loop.
-
-**Explanation:** The Next.js auth handler at `app/api/auth/[...all]/route.ts` proxies auth requests to Convex. When `NEXT_PUBLIC_CONVEX_SITE_URL` is set to `localhost:3000`, it proxies back to itself, creating an infinite loop until timeout.
+**Cause:** The Convex JWT template is inactive, or `CLERK_JWT_ISSUER_DOMAIN` is wrong.
 
 **Solution:**
 
-1. Open `.env.local`
-2. Find or add `NEXT_PUBLIC_CONVEX_SITE_URL`
-3. Set it to your Convex site URL:
+1. Activate Convex at https://dashboard.clerk.com/apps/setup/convex
+2. Set the Frontend API URL on Convex:
    ```bash
-   # WRONG - causes infinite loop:
-   NEXT_PUBLIC_CONVEX_SITE_URL=http://localhost:3000
-
-   # CORRECT - use your Convex HTTP endpoint:
-   NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment.convex.site
+   bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
    ```
-4. The deployment name should match `NEXT_PUBLIC_CONVEX_URL` but with `.site` instead of `.cloud`
-5. Restart your dev server
+3. Restart `bunx convex dev`
+4. Sign out completely and sign back in
 
 ### Can't sign up or log in
 
 **Checklist:**
 
-- [ ] `BETTER_AUTH_SECRET` is set
-- [ ] `SITE_URL` matches your dev URL
-- [ ] `NEXT_PUBLIC_CONVEX_SITE_URL` ends in `.convex.site` (NOT `localhost:3000`)
+- [ ] `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are in `.env.local`
+- [ ] `CLERK_JWT_ISSUER_DOMAIN` is set on Convex
+- [ ] Sign-in and sign-up URLs are `/login` and `/signup`
 - [ ] Convex dev is running
 - [ ] No browser console errors
 
 **Solution:**
 
 ```bash
-# Verify environment variables
-npx convex env list
+# Verify Convex issuer
+bunx convex env list
 
 # Restart Convex dev
-npx convex dev
+bunx convex dev
 ```
 
 ### Redirected to login after signing up
 
 **Solution:**
-Check `SITE_URL` matches exactly:
 
-```bash
-npx convex env set SITE_URL http://localhost:3000
-# NOT https, NOT trailing slash
-```
+1. Confirm Clerk keys in `.env.local`
+2. Confirm fallback redirect URLs point at `/dashboard`
+3. Confirm `proxy.ts` and `app/dashboard/layout.tsx` use Clerk protection
+4. Sign out fully and sign back in after enabling the JWT template
 
-### "Session expired" errors
+### Clerk session works but Convex identity is null
 
 **Solution:**
 
 - Clear browser cookies
-- Check session duration in `convex/auth.config.ts`
-- Re-login
+- Confirm `applicationID: "convex"` in `convex/auth.config.ts`
+- Sign out and sign in again so the Convex JWT template is on the token
 
 ---
 
@@ -173,9 +165,6 @@ pnpm run dev:frontend  # Terminal 2
 ```bash
 # Use different port
 pnpm run dev:frontend -- -p 3001
-
-# Update SITE_URL
-npx convex env set SITE_URL http://localhost:3001
 ```
 
 ### Hot reload not working
@@ -247,11 +236,11 @@ export { modules };
 **Solution:**
 
 ```bash
-# Verify production env vars
-npx convex env list --prod
+# Verify production Convex issuer
+bunx convex env list --prod
+# Should show CLERK_JWT_ISSUER_DOMAIN
 
-# Update SITE_URL to production domain
-npx convex env set SITE_URL https://yourdomain.com --prod
+# Confirm production Clerk keys are set in Vercel
 ```
 
 ### Data not syncing in production
@@ -302,12 +291,13 @@ Add indexes in `convex/schema.ts`:
 
 ### "CORS error"
 
-**Cause:** Wrong SITE_URL configuration
+**Cause:** Frontend calling a Convex URL that does not match `.env.local`
 
 **Solution:**
 
 ```bash
-npx convex env set SITE_URL http://localhost:3000
+# Confirm NEXT_PUBLIC_CONVEX_URL in .env.local matches your deployment
+# Restart the Next.js and Convex dev servers
 ```
 
 ---
@@ -315,7 +305,8 @@ npx convex env set SITE_URL http://localhost:3000
 ## Getting More Help
 
 - Check [Convex Documentation](https://docs.convex.dev)
-- Check [Better Auth Documentation](https://better-auth.com)
+- Check [Clerk Documentation](https://clerk.com/docs)
+- See [Authentication Guide](./AUTHENTICATION.md)
 - Open an issue: [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
 - Review existing issues for similar problems
 

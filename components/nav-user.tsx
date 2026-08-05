@@ -28,7 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { authClient } from "@/lib/auth-client"
+import { useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -42,14 +42,14 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const { signOut } = useClerk()
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await authClient.signOut()
-      router.push("/")
+      await signOut({ redirectUrl: "/" })
       router.refresh()
     } catch (error) {
       console.error("Logout error:", error)

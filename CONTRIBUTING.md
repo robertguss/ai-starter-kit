@@ -72,9 +72,9 @@ pnpm install
 ### 3. Set Up Convex
 
 ```bash
-npx convex dev
-npx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32)
-npx convex env set SITE_URL http://localhost:3000
+bunx convex dev
+# Add Clerk keys to .env.local (see .env.example), then:
+bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
 ```
 
 ### 4. Start Development

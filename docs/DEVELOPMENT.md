@@ -40,20 +40,20 @@ Access at: `http://localhost:3000/about`
 Create `app/dashboard/settings/page.tsx`:
 
 ```typescript
-import { authClient } from "@/lib/auth-client";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function SettingsPage() {
-  const session = await authClient.getSession();
+  const { userId } = await auth();
 
   return (
     <div>
-      <h1>Settings for {session?.user.email}</h1>
+      <h1>Settings for {userId}</h1>
     </div>
   );
 }
 ```
 
-The middleware automatically protects all `/dashboard/*` routes.
+`proxy.ts` and `app/dashboard/layout.tsx` protect `/dashboard/*` routes.
 
 ---
 
@@ -426,12 +426,12 @@ export const getMyTodos = query({
     }),
   ),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
 
     return await ctx.db
       .query("todos")
-      .withIndex("by_userId", (q) => q.eq("userId", user.id))
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .collect();
   },
 });

@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Claude Settings
 .claude/settings.local.json
+
+# Local agent audit trails
+.audit/

@@ -41,7 +41,7 @@ Before you begin, make sure you have the following installed:
 
 - **Git** for version control
 - **VS Code** or your preferred code editor
-- **openssl** for generating secrets (comes pre-installed on macOS/Linux)
+- A free [Clerk](https://clerk.com) account for authentication
 
 ---
 
@@ -121,31 +121,27 @@ npx convex dev
    - Start the Convex development server
    - Begin watching for changes in your `convex/` directory
 
-4. **Important**: After Convex creates your `.env.local` file, you need to add `NEXT_PUBLIC_CONVEX_SITE_URL`:
-   - Open `.env.local` in your editor
-   - Add: `NEXT_PUBLIC_CONVEX_SITE_URL=https://YOUR-DEPLOYMENT-NAME.convex.site`
-   - Replace `YOUR-DEPLOYMENT-NAME` with your actual deployment name (same as in `NEXT_PUBLIC_CONVEX_URL`, but with `.site` instead of `.cloud`)
-
-   > **Warning**: Do NOT set this to `http://localhost:3000` - this will cause infinite loops and 500 errors!
+4. Add Clerk keys to `.env.local` (see `.env.example`):
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login`
+   - `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup`
+   - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard`
+   - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard`
 
 **Leave this terminal running!** The Convex dev server needs to stay active.
 
-### Step 4: Set Environment Variables
+### Step 4: Set Convex Auth Variable
 
-Open a **new terminal** window (keep the Convex dev server running in the first one) and run:
+In the Clerk Dashboard, open
+https://dashboard.clerk.com/apps/setup/convex and copy the Frontend API URL.
+Then set it on Convex:
 
 ```bash
-# Generate and set a secure auth secret
-npx convex env set BETTER_AUTH_SECRET $(openssl rand -base64 32)
-
-# Set your local development URL
-npx convex env set SITE_URL http://localhost:3000
+bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
-**What these do:**
-
-- `BETTER_AUTH_SECRET`: Encryption key for session tokens and hashes
-- `SITE_URL`: Base URL for authentication callbacks and redirects
+`CLERK_JWT_ISSUER_DOMAIN` is the issuer Convex uses to validate Clerk JWTs.
 
 ### Step 5: Start the Development Server
 
@@ -170,19 +166,19 @@ This starts both:
    - You should see the landing page
 
 2. **Create an account:**
-   - Navigate to `/signup` or click "Sign Up"
-   - Enter an email and password (no email verification required)
-   - Submit the form
+   - Navigate to `/signup` (Clerk `<SignUp />`)
+   - Complete the Clerk sign-up flow
+   - You should land on `/dashboard`
 
 3. **Log in:**
-   - Navigate to `/login` or click "Log In"
-   - Use the credentials you just created
+   - Navigate to `/login` (Clerk `<SignIn />`)
+   - Sign in with the same account
    - You should be redirected to `/dashboard`
 
-4. **Verify Convex connection:**
+4. **Verify Convex auth:**
    - Open the Convex Dashboard: [https://dashboard.convex.dev](https://dashboard.convex.dev)
-   - Or run: `npx convex dashboard`
-   - You should see your project and the tables created by Better Auth
+   - Or run: `bunx convex dashboard`
+   - Confirm `CLERK_JWT_ISSUER_DOMAIN` is set and `getCurrentUser` returns a user
 
 5. **Run tests** (optional but recommended):
 
@@ -212,12 +208,11 @@ Now that you have the starter kit running, here are some suggested next steps:
 
 ### 2. Review Example Code
 
-- **Auth Components**: `components/login-form.tsx` and `components/signup-form.tsx`
-  - Form handling and validation
-  - Better Auth integration
+- **Auth UI**: `app/login/[[...sign-in]]/page.tsx` and `app/signup/[[...sign-up]]/page.tsx`
+  - Clerk `<SignIn />` and `<SignUp />`
 
-- **Protected Routes**: `middleware.ts`
-  - See how route protection works
+- **Protected Routes**: `proxy.ts` and `app/dashboard/layout.tsx`
+  - `clerkMiddleware` plus `auth.protect()`
 
 ### 3. Read Detailed Documentation
 
@@ -288,25 +283,24 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 **Solution:**
 
-- Verify environment variables are set:
+- Verify Convex has the issuer:
   ```bash
-  npx convex env list
+  bunx convex env list
   ```
-- You should see `BETTER_AUTH_SECRET` and `SITE_URL`
-- Make sure `SITE_URL` matches your development URL (usually `http://localhost:3000`)
+- You should see `CLERK_JWT_ISSUER_DOMAIN`
+- Confirm Clerk keys exist in `.env.local`
+- Sign out fully and sign back in after enabling the Convex JWT template
 
-### Problem: 500 errors on `/api/auth/get-session` (10+ second timeouts)
+### Problem: Convex says no auth provider matched the token
 
-**Cause:** `NEXT_PUBLIC_CONVEX_SITE_URL` is set to `localhost:3000` instead of your Convex site URL, causing an infinite loop.
+**Cause:** The Clerk Convex JWT template is missing, or the issuer domain is wrong.
 
 **Solution:**
 
-1. Open `.env.local`
-2. Find `NEXT_PUBLIC_CONVEX_SITE_URL`
-3. Change it from `http://localhost:3000` to `https://YOUR-DEPLOYMENT.convex.site`
-4. Restart your dev server
-
-The `.convex.site` URL is your Convex HTTP endpoint - it should match your deployment name from `NEXT_PUBLIC_CONVEX_URL` but with `.site` instead of `.cloud`.
+1. Activate Convex at https://dashboard.clerk.com/apps/setup/convex
+2. Set `CLERK_JWT_ISSUER_DOMAIN` to the Frontend API URL shown there
+3. Restart `bunx convex dev`
+4. Sign out completely and sign back in
 
 ### Problem: Port 3000 already in use
 
@@ -316,10 +310,6 @@ The `.convex.site` URL is your Convex HTTP endpoint - it should match your deplo
 - Run Next.js on a different port:
   ```bash
   pnpm run dev:frontend -- -p 3001
-  ```
-- Update `SITE_URL` accordingly:
-  ```bash
-  npx convex env set SITE_URL http://localhost:3001
   ```
 
 ### Problem: Tests fail with "Cannot find \_generated"
@@ -360,9 +350,9 @@ The `.convex.site` URL is your Convex HTTP endpoint - it should match your deplo
 - [ ] pnpm installed
 - [ ] Project cloned
 - [ ] Dependencies installed (`pnpm install`)
-- [ ] Convex initialized (`npx convex dev`)
-- [ ] `NEXT_PUBLIC_CONVEX_SITE_URL` set correctly in `.env.local` (must end in `.convex.site`)
-- [ ] Convex environment variables set (BETTER_AUTH_SECRET, SITE_URL)
+- [ ] Convex initialized (`bunx convex dev`)
+- [ ] Clerk keys set in `.env.local`
+- [ ] `CLERK_JWT_ISSUER_DOMAIN` set via `bunx convex env set`
 - [ ] Dev server running (`pnpm run dev`)
 - [ ] Can access http://localhost:3000
 - [ ] Can sign up and log in

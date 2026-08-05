@@ -2,30 +2,28 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Get the current session
-  const session = authClient.useSession();
-  const user = session.data?.user;
 
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
-      await authClient.signOut();
-      router.refresh();
+      await signOut({ redirectUrl: "/" });
     } catch (error) {
       console.error("Sign out error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const displayName =
+    user?.fullName || user?.primaryEmailAddress?.emailAddress || "there";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -40,16 +38,18 @@ export default function Home() {
         />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            {user ? `Welcome back, ${user.name || user.email}!` : "Welcome to Next.js with Convex + Better Auth"}
+            {isSignedIn
+              ? `Welcome back, ${displayName}!`
+              : "Welcome to Next.js with Convex + Clerk"}
           </h1>
           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            {user
+            {isSignedIn
               ? "Your authentication is set up and working. Visit your dashboard to see your personalized content."
               : "Get started by creating an account or signing in to access your personalized dashboard."}
           </p>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          {user ? (
+          {isSignedIn ? (
             <>
               <Link href="/dashboard">
                 <Button size="lg" className="w-full sm:w-auto">

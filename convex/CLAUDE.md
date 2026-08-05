@@ -1067,7 +1067,7 @@ export const uploadFile = mutation({
 
 Browse the [Component Directory](https://www.convex.dev/components):
 
-- `@convex-dev/better-auth` - Better Auth integration
+- Clerk + Convex JWT auth (see `convex/auth.config.ts`)
 - `@convex-dev/ratelimiter` - Rate limiting
 - `@convex-dev/agent` - AI agent workflows
 - `@convex-dev/aggregate` - Aggregations

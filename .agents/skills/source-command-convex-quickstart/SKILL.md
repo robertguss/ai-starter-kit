@@ -56,7 +56,7 @@ Create `convex/yourFeature.ts`:
 ```typescript
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { authComponent } from "./auth";
+// use ctx.auth.getUserIdentity()
 
 // List items for authenticated user
 export const list = query({
@@ -74,7 +74,8 @@ export const list = query({
     }),
   ),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     if (!user) throw new Error("Not authenticated");
 
     return await ctx.db
@@ -91,7 +92,8 @@ export const create = mutation({
   },
   returns: v.id("yourFeature"),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     if (!user) throw new Error("Not authenticated");
 
     return await ctx.db.insert("yourFeature", {
@@ -114,7 +116,8 @@ export const update = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     if (!user) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
@@ -135,7 +138,8 @@ export const remove = mutation({
   args: { id: v.id("yourFeature") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
     if (!user) throw new Error("Not authenticated");
 
     const item = await ctx.db.get(args.id);
@@ -219,7 +223,7 @@ pnpm run test:once    # Run tests
 
 1. Define table in `convex/schema.ts` with proper indexes
 2. Create functions with `args` and `returns` validators
-3. Add auth checks using `authComponent.getAuthUser(ctx)`
+3. Add auth checks using `ctx.auth.getUserIdentity()`
 4. Verify ownership before updates/deletes
 5. Use `internal.*` for any scheduled functions
 6. Add tests in `convex/yourFeature.test.ts`

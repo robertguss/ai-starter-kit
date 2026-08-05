@@ -1,137 +1,68 @@
 # API Reference
 
-Documentation for all available Convex functions in the AI Starter Kit.
+Public Convex helpers and identity patterns for this starter kit.
 
 ---
 
 ## Table of Contents
 
-- [Authentication Functions](#authentication-functions)
+- [Authentication](#authentication)
 - [Function Patterns](#function-patterns)
 - [Error Handling](#error-handling)
 
 ---
 
-## Authentication Functions
+## Authentication
 
-Authentication is handled by Better Auth via HTTP endpoints. These are not direct Convex functions but HTTP routes registered in `convex/http.ts`.
+Auth is handled by Clerk on the Next.js side. Convex validates Clerk JWTs.
+There are no kit-owned `/api/auth/*` HTTP endpoints.
 
-### Authentication Endpoints
+### Frontend
 
-All endpoints are prefixed with `/api/auth/`:
+```tsx
+import { SignIn, SignUp, useUser, useClerk } from "@clerk/nextjs";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
-#### `POST /api/auth/sign-up`
-
-Create a new user account.
-
-**Request Body:**
-
-```typescript
-{
-  email: string,
-  password: string,
-  name?: string
-}
+const { isSignedIn } = useUser();
+const { isAuthenticated } = useConvexAuth();
+const user = useQuery(api.auth.getCurrentUser);
+const { signOut } = useClerk();
 ```
 
-**Response:**
+### Backend identity
 
 ```typescript
-{
-  user: { id: string, email: string },
-  session: { /* session data */ }
-}
-```
+import { query } from "./_generated/server";
+import { v } from "convex/values";
 
-#### `POST /api/auth/sign-in`
-
-Log in an existing user.
-
-**Request Body:**
-
-```typescript
-{
-  email: string,
-  password: string
-}
-```
-
-**Response:**
-
-```typescript
-{
-  user: { id: string, email: string },
-  session: { /* session data */ }
-}
-```
-
-#### `GET /api/auth/get-session`
-
-Get the current user's session.
-
-**Response:**
-
-```typescript
-{
-  user: { id: string, email: string, name?: string } | null,
-  session: { /* session data */ } | null
-}
-```
-
-#### `POST /api/auth/sign-out`
-
-Log out the current user.
-
-**Response:**
-
-```typescript
-{
-  success: boolean;
-}
-```
-
-### Using Auth in Components
-
-```typescript
-import { authClient } from "@/lib/auth-client";
-
-// Sign up
-await authClient.signUp.email({
-  email: "user@example.com",
-  password: "password123",
-});
-
-// Sign in
-await authClient.signIn.email({
-  email: "user@example.com",
-  password: "password123",
-});
-
-// Sign out
-await authClient.signOut();
-
-// Get session
-const session = await authClient.getSession();
-```
-
-### Using Auth in Convex Functions
-
-```typescript
-import { authComponent } from "./auth";
-
-export const myProtectedQuery = query({
+export const example = query({
   args: {},
+  returns: v.null(),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) {
-      throw new Error("Unauthorized");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
     }
-
-    // User is authenticated
-    return { message: `Hello, ${user.name}` };
+    return null;
   },
 });
 ```
+
+### Shared helper
+
+`api.auth.getCurrentUser` returns:
+
+```typescript
+{
+  subject: string;
+  name: string;
+  email: string;
+  image?: string;
+} | null
+```
+
+See [AUTHENTICATION.md](./AUTHENTICATION.md) for setup and route protection.
 
 ---
 
@@ -353,13 +284,15 @@ await ctx.db
 ### Check Authentication
 
 ```typescript
-// ✅ Good - validates user
+// ✅ Good - validates Clerk identity
 export const myQuery = query({
   args: {},
+  returns: v.null(),
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
-    // Continue...
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+    // Continue with identity.subject
+    return null;
   },
 });
 ```
