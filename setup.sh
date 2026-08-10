@@ -224,7 +224,7 @@ setup_convex() {
 # =============================================================================
 
 configure_environment() {
-    print_step "Configuring Clerk environment..."
+    print_step "Configuring Clerk auth (Clerk CLI)..."
 
     CONVEX_URL=$(grep -E "^VITE_CONVEX_URL=" .env.local | cut -d'=' -f2 | head -n1)
 
@@ -236,40 +236,41 @@ configure_environment() {
     DEPLOYMENT_NAME=$(echo "$CONVEX_URL" | sed 's|https://||' | sed 's|\.convex\.cloud||')
     print_info "Detected Convex deployment: $DEPLOYMENT_NAME"
 
-    # Clerk route defaults for this kit
-    if ! grep -q "VITE_CLERK_SIGN_IN_URL" .env.local; then
-        {
-            echo ""
-            echo "VITE_CLERK_SIGN_IN_URL=/login"
-            echo "VITE_CLERK_SIGN_UP_URL=/signup"
-            echo "VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard"
-            echo "VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard"
-        } >> .env.local
-        print_success "Added Clerk route defaults to .env.local"
+    # Prefer the automated Clerk CLI path. The kit already ships providers and
+    # auth routes, so this calls scripts/setup-clerk-auth.sh (not `clerk init`).
+    if [ -x "./scripts/setup-clerk-auth.sh" ]; then
+        echo ""
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${CYAN}  ${BOLD}CLERK SETUP - CLI (recommended)${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo "  This step uses the Clerk CLI to create/link an app, pull keys,"
+        echo "  create the Convex JWT template, and set CLERK_JWT_ISSUER_DOMAIN."
+        echo ""
+        echo "  If you are not logged in yet, run this once in another terminal:"
+        echo "    aubx clerk@latest auth login"
+        echo ""
+        echo "  Or press Enter to try now (reuses keys already in .env.local)."
+        echo ""
+        read -p "  Press Enter to continue Clerk CLI setup (or type s to skip): " clerk_choice
+        if [[ "$clerk_choice" =~ ^[Ss]$ ]]; then
+            print_warning "Skipped Clerk CLI setup"
+            print_info "Run later: ./scripts/setup-clerk-auth.sh"
+            print_info "Manual fallback: docs/AUTHENTICATION.md"
+        else
+            if ./scripts/setup-clerk-auth.sh; then
+                print_success "Clerk CLI auth setup finished"
+            else
+                status=$?
+                print_warning "Clerk CLI setup did not finish (exit $status)"
+                print_info "Fix login or keys, then re-run: ./scripts/setup-clerk-auth.sh"
+                print_info "Manual fallback: docs/AUTHENTICATION.md"
+            fi
+        fi
     else
-        print_warning "Clerk route URLs already set in .env.local"
+        print_warning "scripts/setup-clerk-auth.sh is missing or not executable"
+        print_info "See docs/AUTHENTICATION.md for Clerk setup"
     fi
-
-    if grep -q "VITE_CLERK_PUBLISHABLE_KEY=pk_" .env.local 2>/dev/null; then
-        print_success "Clerk publishable key found in .env.local"
-    else
-        print_warning "Add Clerk keys to .env.local before developing"
-        print_info "1. Create an app:  https://dashboard.clerk.com/apps/new"
-        print_info "2. API keys:       https://dashboard.clerk.com/last-active?path=api-keys"
-        print_info "3. Enable Convex:  https://dashboard.clerk.com/apps/setup/convex"
-        print_info "4. Set issuer:     aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>"
-        print_info "See docs/AUTHENTICATION.md for the full Clerk UI walkthrough"
-    fi
-
-    if npx convex env list 2>/dev/null | grep -q "CLERK_JWT_ISSUER_DOMAIN"; then
-        print_success "CLERK_JWT_ISSUER_DOMAIN already set in Convex"
-    else
-        print_warning "CLERK_JWT_ISSUER_DOMAIN is not set in Convex yet"
-        print_info "Enable Convex at https://dashboard.clerk.com/apps/setup/convex, then run:"
-        print_info "  aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev"
-    fi
-
-    print_success "Environment configured (complete Clerk keys + JWT issuer to finish auth)!"
 }
 
 # =============================================================================
@@ -290,7 +291,7 @@ start_dev_server() {
     echo "    Convex Dashboard: npx convex dashboard"
     echo ""
     echo "  ${BOLD}Next steps:${NC}"
-    echo "    1. Finish Clerk setup (keys in .env.local + CLERK_JWT_ISSUER_DOMAIN)"
+    echo "    1. If Clerk setup was skipped: ./scripts/setup-clerk-auth.sh"
     echo "    2. Open http://localhost:3000 and sign up at /signup"
     echo "    3. Confirm the dashboard loads while signed in"
     echo "    4. Start building!"
