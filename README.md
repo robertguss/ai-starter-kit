@@ -8,6 +8,107 @@ A modern, production-ready starter kit for building full-stack applications with
 
 ---
 
+## Quickstart
+
+From a fresh clone to a running app with Convex + Clerk auth. This kit uses
+[aube](https://aube.jdx.dev) (`aube` / `aubr` / `aubx`), not npm/pnpm scripts
+directly.
+
+### Prerequisites
+
+| Tool | Requirement |
+| --- | --- |
+| Node.js | **20.9+** (`node -v`) |
+| aube | Install from [aube.jdx.dev](https://aube.jdx.dev) (`aube --version`) |
+| Accounts | Free [Clerk](https://clerk.com) + [Convex](https://convex.dev) (CLI opens a browser) |
+
+Windows: use Git Bash or WSL for the shell scripts below.
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/robertguss/web-app-starter-kit.git
+cd web-app-starter-kit
+aube install
+```
+
+### 2. Log in to the Clerk CLI (once per machine)
+
+```bash
+aubx clerk@latest auth login
+aubx clerk@latest whoami
+```
+
+Do this in a normal terminal with a browser. Do **not** run `clerk init` in
+this repo. Providers, middleware, `/login`, and `/signup` already ship with
+the kit.
+
+### 3. Link Convex
+
+```bash
+aubx convex dev --until-success
+```
+
+Log in / create a Convex project when prompted. This writes
+`VITE_CONVEX_URL` into `.env.local` (and `setup.sh` maps any legacy
+`NEXT_PUBLIC_CONVEX_URL` if needed).
+
+### 4. Finish Clerk + Convex JWT auth
+
+```bash
+./scripts/setup-clerk-auth.sh
+# same as: aubr setup:clerk
+```
+
+This idempotent script:
+
+1. Adds kit route defaults (`/login`, `/signup` → `/dashboard`) to `.env.local`
+2. Creates or links a Clerk app and runs `clerk env pull`
+3. Creates the Clerk JWT template named `convex` when missing
+4. Sets `CLERK_JWT_ISSUER_DOMAIN` on your Convex deployment
+
+### 5. Start the app
+
+```bash
+aubr dev
+```
+
+Runs the TanStack Start frontend and Convex backend together
+(`package.json` → `dev` / `dev:frontend` / `dev:backend`).
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### 6. Verify auth end to end
+
+1. Go to [http://localhost:3000/signup](http://localhost:3000/signup) and create a user
+2. Confirm you land on `/dashboard`
+3. Sign out fully, then sign in again at `/login` (needed once after the JWT template is created)
+4. Confirm the dashboard still loads while signed in
+
+### One-command path
+
+If the Clerk CLI is already logged in:
+
+```bash
+git clone https://github.com/robertguss/web-app-starter-kit.git
+cd web-app-starter-kit
+./setup.sh
+```
+
+`./setup.sh` installs deps, runs Convex until ready, calls
+`scripts/setup-clerk-auth.sh`, then starts `aubr dev`.
+
+### Deeper docs
+
+| Topic | Doc |
+| --- | --- |
+| Auth details + Dashboard fallback | [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md) |
+| Full setup / env reference | [docs/SETUP.md](./docs/SETUP.md) |
+| Longer quick start + troubleshooting | [docs/QUICK_START.md](./docs/QUICK_START.md) |
+| Clerk CLI for agents | [clerk.com/cli/agents.txt](https://clerk.com/cli/agents.txt) |
+
+---
+
 <div align="center">
 
 ## 📬 Join the Refactoring AI Newsletter
@@ -36,11 +137,7 @@ A modern, production-ready starter kit for building full-stack applications with
 
 ---
 
-> **Perfect for**: Rapidly prototyping full-stack applications, learning modern web development patterns, or starting your next SaaS project with a solid foundation.
-
----
-
-## 🚀 Built with this Starter Kit
+## Built with this Starter Kit
 
 <div align="center">
 
@@ -50,17 +147,6 @@ A modern, production-ready starter kit for building full-stack applications with
 
 <p><strong>See this starter kit in action!</strong> SocialPost is a full-featured social media management tool built entirely with this stack.</p>
 
-<p><strong>Features:</strong></p>
-
-<p>
-📝 Create and schedule posts across multiple social platforms<br/>
-📊 Analytics dashboard with real-time engagement metrics<br/>
-🎨 Rich media support (images, videos, carousel posts)<br/>
-📅 Calendar view for content planning<br/>
-🔄 Real-time sync across all your social accounts<br/>
-🤖 AI-powered post suggestions and optimization
-</p>
-
 [**→ Explore SocialPost Source Code**](https://github.com/robertguss/social_post)
 
 </div>
@@ -69,8 +155,8 @@ A modern, production-ready starter kit for building full-stack applications with
 
 ## Table of Contents
 
+- [Quickstart](#quickstart)
 - [Features](#features)
-- [Quick Start](#quick-start)
 - [Recommended Development Workflow](#recommended-development-workflow)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -91,7 +177,7 @@ A modern, production-ready starter kit for building full-stack applications with
   - Hosted Clerk sign-in / sign-up UI
   - Protected `/dashboard` route via TanStack Router `beforeLoad` + Clerk server auth
   - Convex identity from Clerk JWTs (`ctx.auth.getUserIdentity()`)
-  - Social providers and MFA configurable in the Clerk Dashboard
+  - Setup via Clerk CLI (`./scripts/setup-clerk-auth.sh`); Dashboard fallback in docs
 
 - **Real-time Database** - Powered by Convex
   - Serverless backend with zero infrastructure management
@@ -114,90 +200,8 @@ A modern, production-ready starter kit for building full-stack applications with
 - **Developer Experience**
   - TypeScript strict mode for type safety
   - ESLint configuration for code quality
-  - Hot module replacement with Turbo
-  - Parallel dev servers (frontend + backend)
-
----
-
-## Quick Start
-
-Get up and running in **5 minutes**:
-
-### Prerequisites
-
-- **Node.js** 20.9 or later
-- **aube** ([install](https://aube.jdx.dev)) — required by `./setup.sh` and the kit scripts (`aubr` / `aubx`)
-
-### Option 1: Automated Setup (Recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/robertguss/ai-starter-kit.git
-cd ai-starter-kit
-
-# Run the setup script (handles everything!)
-./setup.sh
-```
-
-The setup script will:
-
-1. Check prerequisites (Node.js 20.9+, aube)
-2. Install all dependencies
-3. Guide you through Convex authentication (opens browser)
-4. Run Clerk CLI auth setup (`scripts/setup-clerk-auth.sh`)
-5. Start the development servers
-
-Authenticate the Clerk CLI once beforehand if needed:
-
-```bash
-aubx clerk@latest auth login
-```
-
-> **Note for Windows users**: Run `bash setup.sh` in Git Bash or WSL.
-
-### Option 2: Manual Setup
-
-<details>
-<summary>Click to expand manual setup instructions</summary>
-
-```bash
-# Clone the repository
-git clone https://github.com/robertguss/ai-starter-kit.git
-cd ai-starter-kit
-
-# Install dependencies
-aube install
-
-# Set up Convex (follow the prompts to create/link a project)
-aubx convex dev
-
-# Clerk via CLI (do NOT run `clerk init` in this kit):
-aubx clerk@latest auth login
-./scripts/setup-clerk-auth.sh
-# or: aubr setup:clerk
-
-# Start the development servers (frontend + backend)
-aubr dev
-```
-
-Full Clerk walkthrough (CLI + Dashboard fallback):
-[docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
-
-</details>
-
----
-
-Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the landing page!
-
-**Next steps:**
-
-1. If Clerk was skipped during setup: `./scripts/setup-clerk-auth.sh` (see
-   [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md))
-2. Create an account at `/signup`, then open `/dashboard`
-3. Add your own Convex functions in the `convex/` directory
-4. Read the [Setup Guide](./docs/SETUP.md) for detailed configuration
-
-> **Tip**: See [docs/QUICK_START.md](./docs/QUICK_START.md) for a more detailed quick start guide with troubleshooting.
+  - Hot module replacement
+  - Parallel dev servers via `aubr dev` (frontend + backend)
 
 ---
 
