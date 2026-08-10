@@ -1,6 +1,7 @@
 # Development Guide
 
-Learn how to build features, modify the database schema, and extend the AI Starter Kit.
+Learn how to build features, modify the database schema, and extend the AI
+Starter Kit.
 
 ---
 
@@ -53,7 +54,8 @@ export default async function SettingsPage() {
 }
 ```
 
-`app/start.ts` and `app/routes/_authenticated/route.tsx` protect `/dashboard/*` routes.
+`app/start.ts` and `app/routes/_authenticated/route.tsx` protect `/dashboard/*`
+routes.
 
 ---
 
@@ -198,7 +200,7 @@ const priority = todo.priority ?? "medium"; // Default value
 After schema changes:
 
 ```bash
-npx convex codegen
+aubx convex codegen
 ```
 
 This updates `convex/_generated/` with new types.
@@ -420,11 +422,7 @@ Always validate user permissions:
 ```typescript
 export const getMyTodos = query({
   args: {},
-  returns: v.array(
-    v.object({
-      /* ... */
-    }),
-  ),
+  returns: v.array(v.object({/* ... */})),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
@@ -478,4 +476,5 @@ try {
 
 ---
 
-**Previous:** [← Architecture](./ARCHITECTURE.md) | **Next:** [API Reference →](./API.md)
+**Previous:** [← Architecture](./ARCHITECTURE.md) | **Next:**
+[API Reference →](./API.md)

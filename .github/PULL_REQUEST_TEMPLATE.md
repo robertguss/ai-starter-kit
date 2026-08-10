@@ -12,7 +12,8 @@ Please delete options that are not relevant.
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Breaking change (fix or feature that would cause existing functionality to
+      not work as expected)
 - [ ] Documentation update
 - [ ] Code refactoring
 - [ ] Performance improvement
@@ -38,6 +39,7 @@ Please describe the tests you ran to verify your changes.
 - [ ] Test B
 
 **Test Configuration:**
+
 - Node version:
 - pnpm version:
 - OS:
@@ -63,7 +65,8 @@ Add screenshots to help explain your changes.
 
 ## Breaking Changes
 
-Does this PR introduce breaking changes? If yes, please describe the impact and migration path for existing users.
+Does this PR introduce breaking changes? If yes, please describe the impact and
+migration path for existing users.
 
 ## Additional Notes
 

@@ -1,6 +1,7 @@
 # Convex Helpers Reference
 
-This project uses **convex-helpers** (v0.1.108) for utility functions and common patterns. Always prefer these helpers over custom implementations.
+This project uses **convex-helpers** (v0.1.108) for utility functions and common
+patterns. Always prefer these helpers over custom implementations.
 
 ## Table of Contents
 
@@ -23,22 +24,22 @@ This project uses **convex-helpers** (v0.1.108) for utility functions and common
 
 ## Quick Reference
 
-| Category | Helpers | Import Path |
-|----------|---------|-------------|
-| Core Utilities | `asyncMap`, `pick`, `omit`, `nullThrows`, `pruneNull`, `withoutSystemFields` | `convex-helpers` |
-| Validators | `nullable`, `literals`, `partial`, `brandedString`, `typedV`, `deprecated`, `validate` | `convex-helpers/validators` |
-| Relationships | `getOneFromOrThrow`, `getManyFrom`, `getManyViaOrThrow` | `convex-helpers/server/relationships` |
-| Custom Functions | `customQuery`, `customMutation`, `customAction`, `customCtx` | `convex-helpers/server/customFunctions` |
-| CRUD | `crud` | `convex-helpers/server/crud` |
-| Pagination | `getPage`, `paginator` | `convex-helpers/server/pagination` |
-| Streams | `stream`, `mergedStream` | `convex-helpers/server/stream` |
-| Filter | `filter` | `convex-helpers/server/filter` |
-| Triggers | `Triggers` | `convex-helpers/server/triggers` |
-| Row-Level Security | `wrapDatabaseReader`, `wrapDatabaseWriter` | `convex-helpers/server/rowLevelSecurity` |
-| CORS | `corsRouter` | `convex-helpers/server/cors` |
-| React | `makeUseQueryWithStatus` | `convex-helpers/react` |
-| Query Cache | `ConvexQueryCacheProvider` | `convex-helpers/react/cache` |
-| React Sessions | `SessionProvider`, `useSessionQuery` | `convex-helpers/react/sessions` |
+| Category           | Helpers                                                                                | Import Path                              |
+| ------------------ | -------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Core Utilities     | `asyncMap`, `pick`, `omit`, `nullThrows`, `pruneNull`, `withoutSystemFields`           | `convex-helpers`                         |
+| Validators         | `nullable`, `literals`, `partial`, `brandedString`, `typedV`, `deprecated`, `validate` | `convex-helpers/validators`              |
+| Relationships      | `getOneFromOrThrow`, `getManyFrom`, `getManyViaOrThrow`                                | `convex-helpers/server/relationships`    |
+| Custom Functions   | `customQuery`, `customMutation`, `customAction`, `customCtx`                           | `convex-helpers/server/customFunctions`  |
+| CRUD               | `crud`                                                                                 | `convex-helpers/server/crud`             |
+| Pagination         | `getPage`, `paginator`                                                                 | `convex-helpers/server/pagination`       |
+| Streams            | `stream`, `mergedStream`                                                               | `convex-helpers/server/stream`           |
+| Filter             | `filter`                                                                               | `convex-helpers/server/filter`           |
+| Triggers           | `Triggers`                                                                             | `convex-helpers/server/triggers`         |
+| Row-Level Security | `wrapDatabaseReader`, `wrapDatabaseWriter`                                             | `convex-helpers/server/rowLevelSecurity` |
+| CORS               | `corsRouter`                                                                           | `convex-helpers/server/cors`             |
+| React              | `makeUseQueryWithStatus`                                                               | `convex-helpers/react`                   |
+| Query Cache        | `ConvexQueryCacheProvider`                                                             | `convex-helpers/react/cache`             |
+| React Sessions     | `SessionProvider`, `useSessionQuery`                                                   | `convex-helpers/react/sessions`          |
 
 ---
 
@@ -47,19 +48,28 @@ This project uses **convex-helpers** (v0.1.108) for utility functions and common
 Import from `convex-helpers`:
 
 ```typescript
-import { asyncMap, pick, omit, nullThrows, pruneNull, withoutSystemFields } from "convex-helpers";
+import {
+  asyncMap,
+  pick,
+  omit,
+  nullThrows,
+  pruneNull,
+  withoutSystemFields,
+} from "convex-helpers";
 ```
 
 ### asyncMap
 
 Apply an async function to each element concurrently.
 
-**When to use**: Processing arrays with async operations (fetching related data, API calls).
+**When to use**: Processing arrays with async operations (fetching related data,
+API calls).
 
 ```typescript
 const posts = await asyncMap(userIds, async (userId) => {
-  return await ctx.db.query("posts")
-    .withIndex("by_userId", q => q.eq("userId", userId))
+  return await ctx.db
+    .query("posts")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
     .collect();
 });
 ```
@@ -120,7 +130,15 @@ await ctx.db.insert("documents", { ...newDoc, name: "Copy" });
 Import from `convex-helpers/validators`:
 
 ```typescript
-import { nullable, literals, partial, brandedString, typedV, deprecated, validate } from "convex-helpers/validators";
+import {
+  nullable,
+  literals,
+  partial,
+  brandedString,
+  typedV,
+  deprecated,
+  validate,
+} from "convex-helpers/validators";
 ```
 
 ### nullable
@@ -239,7 +257,8 @@ const userFields = {
 
 Runtime validation against validators.
 
-**When to use**: Validating data at runtime (e.g., in actions with external data).
+**When to use**: Validating data at runtime (e.g., in actions with external
+data).
 
 ```typescript
 import { validate } from "convex-helpers/validators";
@@ -269,7 +288,7 @@ import {
   getManyViaOrThrow,
   getAll,
   getAllOrThrow,
-  getOrThrow
+  getOrThrow,
 } from "convex-helpers/server/relationships";
 ```
 
@@ -312,11 +331,11 @@ Fetch documents through a join table (many-to-many).
 // Get all tags for a post through the postTags join table
 const tags = await getManyViaOrThrow(
   ctx.db,
-  "postTags",     // Join table
-  "tags",         // Target table
-  "tagId",        // Field in join table pointing to target
-  "by_postId",    // Index on join table
-  post._id        // Value to match
+  "postTags", // Join table
+  "tags", // Target table
+  "tagId", // Field in join table pointing to target
+  "by_postId", // Index on join table
+  post._id, // Value to match
 );
 ```
 
@@ -352,17 +371,26 @@ const user = await getOrThrow(ctx.db, userId);
 Import from `convex-helpers/server/customFunctions`:
 
 ```typescript
-import { customQuery, customMutation, customAction, customCtx } from "convex-helpers/server/customFunctions";
+import {
+  customQuery,
+  customMutation,
+  customAction,
+  customCtx,
+} from "convex-helpers/server/customFunctions";
 ```
 
 ### customQuery / customMutation / customAction
 
 Build customized versions of Convex functions with shared logic.
 
-**When to use**: Add authentication, logging, or custom context to all functions.
+**When to use**: Add authentication, logging, or custom context to all
+functions.
 
 ```typescript
-import { customQuery, customMutation } from "convex-helpers/server/customFunctions";
+import {
+  customQuery,
+  customMutation,
+} from "convex-helpers/server/customFunctions";
 
 // Create authenticated query wrapper
 export const authedQuery = customQuery(query, {
@@ -439,7 +467,7 @@ import { query, mutation } from "./_generated/server";
 export const { create, read, update, destroy, paginate } = crud(
   "users",
   query,
-  mutation
+  mutation,
 );
 
 // Creates these functions:
@@ -477,7 +505,7 @@ export const listPosts = query({
   handler: async (ctx, args) => {
     const { page, continueCursor, isDone } = await getPage(
       ctx.db.query("posts").order("desc"),
-      { cursor: args.cursor, numItems: args.limit ?? 20 }
+      { cursor: args.cursor, numItems: args.limit ?? 20 },
     );
     return { posts: page, nextCursor: continueCursor, hasMore: !isDone };
   },
@@ -531,9 +559,7 @@ export const getMergedFeed = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
     // Create streams for different content types
-    const postsStream = stream(ctx.db, schema)
-      .query("posts")
-      .order("desc");
+    const postsStream = stream(ctx.db, schema).query("posts").order("desc");
 
     const announcementsStream = stream(ctx.db, schema)
       .query("announcements")
@@ -542,7 +568,7 @@ export const getMergedFeed = query({
     // Merge by creation time
     const merged = mergedStream(
       [postsStream, announcementsStream],
-      ["_creationTime"]
+      ["_creationTime"],
     );
 
     return await merged.paginate(args.paginationOpts);
@@ -587,7 +613,8 @@ export const searchPosts = query({
 });
 ```
 
-**Note**: Use indexes when possible. Filter runs after fetching, so it's less efficient for large datasets.
+**Note**: Use indexes when possible. Filter runs after fetching, so it's less
+efficient for large datasets.
 
 ---
 
@@ -603,13 +630,17 @@ import { Triggers } from "convex-helpers/server/triggers";
 
 Register functions that run on data changes (insert, patch, replace, delete).
 
-**When to use**: Computed fields, denormalization, cascading deletes, audit logs.
+**When to use**: Computed fields, denormalization, cascading deletes, audit
+logs.
 
 ```typescript
 import { Triggers } from "convex-helpers/server/triggers";
 import { DataModel } from "./_generated/dataModel";
 import { mutation as rawMutation } from "./_generated/server";
-import { customMutation, customCtx } from "convex-helpers/server/customFunctions";
+import {
+  customMutation,
+  customCtx,
+} from "convex-helpers/server/customFunctions";
 
 const triggers = new Triggers<DataModel>();
 
@@ -626,8 +657,9 @@ triggers.register("users", async (ctx, change) => {
 // Cascade delete: remove posts when user is deleted
 triggers.register("users", async (ctx, change) => {
   if (change.operation === "delete") {
-    const posts = await ctx.db.query("posts")
-      .withIndex("by_authorId", q => q.eq("authorId", change.id))
+    const posts = await ctx.db
+      .query("posts")
+      .withIndex("by_authorId", (q) => q.eq("authorId", change.id))
       .collect();
     for (const post of posts) {
       await ctx.db.delete(post._id);
@@ -646,7 +678,11 @@ export const mutation = customMutation(rawMutation, customCtx(triggers.wrapDB));
 Import from `convex-helpers/server/rowLevelSecurity`:
 
 ```typescript
-import { wrapDatabaseReader, wrapDatabaseWriter, Rules } from "convex-helpers/server/rowLevelSecurity";
+import {
+  wrapDatabaseReader,
+  wrapDatabaseWriter,
+  Rules,
+} from "convex-helpers/server/rowLevelSecurity";
 ```
 
 ### wrapDatabaseReader / wrapDatabaseWriter
@@ -656,8 +692,16 @@ Add row-level security to database operations.
 **When to use**: Restricting data access based on the current user.
 
 ```typescript
-import { wrapDatabaseReader, wrapDatabaseWriter, Rules } from "convex-helpers/server/rowLevelSecurity";
-import { customQuery, customMutation, customCtx } from "convex-helpers/server/customFunctions";
+import {
+  wrapDatabaseReader,
+  wrapDatabaseWriter,
+  Rules,
+} from "convex-helpers/server/rowLevelSecurity";
+import {
+  customQuery,
+  customMutation,
+  customCtx,
+} from "convex-helpers/server/customFunctions";
 import { DataModel } from "./_generated/dataModel";
 
 // Define access rules
@@ -675,23 +719,25 @@ const rules: Rules<DataModel, { userId: string }> = {
 };
 
 // Create secured query
-export const securedQuery = customQuery(query,
+export const securedQuery = customQuery(
+  query,
   customCtx(async (ctx) => {
     const user = await getAuthUser(ctx);
     return {
       db: wrapDatabaseReader({ userId: user._id }, ctx.db, rules),
     };
-  })
+  }),
 );
 
 // Create secured mutation
-export const securedMutation = customMutation(mutation,
+export const securedMutation = customMutation(
+  mutation,
   customCtx(async (ctx) => {
     const user = await getAuthUser(ctx);
     return {
       db: wrapDatabaseWriter({ userId: user._id }, ctx.db, rules),
     };
-  })
+  }),
 );
 ```
 
@@ -807,7 +853,11 @@ function PostList() {
 Import from `convex-helpers/react/sessions`:
 
 ```typescript
-import { SessionProvider, useSessionQuery, useSessionMutation } from "convex-helpers/react/sessions";
+import {
+  SessionProvider,
+  useSessionQuery,
+  useSessionMutation,
+} from "convex-helpers/react/sessions";
 ```
 
 Track anonymous users via client-side session IDs.
@@ -840,29 +890,29 @@ function Cart() {
 
 Use this table to quickly find the right helper for your use case:
 
-| Scenario | Recommended Helper |
-|----------|-------------------|
-| Fetch related documents (one-to-many) | `getManyFrom` |
-| Fetch related documents (many-to-many via join table) | `getManyViaOrThrow` |
-| Fetch single related document | `getOneFromOrThrow` |
-| Add authentication to all queries | `customQuery` with auth check |
-| Make field nullable | `nullable(v.field())` |
-| Define enum-like values | `literals("a", "b", "c")` |
-| Make all fields optional for updates | `partial(fields)` |
-| Complex filtering not supported by indexes | `filter` helper |
-| Multiple paginations in one query | `paginator` or `getPage` |
-| Merge multiple query results with order | `stream` + `mergedStream` |
-| Computed/denormalized fields | `Triggers` |
-| Row-level access control | `wrapDatabaseReader/Writer` |
-| CORS for HTTP endpoints | `corsRouter` |
-| Process arrays concurrently | `asyncMap` |
-| Clone document without system fields | `withoutSystemFields` |
-| Throw if document is null | `nullThrows` |
-| Filter null values from array | `pruneNull` |
-| Rapid prototyping of CRUD | `crud` |
-| Track anonymous users | `SessionProvider` + `useSessionQuery` |
-| Cache query subscriptions | `ConvexQueryCacheProvider` |
-| useQuery with status object | `makeUseQueryWithStatus` |
+| Scenario                                              | Recommended Helper                    |
+| ----------------------------------------------------- | ------------------------------------- |
+| Fetch related documents (one-to-many)                 | `getManyFrom`                         |
+| Fetch related documents (many-to-many via join table) | `getManyViaOrThrow`                   |
+| Fetch single related document                         | `getOneFromOrThrow`                   |
+| Add authentication to all queries                     | `customQuery` with auth check         |
+| Make field nullable                                   | `nullable(v.field())`                 |
+| Define enum-like values                               | `literals("a", "b", "c")`             |
+| Make all fields optional for updates                  | `partial(fields)`                     |
+| Complex filtering not supported by indexes            | `filter` helper                       |
+| Multiple paginations in one query                     | `paginator` or `getPage`              |
+| Merge multiple query results with order               | `stream` + `mergedStream`             |
+| Computed/denormalized fields                          | `Triggers`                            |
+| Row-level access control                              | `wrapDatabaseReader/Writer`           |
+| CORS for HTTP endpoints                               | `corsRouter`                          |
+| Process arrays concurrently                           | `asyncMap`                            |
+| Clone document without system fields                  | `withoutSystemFields`                 |
+| Throw if document is null                             | `nullThrows`                          |
+| Filter null values from array                         | `pruneNull`                           |
+| Rapid prototyping of CRUD                             | `crud`                                |
+| Track anonymous users                                 | `SessionProvider` + `useSessionQuery` |
+| Cache query subscriptions                             | `ConvexQueryCacheProvider`            |
+| useQuery with status object                           | `makeUseQueryWithStatus`              |
 
 ---
 

@@ -30,7 +30,7 @@ aubr dev
 ```bash
 aubr dev:frontend # TanStack Start Vite dev server
 aubr dev:backend # Convex only
-aubr predev # Convex dev until success, then open dashboard
+aubr predev # Convex dev until success (no dashboard popup)
 ```
 
 ### Build and Lint
@@ -38,6 +38,10 @@ aubr predev # Convex dev until success, then open dashboard
 ```bash
 aubr build # Build for production (Vite + SSR + type check)
 aubr lint # Run ESLint
+aubr typecheck # TypeScript only
+aubr format # Prettier write
+aubr format:check # Prettier check
+aubr check # lint + typecheck + test:once
 ```
 
 ### Testing
@@ -47,6 +51,13 @@ aubr test # Run tests in watch mode
 aubr test:once # Run tests once
 aubr test:debug # Debug tests with inspector
 aubr test:coverage # Run tests with coverage report
+```
+
+### Agent-friendly setup
+
+```bash
+./setup.sh --yes --no-dev
+./setup.sh --yes --no-dev --clerk-app app_xxx
 ```
 
 ### Convex Management
@@ -189,8 +200,8 @@ const identity = await ctx.auth.getUserIdentity();
 
 ### Clerk Auth Setup (Required Once Per Project)
 
-Prefer the **Clerk CLI**. This kit already ships Clerk wiring, so do **not**
-run `clerk init` in a clone. Use the kit script:
+Prefer the **Clerk CLI**. This kit already ships Clerk wiring, so do **not** run
+`clerk init` in a clone. Use the kit script:
 
 ```bash
 aubx clerk@latest auth login          # once per machine (browser OAuth)
@@ -208,9 +219,8 @@ aubx convex dev --until-success       # link Convex / write VITE_CONVEX_URL
 Agent-friendly flags: `--app app_xxx`, `--app-name "My App"`. Pass `--app` in
 agent mode when the CLI cannot pick an application.
 
-After the JWT template is created, sign out completely and sign back in.
-Confirm `useConvexAuth()` is authenticated and
-`ctx.auth.getUserIdentity()` is non-null.
+After the JWT template is created, sign out completely and sign back in. Confirm
+`useConvexAuth()` is authenticated and `ctx.auth.getUserIdentity()` is non-null.
 
 Canonical walkthrough: `docs/AUTHENTICATION.md`. Clerk CLI agents guide:
 https://clerk.com/cli/agents.txt.
@@ -342,27 +352,44 @@ For detailed testing documentation, patterns, and best practices, see
 
 This project uses [Convex](https://convex.dev) as its backend.
 
-When working on Convex code, **always read
-`convex/_generated/ai/guidelines.md` first** for important guidelines on
-how to correctly use Convex APIs and patterns. The file contains rules that
-override what you may have learned about Convex from training data.
+When working on Convex code, **always read `convex/_generated/ai/guidelines.md`
+first** for important guidelines on how to correctly use Convex APIs and
+patterns. The file contains rules that override what you may have learned about
+Convex from training data.
 
 Convex agent skills for common tasks can be installed by running
-`npx convex ai-files install`.
+`aubx convex ai-files install`.
 
 <!-- convex-ai-end -->
 
 ## Learned User Preferences
 
-- When fixing issues found in apps cloned from this kit, also port the fixes back into this template repo; when asked, land those template updates directly on `main`.
-- Prefer auth and setup docs that include concrete Clerk Dashboard URLs and steps for finishing UI configuration (JWT template, API keys).
-- Include `.cursor` project files in commits when they are part of the change set.
+- When fixing issues found in apps cloned from this kit, also port the fixes
+  back into this template repo; when asked, land those template updates directly
+  on `main`.
+- Prefer auth and setup docs that include concrete Clerk Dashboard URLs and
+  steps for finishing UI configuration (JWT template, API keys).
+- Include `.cursor` project files in commits when they are part of the change
+  set.
 - Prefer strict review findings with `file:line` evidence and without praise.
 
 ## Learned Workspace Facts
 
-- This repo is the upstream TanStack Start + Convex + Clerk template used to create apps such as `wts-student-success-internal-tools`.
-- The kit package manager is aube (`aubr` / `aubx`); `setup.sh` requires aube—keep README and onboarding docs aligned with that rather than pnpm-first instructions.
-- `./scripts/setup-clerk-auth.sh` should prefer `CLERK_FRONTEND_API_URL` from `.env.local` and must not use bare `return` inside Node `-e` eval snippets (illegal under Node 24+).
-- TanStack Start in this kit should configure a root `notFoundComponent` and CSRF middleware for server functions (`app/routes/__root.tsx`, `app/start.ts`).
-- With `@tanstack/react-table` v9, the shadcn data-table should use `@tanstack/react-table/legacy` (`useLegacyTable`) for Vite SSR compatibility because v9 removed `useReactTable`.
+- This repo is the upstream TanStack Start + Convex + Clerk template used to
+  create apps such as `wts-student-success-internal-tools`.
+- The kit package manager is aube (`aubr` / `aubx`); `setup.sh` requires
+  aube—keep README and onboarding docs aligned with that rather than pnpm-first
+  instructions.
+- `./scripts/setup-clerk-auth.sh` should prefer `CLERK_FRONTEND_API_URL` from
+  `.env.local` and must not use bare `return` inside Node `-e` eval snippets
+  (illegal under Node 24+).
+- TanStack Start in this kit should configure a root `notFoundComponent` and
+  CSRF middleware for server functions (`app/routes/__root.tsx`,
+  `app/start.ts`).
+- With `@tanstack/react-table` v9, the shadcn data-table should use
+  `@tanstack/react-table/legacy` (`useLegacyTable`) for Vite SSR compatibility
+  because v9 removed `useReactTable`.
+- Prefer `./setup.sh --yes --no-dev` (and `--clerk-app` when needed) for
+  agent/non-interactive bootstrap; day-to-day validation is `aubr check`.
+- Health endpoints live at `/api/health` (TanStack Start) and Convex HTTP
+  `/health`.

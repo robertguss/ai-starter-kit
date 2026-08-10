@@ -893,9 +893,7 @@ should only be called from backend code:
 
 ```typescript
 export const internalHelper = internalMutation({
-  args: {
-    /* ... */
-  },
+  args: {/* ... */},
   handler: async (ctx, args) => {
     // No auth check needed - only callable from backend
   },

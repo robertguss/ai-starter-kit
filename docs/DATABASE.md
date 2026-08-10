@@ -1,17 +1,19 @@
 # Database Guide
 
-Learn about the database schema, relationships, and patterns in the AI Starter Kit.
+Learn about the database schema, relationships, and patterns in the AI Starter
+Kit.
 
 ---
 
 ## Schema Overview
 
-The database schema is defined in `convex/schema.ts`. Convex uses a NoSQL document database with strong TypeScript typing.
+The database schema is defined in `convex/schema.ts`. Convex uses a NoSQL
+document database with strong TypeScript typing.
 
 ### Auth and user identity
 
-Clerk owns user accounts and sessions. Convex validates Clerk JWTs.
-This kit does not sync Clerk users into Convex tables by default.
+Clerk owns user accounts and sessions. Convex validates Clerk JWTs. This kit
+does not sync Clerk users into Convex tables by default.
 
 Store ownership with the Clerk subject string from
 `ctx.auth.getUserIdentity().subject` (or `api.auth.getCurrentUser`).
@@ -298,7 +300,7 @@ todos: defineTable({
 
 ### "Table not found"
 
-Run `npx convex codegen` to regenerate types.
+Run `aubx convex codegen` to regenerate types.
 
 ### "Index not found"
 
@@ -310,4 +312,5 @@ Add an index for the fields you're filtering/sorting on.
 
 ---
 
-**Previous:** [← API Reference](./API.md) | **Next:** [Authentication →](./AUTHENTICATION.md)
+**Previous:** [← API Reference](./API.md) | **Next:**
+[Authentication →](./AUTHENTICATION.md)

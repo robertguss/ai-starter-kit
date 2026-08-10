@@ -1,21 +1,21 @@
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
-import { Link } from "@tanstack/react-router"
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import { Link } from "@tanstack/react-router";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export type NavMainItem = {
-  title: string
-  to: "/dashboard"
-  hash?: string
-  icon?: Icon
-}
+  title: string;
+  to: "/dashboard";
+  hash?: string;
+  icon?: Icon;
+};
 
 export function NavMain({ items }: { items: NavMainItem[] }) {
   return (
@@ -60,5 +60,5 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

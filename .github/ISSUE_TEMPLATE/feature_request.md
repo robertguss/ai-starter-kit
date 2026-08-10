@@ -1,9 +1,9 @@
 ---
 name: Feature Request
 about: Suggest a new feature or enhancement for the AI Starter Kit
-title: '[FEATURE] '
+title: "[FEATURE] "
 labels: enhancement
-assignees: ''
+assignees: ""
 ---
 
 ## Feature Description
@@ -22,7 +22,8 @@ Describe how you envision this feature working.
 
 ## Alternative Solutions
 
-Have you considered any alternative solutions or features? If so, please describe them.
+Have you considered any alternative solutions or features? If so, please
+describe them.
 
 ## Examples
 
@@ -49,11 +50,13 @@ If you have ideas about how to implement this, please share them here.
 
 ## Additional Context
 
-Add any other context, screenshots, mockups, or diagrams about the feature request here.
+Add any other context, screenshots, mockups, or diagrams about the feature
+request here.
 
 ## Checklist
 
-- [ ] I have checked the [ROADMAP.md](../../ROADMAP.md) to see if this is already planned
+- [ ] I have checked the [ROADMAP.md](../../ROADMAP.md) to see if this is
+      already planned
 - [ ] I have searched existing issues to make sure this isn't a duplicate
 - [ ] I have clearly described the problem this feature solves
 - [ ] I have provided examples or use cases

@@ -1,24 +1,24 @@
-import { auth } from '@clerk/tanstack-react-start/server'
-import { redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import { auth } from "@clerk/tanstack-react-start/server";
+import { redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 
-import { safeAppRedirect } from './redirect'
+import { safeAppRedirect } from "./redirect";
 
-export const getAuthUserId = createServerFn({ method: 'GET' }).handler(
+export const getAuthUserId = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { userId } = await auth()
-    return { userId }
-  }
-)
+    const { userId } = await auth();
+    return { userId };
+  },
+);
 
 export async function requireAuth(returnPath: string) {
-  const { userId } = await getAuthUserId()
+  const { userId } = await getAuthUserId();
   if (!userId) {
     throw redirect({
-      to: '/login/$',
-      params: { _splat: '' },
-      search: { redirect: safeAppRedirect(returnPath) ?? '/dashboard' },
-    })
+      to: "/login/$",
+      params: { _splat: "" },
+      search: { redirect: safeAppRedirect(returnPath) ?? "/dashboard" },
+    });
   }
-  return { userId }
+  return { userId };
 }

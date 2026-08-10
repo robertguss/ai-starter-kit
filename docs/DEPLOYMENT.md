@@ -90,18 +90,18 @@ TanStack Start supports additional presets (e.g., `cloudflare-module`,
 2. Update `vite.config.ts`:
 
 ```ts
-import { defineConfig } from 'vite'
-import viteReact from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { defineConfig } from "vite";
+import viteReact from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 export default defineConfig({
   server: { port: 3000 },
-  envPrefix: ['VITE_'],
+  envPrefix: ["VITE_"],
   plugins: [
     tailwindcss(),
     tanstackStart({
-      srcDirectory: 'app',
+      srcDirectory: "app",
       server: {
         // Example: Cloudflare Workers preset
         // preset: 'cloudflare-module'
@@ -113,18 +113,19 @@ export default defineConfig({
     tsconfigPaths: true,
     alias: [
       {
-        find: 'use-sync-external-store/shim/index.js',
-        replacement: 'react',
+        find: "use-sync-external-store/shim/index.js",
+        replacement: "react",
       },
     ],
   },
-})
+});
 ```
 
 3. Update the `start` script in `package.json` to match the target platform's
    server entry.
 
-See the [TanStack Start deployment docs](https://tanstack.com/start/latest/docs/framework/react/build-and-deploy)
+See the
+[TanStack Start deployment docs](https://tanstack.com/start/latest/docs/framework/react/build-and-deploy)
 for details.
 
 ---

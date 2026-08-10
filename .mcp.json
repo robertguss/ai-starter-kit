@@ -4,20 +4,12 @@
       "command": "npx",
       "args": ["shadcn@latest", "mcp"]
     },
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
-    },
     "convex": {
       "command": "npx",
       "args": ["-y", "convex@latest", "mcp", "start"]
     },
     "clerk": {
       "url": "https://mcp.clerk.com/mcp"
-    },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["chrome-devtools-mcp@latest"]
     }
   }
 }

@@ -1,6 +1,6 @@
-import * as React from "react"
-import { Link } from "@tanstack/react-router"
-import { type Icon } from "@tabler/icons-react"
+import * as React from "react";
+import { Link } from "@tanstack/react-router";
+import { type Icon } from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -8,20 +8,20 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export type NavSecondaryItem = {
-  title: string
-  to: "/dashboard"
-  hash?: string
-  icon: Icon
-}
+  title: string;
+  to: "/dashboard";
+  hash?: string;
+  icon: Icon;
+};
 
 export function NavSecondary({
   items,
   ...props
 }: {
-  items: NavSecondaryItem[]
+  items: NavSecondaryItem[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
     <SidebarGroup {...props}>
@@ -40,5 +40,5 @@ export function NavSecondary({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

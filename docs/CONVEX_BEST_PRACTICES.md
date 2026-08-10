@@ -1,12 +1,16 @@
 # Convex Best Practices
 
-Additional guidelines beyond the basics covered in CLAUDE.md. These focus on security, performance, code quality, tooling, and architecture patterns specific to Convex development.
+Additional guidelines beyond the basics covered in CLAUDE.md. These focus on
+security, performance, code quality, tooling, and architecture patterns specific
+to Convex development.
 
 ## Security
 
 ### Auth Enforcement with Custom Functions
 
-Use **custom functions** from `convex-helpers` to enforce authentication consistently across all functions. This is Convex's alternative to Row Level Security (RLS).
+Use **custom functions** from `convex-helpers` to enforce authentication
+consistently across all functions. This is Convex's alternative to Row Level
+Security (RLS).
 
 ```typescript
 // convex/lib/customFunctions.ts
@@ -63,7 +67,9 @@ export const getTasks = authedQuery({
 
 ### Scheduler Safety
 
-Only schedule `internal.*` functions, never `api.*` functions. Scheduled functions bypass client auth checks, so public API functions would run without authentication.
+Only schedule `internal.*` functions, never `api.*` functions. Scheduled
+functions bypass client auth checks, so public API functions would run without
+authentication.
 
 **Bad**:
 
@@ -77,13 +83,16 @@ await ctx.scheduler.runAfter(0, api.tasks.process, { taskId });
 await ctx.scheduler.runAfter(0, internal.tasks.process, { taskId });
 ```
 
-This applies to `ctx.scheduler.runAfter`, `ctx.scheduler.runAt`, and `ctx.runMutation`/`ctx.runAction` within actions.
+This applies to `ctx.scheduler.runAfter`, `ctx.scheduler.runAt`, and
+`ctx.runMutation`/`ctx.runAction` within actions.
 
 ## Performance
 
 ### No `Date.now()` in Queries
 
-Never use `Date.now()` or `new Date()` inside query functions. Queries must be deterministic for Convex's caching and reactive subscription system to work correctly.
+Never use `Date.now()` or `new Date()` inside query functions. Queries must be
+deterministic for Convex's caching and reactive subscription system to work
+correctly.
 
 **Bad** - breaks reactivity:
 
@@ -128,7 +137,8 @@ export const getActiveTasks = query({
 
 ### Pagination for Large Datasets
 
-Never use `.collect()` on unbounded queries. Use Convex's cursor-based pagination for large or growing datasets.
+Never use `.collect()` on unbounded queries. Use Convex's cursor-based
+pagination for large or growing datasets.
 
 **Bad** - loads all rows into memory:
 
@@ -146,11 +156,7 @@ export const getAllPosts = query({
 export const listPosts = query({
   args: { paginationOpts: paginationOptsValidator },
   returns: v.object({
-    page: v.array(
-      v.object({
-        /* ... */
-      }),
-    ),
+    page: v.array(v.object({/* ... */})),
     isDone: v.boolean(),
     continueCursor: v.string(),
   }),
@@ -163,13 +169,15 @@ export const listPosts = query({
 });
 ```
 
-For advanced pagination patterns, see `docs/CONVEX_HELPERS.md` for `getPage`, `paginator`, and `stream` utilities.
+For advanced pagination patterns, see `docs/CONVEX_HELPERS.md` for `getPage`,
+`paginator`, and `stream` utilities.
 
 ## Code Quality
 
 ### Always Await Promises
 
-Every promise in Convex functions must be awaited. Un-awaited promises may cause silent data loss or inconsistent state.
+Every promise in Convex functions must be awaited. Un-awaited promises may cause
+silent data loss or inconsistent state.
 
 **Bad**:
 
@@ -199,7 +207,8 @@ Enable the `no-floating-promises` ESLint rule to catch these automatically.
 
 ### Function Organization
 
-Keep `query`, `mutation`, and `action` wrappers thin. Extract business logic into plain TypeScript functions for testability and reuse.
+Keep `query`, `mutation`, and `action` wrappers thin. Extract business logic
+into plain TypeScript functions for testability and reuse.
 
 **Bad** - all logic in the wrapper:
 
@@ -213,9 +222,7 @@ export const createProject = mutation({
     const team = await ctx.db.get(args.teamId);
     if (!team) throw new Error("Team not found");
     // ... more logic
-    const projectId = await ctx.db.insert("projects", {
-      /* ... */
-    });
+    const projectId = await ctx.db.insert("projects", {/* ... */});
     // ... even more logic
     return projectId;
   },
@@ -252,7 +259,8 @@ export const createProject = authedMutation({
 
 ### Error Handling
 
-**Throw** for exceptional cases (bugs, auth failures, invariant violations). **Return null** for expected absences (user not found, optional data).
+**Throw** for exceptional cases (bugs, auth failures, invariant violations).
+**Return null** for expected absences (user not found, optional data).
 
 **Bad** - throwing for expected cases:
 
@@ -272,12 +280,7 @@ export const getUserProfile = query({
 ```typescript
 export const getUserProfile = query({
   args: { userId: v.id("users") },
-  returns: v.union(
-    v.object({
-      /* ... */
-    }),
-    v.null(),
-  ),
+  returns: v.union(v.object({/* ... */}), v.null()),
   handler: async (ctx, args) => {
     return await ctx.db.get(args.userId); // Returns null if not found
   },
@@ -322,7 +325,8 @@ export default [
 
 Key rules enforced:
 
-- `@convex-dev/require-argument-validators` - ensures all public functions have `args` and `returns`
+- `@convex-dev/require-argument-validators` - ensures all public functions have
+  `args` and `returns`
 - `no-floating-promises` - catches un-awaited promises
 - Additional Convex-specific checks
 
@@ -330,9 +334,11 @@ Key rules enforced:
 
 ### Components for Encapsulation
 
-Use Convex components to encapsulate self-contained features. Components are mini-backends with their own schema, functions, and data.
+Use Convex components to encapsulate self-contained features. Components are
+mini-backends with their own schema, functions, and data.
 
-Use the **sibling component pattern** to share data between your main app and a component:
+Use the **sibling component pattern** to share data between your main app and a
+component:
 
 ```typescript
 // convex/convex.config.ts
@@ -342,19 +348,24 @@ const app = defineApp();
 export default app;
 ```
 
-This kit uses Clerk JWTs via `convex/auth.config.ts`, not an auth Convex component. Official components for other features include rate limiter, agent, embeddings, and more. See `/convex-components-guide` for details.
+This kit uses Clerk JWTs via `convex/auth.config.ts`, not an auth Convex
+component. Official components for other features include rate limiter, agent,
+embeddings, and more. See `/convex-components-guide` for details.
 
 ## Development
 
 ### Agent Mode (Cloud Coding Agents Only)
 
-If using a cloud-based coding agent (Jules, Devin, Cursor Cloud), set up agent mode to avoid conflicts with your dev deployment:
+If using a cloud-based coding agent (Jules, Devin, Cursor Cloud), set up agent
+mode to avoid conflicts with your dev deployment:
 
 ```bash
 # In agent's environment only
 CONVEX_AGENT_MODE=anonymous
 ```
 
-This creates an isolated anonymous deployment. **Do not use this for local development** - it's only for cloud agents that can't share your dev deployment.
+This creates an isolated anonymous deployment. **Do not use this for local
+development** - it's only for cloud agents that can't share your dev deployment.
 
-For local AI coding (Claude Code, local Cursor), just use `npx convex dev` as normal.
+For local AI coding (Claude Code, local Cursor), just use `aubx convex dev` as
+normal.

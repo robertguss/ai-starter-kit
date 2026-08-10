@@ -1,6 +1,8 @@
 # IDE Tools Documentation
 
-This project includes optional IDE enhancement tools that improve the development experience. These are completely optional and the project works perfectly without them.
+This project includes optional IDE enhancement tools that improve the
+development experience. These are completely optional and the project works
+perfectly without them.
 
 ---
 
@@ -12,7 +14,8 @@ The AI Starter Kit includes configuration for:
 - **Cursor IDE** (`.cursor/` directory)
 - **MCP Servers** (`.mcp.json`)
 
-These tools are kept in the repository to enhance developer productivity but can be safely ignored if you don't use them.
+These tools are kept in the repository to enhance developer productivity but can
+be safely ignored if you don't use them.
 
 ---
 
@@ -24,7 +27,8 @@ These tools are kept in the repository to enhance developer productivity but can
 
 ### What It Does
 
-Provides context and instructions to Claude AI assistants (like Claude Code) when working on this project.
+Provides context and instructions to Claude AI assistants (like Claude Code)
+when working on this project.
 
 ### Key Files
 
@@ -160,10 +164,13 @@ Or manually install:
 
 ## Summary
 
-These IDE tools are **optional enhancements** that don't affect the core functionality of the starter kit. Use them if they improve your workflow, ignore them if they don't.
+These IDE tools are **optional enhancements** that don't affect the core
+functionality of the starter kit. Use them if they improve your workflow, ignore
+them if they don't.
 
 The project is designed to work great with or without them!
 
 ---
 
-**Previous:** [← Troubleshooting](./TROUBLESHOOTING.md) | **Back to README** [→](../README.md)
+**Previous:** [← Troubleshooting](./TROUBLESHOOTING.md) | **Back to README**
+[→](../README.md)

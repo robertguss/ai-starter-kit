@@ -1,9 +1,9 @@
 ---
 name: Bug Report
 about: Report a bug or issue with the AI Starter Kit
-title: '[BUG] '
+title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## Bug Description
@@ -57,4 +57,5 @@ If you have suggestions on how to fix the bug, please share them here.
 - [ ] I have searched existing issues to make sure this isn't a duplicate
 - [ ] I have provided all the required information above
 - [ ] I have included error messages and logs
-- [ ] I have tried the troubleshooting steps in [docs/TROUBLESHOOTING.md](../../docs/TROUBLESHOOTING.md)
+- [ ] I have tried the troubleshooting steps in
+      [docs/TROUBLESHOOTING.md](../../docs/TROUBLESHOOTING.md)

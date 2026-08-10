@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup aube + Node
+        uses: jdx/aube-action@v1
+        with:
+          version: latest
+          node-version: "22"
+          run-install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: aube ci
+
+      - name: Generate Convex types
+        run: aubx convex codegen
+
+      - name: Lint
+        run: aubr lint
+
+      - name: Typecheck
+        run: aubr typecheck
+
+      - name: Format check
+        run: aubr format:check
+
+      - name: Unit tests
+        run: aubr test:once
+
+      - name: Dependency audit
+        run: aube audit --audit-level high

@@ -1,6 +1,8 @@
 # Testing Convex Functions
 
-This project uses [Vitest](https://vitest.dev/) and [convex-test](https://github.com/get-convex/convex-test) for testing Convex functions.
+This project uses [Vitest](https://vitest.dev/) and
+[convex-test](https://github.com/get-convex/convex-test) for testing Convex
+functions.
 
 ## Running Tests
 
@@ -22,7 +24,8 @@ aubr test:debug
 
 ### Basic Test Structure
 
-This project uses a `test.setup.ts` file to configure module resolution for convex-test. Import the `modules` from this file when setting up your tests:
+This project uses a `test.setup.ts` file to configure module resolution for
+convex-test. Import the `modules` from this file when setting up your tests:
 
 ```typescript
 import { convexTest } from "convex-test";
@@ -39,7 +42,8 @@ describe("myFunction", () => {
 });
 ```
 
-**Important:** Create a fresh `convexTest` instance in each test to ensure test isolation. This gives each test a clean database state.
+**Important:** Create a fresh `convexTest` instance in each test to ensure test
+isolation. This gives each test a clean database state.
 
 ### Testing Queries
 
@@ -125,17 +129,22 @@ it("should work with authenticated user", async () => {
 
 ## Best Practices
 
-1. **Create fresh test instances**: Always create a new `convexTest(schema, modules)` instance in each test for isolation
+1. **Create fresh test instances**: Always create a new
+   `convexTest(schema, modules)` instance in each test for isolation
 2. **Test edge cases**: Empty databases, limits, error conditions
 3. **Verify side effects**: After mutations/actions, check the database state
 4. **Keep tests focused**: Each test should verify one behavior
-5. **Use descriptive names**: Test names should clearly describe what they're testing
-6. **Test integration**: Include tests that verify multiple functions work together
-7. **Import modules**: Always import `{ modules }` from `"./test.setup"` for proper function resolution
+5. **Use descriptive names**: Test names should clearly describe what they're
+   testing
+6. **Test integration**: Include tests that verify multiple functions work
+   together
+7. **Import modules**: Always import `{ modules }` from `"./test.setup"` for
+   proper function resolution
 
 ## Tips
 
 - Tests run in an isolated environment with a clean database for each test
 - You can directly access `ctx.db` for setup and verification
 - Use `t.run()` to execute arbitrary code in the test context
-- The test environment supports the same Convex features as your development environment
+- The test environment supports the same Convex features as your development
+  environment

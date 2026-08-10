@@ -1,23 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-import type { CSSProperties } from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import type { CSSProperties } from "react";
 
-import { AppSidebar } from '@/components/app-sidebar'
-import { ChartAreaInteractive } from '@/components/chart-area-interactive'
-import { DataTable } from '@/components/data-table'
-import { SectionCards } from '@/components/section-cards'
-import { SiteHeader } from '@/components/site-header'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from "@/components/app-sidebar";
+import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { DataTable } from "@/components/data-table";
+import { SectionCards } from "@/components/section-cards";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import data from './data.json'
+import data from "./data.json";
 
-export const Route = createFileRoute('/_authenticated/dashboard')({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
-})
+});
 
 const sidebarStyle = {
-  '--sidebar-width': 'calc(var(--spacing) * 72)',
-  '--header-height': 'calc(var(--spacing) * 12)',
-} as CSSProperties
+  "--sidebar-width": "calc(var(--spacing) * 72)",
+  "--header-height": "calc(var(--spacing) * 12)",
+} as CSSProperties;
 
 function DashboardPage() {
   return (
@@ -42,5 +42,5 @@ function DashboardPage() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

@@ -1,6 +1,7 @@
 # Contributing to AI Starter Kit
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing! This document provides guidelines
+for contributing to the project.
 
 ---
 
@@ -17,7 +18,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## Code of Conduct
 
-This project adheres to a [Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project adheres to a [Code of Conduct](./CODE_OF_CONDUCT.md). By
+participating, you are expected to uphold this code.
 
 ---
 
@@ -25,7 +27,8 @@ This project adheres to a [Code of Conduct](./CODE_OF_CONDUCT.md). By participat
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/robertguss/ai-starter-kit/issues)
+1. Check if the bug has already been reported in
+   [Issues](https://github.com/robertguss/ai-starter-kit/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -66,28 +69,35 @@ cd ai-starter-kit
 ### 2. Install Dependencies
 
 ```bash
-pnpm install
+# Requires aube: https://aube.jdx.dev
+aube install
 ```
 
-### 3. Set Up Convex
+### 3. Set Up Convex + Clerk
 
 ```bash
-bunx convex dev
-# Add Clerk keys to .env.local (see .env.example), then:
-bunx convex env set CLERK_JWT_ISSUER_DOMAIN https://your-app.clerk.accounts.dev
+# Guided setup (interactive)
+./setup.sh --no-dev
+
+# Agent / CI-friendly setup
+./setup.sh --yes --no-dev --clerk-app app_xxx
+
+# Or stepwise:
+aubx convex dev --until-success
+./scripts/setup-clerk-auth.sh
 ```
 
 ### 4. Start Development
 
 ```bash
-pnpm run dev
+aubr dev
 ```
 
 ### 5. Run Tests
 
 ```bash
-npx convex codegen
-pnpm run test
+aubx convex codegen
+aubr check
 ```
 
 ---
@@ -220,9 +230,10 @@ Closes #123
 4. **Test your changes**
 
    ```bash
-   pnpm run lint
-   pnpm run test:once
-   pnpm run build
+   aubr lint
+   aubr typecheck
+   aubr test:once
+   aubr build
    ```
 
 5. **Commit your changes**
@@ -300,7 +311,8 @@ Closes #123
 
 ### Writing Tests
 
-- Place tests in `convex/*.test.ts`
+- Place Convex tests in `convex/*.test.ts`
+- Place shared/frontend unit tests next to source (e.g. `lib/*.test.ts`)
 - Use descriptive test names
 - Test both success and error cases
 - Follow patterns in existing tests

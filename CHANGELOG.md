@@ -3,11 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Changed
+
 - Migrated authentication from Better Auth to Clerk + Convex JWT validation
 - Replaced custom login/signup forms with Clerk `<SignIn />` / `<SignUp />`
 - Route protection now uses Next.js 16 `proxy.ts` (`clerkMiddleware`) and
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Clerk MCP server entry to `.mcp.json`
 
 ### Removed
+
 - `better-auth` and `@convex-dev/better-auth` dependencies
 - Auth HTTP proxy (`app/api/auth/[...all]`) and `NEXT_PUBLIC_CONVEX_SITE_URL`
   requirement for sessions
@@ -22,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-11-10
 
 ### Added
+
 - Initial release of AI Starter Kit
 - Next.js 16 with React 19 and App Router
 - Convex real-time database integration
@@ -54,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark mode support
 
 ### Developer Experience
+
 - Hot module replacement with Turbo mode
 - Parallel dev servers (frontend + backend)
 - Automatic TypeScript generation from schema
@@ -61,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Path aliases (@/components, @/lib, etc.)
 
 ### Documentation
+
 - README with comprehensive project overview
 - Step-by-step setup instructions
 - Code examples and patterns
@@ -80,19 +86,25 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and enhancements.
 ### [Version] - YYYY-MM-DD
 
 #### Added
+
 - New features
 
 #### Changed
+
 - Changes to existing functionality
 
 #### Deprecated
+
 - Features that will be removed
 
 #### Removed
+
 - Removed features
 
 #### Fixed
+
 - Bug fixes
 
 #### Security
+
 - Security improvements

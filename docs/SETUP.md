@@ -1,6 +1,7 @@
 # Detailed Setup Guide
 
-Complete installation and configuration guide for the AI Starter Kit. This guide covers everything from prerequisites to advanced configuration options.
+Complete installation and configuration guide for the AI Starter Kit. This guide
+covers everything from prerequisites to advanced configuration options.
 
 ---
 
@@ -22,7 +23,7 @@ Complete installation and configuration guide for the AI Starter Kit. This guide
 ### Minimum Requirements
 
 - **Operating System**: macOS, Linux, or Windows 10/11
-- **Node.js**: 18.x or later (20.x recommended)
+- **Node.js**: 20.9 or later (22.x recommended)
 - **RAM**: 4GB minimum, 8GB recommended
 - **Disk Space**: 500MB for dependencies
 - **Internet**: Required for Convex cloud services
@@ -107,7 +108,8 @@ aube --version
 aube install
 ```
 
-This installs all dependencies defined in `package.json`. The process typically takes 2-5 minutes depending on your internet speed.
+This installs all dependencies defined in `package.json`. The process typically
+takes 2-5 minutes depending on your internet speed.
 
 **What gets installed:**
 
@@ -126,7 +128,7 @@ This installs all dependencies defined in `package.json`. The process typically 
 This project uses two types of environment variables:
 
 1. **Convex Environment Variables** (stored in Convex cloud)
-   - Set via `npx convex env set KEY value`
+   - Set via `aubx convex env set KEY value`
    - Used by backend (Convex functions)
    - Secure and not exposed to the frontend
 
@@ -190,7 +192,7 @@ aubx convex env list
 ### Initialize Convex Development Mode
 
 ```bash
-npx convex dev
+aubx convex dev
 ```
 
 **First-Time Setup Flow:**
@@ -218,7 +220,8 @@ npx convex dev
    - Auto-reloads on updates
    - Outputs logs and errors
 
-**Keep this terminal running!** The Convex dev server needs to stay active during development.
+**Keep this terminal running!** The Convex dev server needs to stay active
+during development.
 
 ### Understanding Convex Files
 
@@ -239,7 +242,7 @@ convex/
 ### Open Convex Dashboard
 
 ```bash
-npx convex dashboard
+aubx convex dashboard
 ```
 
 This opens the Convex web dashboard where you can:
@@ -280,7 +283,8 @@ Dashboard-only steps and URL cheat sheet:
 - `ClerkProvider` in `app/routes/__root.tsx`
 - `ConvexProviderWithClerk` in `app/ConvexClientProvider.tsx`
 - `app/start.ts` with bare `clerkMiddleware()` (session wiring)
-- `app/routes/_authenticated/route.tsx` with `beforeLoad` + server `auth()` (page gate)
+- `app/routes/_authenticated/route.tsx` with `beforeLoad` + server `auth()`
+  (page gate)
 - Clerk `<SignIn />` at `/login` and `<SignUp />` at `/signup`
 - Clerk MCP in `.mcp.json`
 
@@ -311,7 +315,7 @@ You need **two terminals**:
 **Terminal 1: Convex Backend**
 
 ```bash
-npx convex dev
+aubx convex dev
 ```
 
 **Terminal 2: TanStack Start frontend**
@@ -350,7 +354,7 @@ aubr dev
 Convex auto-generates TypeScript types, but you can manually trigger it:
 
 ```bash
-npx convex codegen
+aubx convex codegen
 ```
 
 **When to run this:**
@@ -368,8 +372,8 @@ npx convex codegen
 #### 1. Check Node.js and aube
 
 ```bash
-node --version    # Should be 18.x or higher
-aube --version    # Should be 8.x or higher
+node --version    # Should be 20.9 or higher
+aube --version    # Should be 1.x or higher
 ```
 
 #### 2. Verify Dependencies Installed
@@ -430,66 +434,37 @@ after a full sign-out and sign-in.
 
 ## Optional Configuration
 
-### Enable Strict Mode
+### TypeScript, ESLint, and hooks
 
-For production-ready code, enable React strict mode in `app/routes/__root.tsx`:
-
-```typescript
-<React.StrictMode>
-  <ConvexClientProvider>{children}</ConvexClientProvider>
-</React.StrictMode>
-```
-
-### Configure ESLint
-
-Adjust `.eslintrc.json` or create one:
-
-```json
-{
-  "extends": ["next/core-web-vitals", "next/typescript"],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn"
-  }
-}
-```
-
-### Add Pre-commit Hooks
-
-Install Husky for Git hooks:
+Strict TypeScript, ESLint (including `@convex-dev/eslint-plugin`), Prettier, and
+Husky pre-commit hooks already ship with this kit. Use:
 
 ```bash
-aube add -D husky
-npx husky init
-echo "aubr lint && aubr test:once" > .husky/pre-commit
+aubr lint
+aubr typecheck
+aubr format
+aubr check
 ```
 
-### Configure Tailwind CSS
+Pre-commit runs `lint-staged` via `.husky/pre-commit`.
 
-Customize `tailwind.config.ts`:
+### Non-interactive / agent setup
 
-```typescript
-export default {
-  // Your customizations
-  theme: {
-    extend: {
-      colors: {
-        // Custom colors
-      },
-    },
-  },
-};
+```bash
+./setup.sh --yes --no-dev
+# or with an existing Clerk app:
+./setup.sh --yes --no-dev --clerk-app app_xxx
 ```
 
 ### Add More shadcn/ui Components
 
 ```bash
 # Browse available components
-npx shadcn@latest add
+aubx shadcn@latest add
 
 # Add specific component
-npx shadcn@latest add dialog
-npx shadcn@latest add toast
+aubx shadcn@latest add dialog
+aubx shadcn@latest add toast
 ```
 
 ---
@@ -497,7 +472,8 @@ npx shadcn@latest add toast
 ## Next Steps
 
 - ✅ Setup complete! Now what?
-- Read the [Architecture Guide](./ARCHITECTURE.md) to understand how everything works
+- Read the [Architecture Guide](./ARCHITECTURE.md) to understand how everything
+  works
 - Follow the [Development Guide](./DEVELOPMENT.md) to add features
 - Check out the [API Reference](./API.md) for Convex functions
 - Learn about [Testing](../convex/TESTING.md)
@@ -512,9 +488,11 @@ For common setup issues, see the [Troubleshooting Guide](./TROUBLESHOOTING.md).
 
 - **Port conflicts**: Use `PORT=3001 aubr dev:frontend`
 - **Stale dependencies**: Run `aube install --force`
-- **Convex auth errors**: Verify environment variables with `npx convex env list`
-- **TypeScript errors**: Run `npx convex codegen`
+- **Convex auth errors**: Verify environment variables with
+  `aubx convex env list`
+- **TypeScript errors**: Run `aubx convex codegen`
 
 ---
 
-**Previous:** [← Quick Start](./QUICK_START.md) | **Next:** [Architecture →](./ARCHITECTURE.md)
+**Previous:** [← Quick Start](./QUICK_START.md) | **Next:**
+[Architecture →](./ARCHITECTURE.md)

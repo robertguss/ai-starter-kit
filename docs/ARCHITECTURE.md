@@ -1,6 +1,7 @@
 # Architecture Overview
 
-This document explains the system architecture, design patterns, and key decisions behind the AI Starter Kit.
+This document explains the system architecture, design patterns, and key
+decisions behind the AI Starter Kit.
 
 ---
 
@@ -49,7 +50,7 @@ This document explains the system architecture, design patterns, and key decisio
 | Layer            | Responsibility                            | Technologies                             |
 | ---------------- | ----------------------------------------- | ---------------------------------------- |
 | **Presentation** | UI rendering, user interactions           | React 19, shadcn/ui, Tailwind            |
-| **Application**  | Business logic, routing, state management | TanStack Start, React hooks                  |
+| **Application**  | Business logic, routing, state management | TanStack Start, React hooks              |
 | **API**          | Client-server communication               | Convex Client, WebSocket                 |
 | **Backend**      | Data processing, auth, business rules     | Convex functions (Query/Mutation/Action) |
 | **Database**     | Data persistence, real-time subscriptions | Convex database (PostgreSQL-compatible)  |
@@ -97,7 +98,8 @@ RootLayout (app/routes/__root.tsx)
 
 ### State Management Strategy
 
-**No global state library needed!** Convex handles state through reactive queries:
+**No global state library needed!** Convex handles state through reactive
+queries:
 
 1. **Server State**: Convex queries (auto-updating)
 2. **Local UI State**: React hooks (`useState`, `useReducer`)
@@ -449,4 +451,5 @@ Convex Cloud (Backend)
 
 ---
 
-**Previous:** [← Setup Guide](./SETUP.md) | **Next:** [Development →](./DEVELOPMENT.md)
+**Previous:** [← Setup Guide](./SETUP.md) | **Next:**
+[Development →](./DEVELOPMENT.md)

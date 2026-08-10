@@ -1,49 +1,49 @@
 /// <reference types="vite/client" />
-import { ClerkProvider } from '@clerk/tanstack-react-start'
-import { ThemeProvider } from 'next-themes'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import * as React from 'react'
+import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { ThemeProvider } from "next-themes";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import * as React from "react";
 import {
   HeadContent,
   Link,
   Outlet,
   Scripts,
   createRootRoute,
-} from '@tanstack/react-router'
+} from "@tanstack/react-router";
 
-import { Button } from '@/components/ui/button'
-import { ConvexClientProvider } from '../ConvexClientProvider'
-import appCss from '../globals.css?url'
+import { Button } from "@/components/ui/button";
+import { ConvexClientProvider } from "../ConvexClientProvider";
+import appCss from "../globals.css?url";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
+      { charSet: "utf-8" },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
-      { title: 'AI Starter Kit' },
+      { title: "AI Starter Kit" },
       {
-        name: 'description',
+        name: "description",
         content:
-          'A modern, production-ready starter kit for building full-stack applications with TanStack Start, Convex, Clerk, TypeScript, and shadcn/ui.',
+          "A modern, production-ready starter kit for building full-stack applications with TanStack Start, Convex, Clerk, TypeScript, and shadcn/ui.",
       },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
   notFoundComponent: NotFound,
-})
+});
 
 function RootComponent() {
   return (
     <ClerkProvider
       signInFallbackRedirectUrl={
-        import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? '/dashboard'
+        import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/dashboard"
       }
       signUpFallbackRedirectUrl={
-        import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? '/dashboard'
+        import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? "/dashboard"
       }
     >
       <ConvexClientProvider>
@@ -52,7 +52,7 @@ function RootComponent() {
         </RootDocument>
       </ConvexClientProvider>
     </ClerkProvider>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -76,7 +76,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
 
 function NotFound() {
@@ -100,5 +100,5 @@ function NotFound() {
         </Link>
       </main>
     </div>
-  )
+  );
 }

@@ -1,31 +1,32 @@
-import * as React from "react"
+import * as React from "react";
 import {
   IconCheck,
   IconDeviceDesktop,
   IconMoon,
   IconSun,
-} from "@tabler/icons-react"
-import { useTheme } from "next-themes"
+} from "@tabler/icons-react";
+import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 const themes = [
   { value: "light", label: "Light", icon: IconSun },
   { value: "dark", label: "Dark", icon: IconMoon },
   { value: "system", label: "System", icon: IconDeviceDesktop },
-] as const
+] as const;
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
-  const current = themes.find((t) => t.value === (theme ?? "system")) ?? themes[2]
-  const CurrentIcon = current.icon
+  const current =
+    themes.find((t) => t.value === (theme ?? "system")) ?? themes[2];
+  const CurrentIcon = current.icon;
 
   return (
     <DropdownMenu>
@@ -51,5 +52,5 @@ export function ModeToggle() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

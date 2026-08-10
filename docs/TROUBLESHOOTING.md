@@ -44,10 +44,10 @@ nvm use 20
 
 ```bash
 # Run Convex dev first
-npx convex dev
+aubx convex dev
 
 # Then generate types
-npx convex codegen
+aubx convex codegen
 ```
 
 ### Convex dev fails to start
@@ -55,9 +55,9 @@ npx convex codegen
 **Solution:**
 
 1. Check internet connection
-2. Verify you're logged in: `npx convex dev`
+2. Verify you're logged in: `aubx convex dev`
 3. Check port 3210 isn't in use
-4. Try: `npx convex dev --once` to test connection
+4. Try: `aubx convex dev --once` to test connection
 
 ### "Unauthorized" errors in Convex functions
 
@@ -79,7 +79,7 @@ Also confirm Clerk keys exist in `.env.local`.
 
 ```bash
 # Regenerate after schema changes
-npx convex codegen
+aubx convex codegen
 
 # Restart Convex dev
 ```
@@ -95,8 +95,9 @@ npx convex codegen
 - `useConvexAuth()` stays unauthenticated after Clerk sign-in
 - `getCurrentUser` returns null while Clerk shows a signed-in user
 
-**Cause:** The Convex JWT template is inactive, or `CLERK_JWT_ISSUER_DOMAIN` is wrong.
-Prefer re-running `./scripts/setup-clerk-auth.sh` (Clerk CLI) before Dashboard clicks.
+**Cause:** The Convex JWT template is inactive, or `CLERK_JWT_ISSUER_DOMAIN` is
+wrong. Prefer re-running `./scripts/setup-clerk-auth.sh` (Clerk CLI) before
+Dashboard clicks.
 
 **Solution:**
 
@@ -134,7 +135,8 @@ aubx convex dev
 
 1. Confirm Clerk keys in `.env.local`
 2. Confirm fallback redirect URLs point at `/dashboard`
-3. Confirm `app/routes/_authenticated/route.tsx` calls `beforeLoad` + server `auth()`
+3. Confirm `app/routes/_authenticated/route.tsx` calls `beforeLoad` + server
+   `auth()`
 4. Sign out fully and sign back in after enabling the JWT template
 
 ### Clerk session works but Convex identity is null
@@ -182,7 +184,7 @@ aubr dev:frontend -- -p 3001
 
 ```bash
 # Regenerate types
-npx convex codegen
+aubx convex codegen
 
 # Restart TypeScript server in VS Code:
 # Cmd+Shift+P → "TypeScript: Restart TS Server"
@@ -197,14 +199,13 @@ npx convex codegen
 **Solution:**
 
 ```bash
-npx convex codegen
+aubx convex codegen
 aubr test
 ```
 
 ### Tests fail with "modules not found"
 
-**Solution:**
-Check `convex/test.setup.ts` exists and contains:
+**Solution:** Check `convex/test.setup.ts` exists and contains:
 
 ```typescript
 import { modules } from "convex-test/test.setup.js";
@@ -248,8 +249,8 @@ aubx convex env list --prod
 
 **Solution:**
 
-1. Check Convex dashboard logs: `npx convex dashboard --prod`
-2. Verify Convex deployment: `npx convex deploy`
+1. Check Convex dashboard logs: `aubx convex dashboard --prod`
+2. Verify Convex deployment: `aubx convex deploy`
 3. Check browser console for errors
 4. Verify `VITE_CONVEX_URL` matches production URL
 
@@ -259,8 +260,7 @@ aubx convex env list --prod
 
 ### Slow queries
 
-**Solution:**
-Add indexes in `convex/schema.ts`:
+**Solution:** Add indexes in `convex/schema.ts`:
 
 ```typescript
 .index("by_userId", ["userId"])
@@ -272,7 +272,8 @@ Add indexes in `convex/schema.ts`:
 
 1. Use dynamic imports for large components
 2. Check for duplicate dependencies
-3. Analyze bundle: `aubr build && vite build --mode analyze (or your preferred analyzer)`
+3. Analyze bundle:
+   `aubr build && vite build --mode analyze (or your preferred analyzer)`
 
 ---
 
@@ -308,7 +309,8 @@ Add indexes in `convex/schema.ts`:
 - Check [Convex Documentation](https://docs.convex.dev)
 - Check [Clerk Documentation](https://clerk.com/docs)
 - See [Authentication Guide](./AUTHENTICATION.md)
-- Open an issue: [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
+- Open an issue:
+  [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
 - Review existing issues for similar problems
 
 ---
@@ -322,9 +324,10 @@ When something isn't working:
 3. [ ] Verify environment variables
 4. [ ] Restart dev servers
 5. [ ] Clear cache (`dist`, `.tanstack`, browser cache)
-6. [ ] Run `npx convex codegen`
+6. [ ] Run `aubx convex codegen`
 7. [ ] Check Convex dashboard for logs
 
 ---
 
-**Previous:** [← Authentication](./AUTHENTICATION.md) | **Next:** [IDE Tools →](./IDE_TOOLS.md)
+**Previous:** [← Authentication](./AUTHENTICATION.md) | **Next:**
+[IDE Tools →](./IDE_TOOLS.md)

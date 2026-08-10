@@ -1,6 +1,8 @@
 # AI Starter Kit
 
-A modern, production-ready starter kit for building full-stack applications with **TanStack Start**, **Convex** real-time database, **Clerk** authentication, **TypeScript**, and **shadcn/ui** components.
+A modern, production-ready starter kit for building full-stack applications with
+**TanStack Start**, **Convex** real-time database, **Clerk** authentication,
+**TypeScript**, and **shadcn/ui** components.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![TanStack Start](https://img.shields.io/badge/TanStack%20Start-latest-black.svg)](https://tanstack.com/start/)
@@ -16,10 +18,10 @@ directly.
 
 ### Prerequisites
 
-| Tool | Requirement |
-| --- | --- |
-| Node.js | **20.9+** (`node -v`) |
-| aube | Install from [aube.jdx.dev](https://aube.jdx.dev) (`aube --version`) |
+| Tool     | Requirement                                                                          |
+| -------- | ------------------------------------------------------------------------------------ |
+| Node.js  | **20.9+** (`node -v`)                                                                |
+| aube     | Install from [aube.jdx.dev](https://aube.jdx.dev) (`aube --version`)                 |
 | Accounts | Free [Clerk](https://clerk.com) + [Convex](https://convex.dev) (CLI opens a browser) |
 
 Windows: use Git Bash or WSL for the shell scripts below.
@@ -39,9 +41,8 @@ aubx clerk@latest auth login
 aubx clerk@latest whoami
 ```
 
-Do this in a normal terminal with a browser. Do **not** run `clerk init` in
-this repo. Providers, middleware, `/login`, and `/signup` already ship with
-the kit.
+Do this in a normal terminal with a browser. Do **not** run `clerk init` in this
+repo. Providers, middleware, `/login`, and `/signup` already ship with the kit.
 
 ### 3. Link Convex
 
@@ -49,9 +50,9 @@ the kit.
 aubx convex dev --until-success
 ```
 
-Log in / create a Convex project when prompted. This writes
-`VITE_CONVEX_URL` into `.env.local` (and `setup.sh` maps any legacy
-`NEXT_PUBLIC_CONVEX_URL` if needed).
+Log in / create a Convex project when prompted. This writes `VITE_CONVEX_URL`
+into `.env.local` (and `setup.sh` maps any legacy `NEXT_PUBLIC_CONVEX_URL` if
+needed).
 
 ### 4. Finish Clerk + Convex JWT auth
 
@@ -73,16 +74,18 @@ This idempotent script:
 aubr dev
 ```
 
-Runs the TanStack Start frontend and Convex backend together
-(`package.json` → `dev` / `dev:frontend` / `dev:backend`).
+Runs the TanStack Start frontend and Convex backend together (`package.json` →
+`dev` / `dev:frontend` / `dev:backend`).
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ### 6. Verify auth end to end
 
-1. Go to [http://localhost:3000/signup](http://localhost:3000/signup) and create a user
+1. Go to [http://localhost:3000/signup](http://localhost:3000/signup) and create
+   a user
 2. Confirm you land on `/dashboard`
-3. Sign out fully, then sign in again at `/login` (needed once after the JWT template is created)
+3. Sign out fully, then sign in again at `/login` (needed once after the JWT
+   template is created)
 4. Confirm the dashboard still loads while signed in
 
 ### One-command path
@@ -100,12 +103,12 @@ cd web-app-starter-kit
 
 ### Deeper docs
 
-| Topic | Doc |
-| --- | --- |
-| Auth details + Dashboard fallback | [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md) |
-| Full setup / env reference | [docs/SETUP.md](./docs/SETUP.md) |
-| Longer quick start + troubleshooting | [docs/QUICK_START.md](./docs/QUICK_START.md) |
-| Clerk CLI for agents | [clerk.com/cli/agents.txt](https://clerk.com/cli/agents.txt) |
+| Topic                                | Doc                                                          |
+| ------------------------------------ | ------------------------------------------------------------ |
+| Auth details + Dashboard fallback    | [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md)           |
+| Full setup / env reference           | [docs/SETUP.md](./docs/SETUP.md)                             |
+| Longer quick start + troubleshooting | [docs/QUICK_START.md](./docs/QUICK_START.md)                 |
+| Clerk CLI for agents                 | [clerk.com/cli/agents.txt](https://clerk.com/cli/agents.txt) |
 
 ---
 
@@ -175,9 +178,11 @@ cd web-app-starter-kit
 
 - **Authentication** - Clerk + Convex JWT integration
   - Hosted Clerk sign-in / sign-up UI
-  - Protected `/dashboard` route via TanStack Router `beforeLoad` + Clerk server auth
+  - Protected `/dashboard` route via TanStack Router `beforeLoad` + Clerk server
+    auth
   - Convex identity from Clerk JWTs (`ctx.auth.getUserIdentity()`)
-  - Setup via Clerk CLI (`./scripts/setup-clerk-auth.sh`); Dashboard fallback in docs
+  - Setup via Clerk CLI (`./scripts/setup-clerk-auth.sh`); Dashboard fallback in
+    docs
 
 - **Real-time Database** - Powered by Convex
   - Serverless backend with zero infrastructure management
@@ -209,17 +214,25 @@ cd web-app-starter-kit
 
 ### Building with AI Coding Agents
 
-This starter kit is designed to work seamlessly with AI coding agents like **Claude Code**. For the best development experience, we recommend following the **[BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)** (Breakthrough Method for Agile AI Driven Development).
+This starter kit is designed to work seamlessly with AI coding agents like
+**Claude Code**. For the best development experience, we recommend following the
+**[BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)** (Breakthrough
+Method for Agile AI Driven Development).
 
 **What is BMAD?**
 
-The BMAD Method is a comprehensive framework that combines human expertise with AI capabilities to build software more effectively. It provides:
+The BMAD Method is a comprehensive framework that combines human expertise with
+AI capabilities to build software more effectively. It provides:
 
-- **19+ specialized AI agents** and **50+ workflows** for different development scenarios
-- **Three planning tracks** that automatically adapt based on your project needs:
+- **19+ specialized AI agents** and **50+ workflows** for different development
+  scenarios
+- **Three planning tracks** that automatically adapt based on your project
+  needs:
   - **Quick Flow Track** - Bug fixes and small features
-  - **BMad Method Track** - Full products and platforms (recommended for this starter kit)
-  - **Enterprise Method Track** - Complex systems with security and compliance needs
+  - **BMad Method Track** - Full products and platforms (recommended for this
+    starter kit)
+  - **Enterprise Method Track** - Complex systems with security and compliance
+    needs
 
 **Why BMAD with this Starter Kit?**
 
@@ -230,35 +243,40 @@ The BMAD Method is a comprehensive framework that combines human expertise with 
 
 **Getting Started with BMAD:**
 
-1. Review the [BMAD Method documentation](https://github.com/bmad-code-org/BMAD-METHOD)
+1. Review the
+   [BMAD Method documentation](https://github.com/bmad-code-org/BMAD-METHOD)
 2. Use the `CLAUDE.md` file in this repo (pre-configured for Claude Code)
 3. Follow the BMad Method Track for adding new features to your application
 
-> **Note**: While BMAD is recommended, it's entirely optional. This starter kit works great with any development workflow or AI coding assistant.
+> **Note**: While BMAD is recommended, it's entirely optional. This starter kit
+> works great with any development workflow or AI coding assistant.
 
 ---
 
 ## Tech Stack
 
-| Category            | Technology   | Version | Purpose                              |
-| ------------------- | ------------ | ------- | ------------------------------------ |
-| **Framework**       | TanStack Start | latest | Full-stack React framework with Vite SSR |
-| **Frontend**        | React        | 19.x    | UI library                           |
-| **Language**        | TypeScript   | 5.x     | Type-safe JavaScript                 |
-| **Backend**         | Convex       | 1.28+   | Real-time serverless database        |
-| **Auth**            | Clerk        | Latest  | Authentication & session management  |
-| **Styling**         | Tailwind CSS | 4.x     | Utility-first CSS framework          |
-| **Components**      | shadcn/ui    | Latest  | Radix UI + Tailwind components       |
-| **Icons**           | Lucide React | Latest  | Beautiful consistent icons           |
-| **Testing**         | Vitest       | 4.x     | Fast unit testing framework          |
-| **Package Manager** | aube         | 1.x+    | Fast, secure JavaScript package manager   |
+| Category            | Technology     | Version | Purpose                                  |
+| ------------------- | -------------- | ------- | ---------------------------------------- |
+| **Framework**       | TanStack Start | latest  | Full-stack React framework with Vite SSR |
+| **Frontend**        | React          | 19.x    | UI library                               |
+| **Language**        | TypeScript     | 5.x     | Type-safe JavaScript                     |
+| **Backend**         | Convex         | 1.28+   | Real-time serverless database            |
+| **Auth**            | Clerk          | Latest  | Authentication & session management      |
+| **Styling**         | Tailwind CSS   | 4.x     | Utility-first CSS framework              |
+| **Components**      | shadcn/ui      | Latest  | Radix UI + Tailwind components           |
+| **Icons**           | Lucide React   | Latest  | Beautiful consistent icons               |
+| **Testing**         | Vitest         | 4.x     | Fast unit testing framework              |
+| **Package Manager** | aube           | 1.x+    | Fast, secure JavaScript package manager  |
 
 ### Why These Technologies?
 
-- **TanStack Start**: Full-stack React framework with TanStack Router, Vite, SSR, and server functions
-- **Convex**: Eliminates the complexity of traditional backends - no REST/GraphQL APIs to build, real-time by default
+- **TanStack Start**: Full-stack React framework with TanStack Router, Vite,
+  SSR, and server functions
+- **Convex**: Eliminates the complexity of traditional backends - no
+  REST/GraphQL APIs to build, real-time by default
 - **Clerk**: Hosted auth with a first-party Convex JWT integration
-- **shadcn/ui**: Copy-paste components you own, built on Radix UI primitives for accessibility
+- **shadcn/ui**: Copy-paste components you own, built on Radix UI primitives for
+  accessibility
 - **TypeScript**: End-to-end type safety from database to frontend
 
 ---
@@ -346,7 +364,7 @@ Comprehensive guides for all aspects of the starter kit:
 aubr dev               # Run both frontend and backend in parallel
 aubr dev:frontend      # Run TanStack Start Vite dev server
 aubr dev:backend       # Run Convex only
-aubr predev            # Convex dev + auto-open dashboard
+aubr predev            # Ensure Convex is ready before `dev`
 
 # Building
 aubr build             # Build for production (Vite + SSR + type check)
@@ -354,6 +372,10 @@ aubr start             # Start production Node server
 
 # Code Quality
 aubr lint              # Run ESLint
+aubr typecheck         # TypeScript only (`tsc --noEmit`)
+aubr format            # Format with Prettier
+aubr format:check      # Check Prettier formatting
+aubr check             # Lint + typecheck + tests
 
 # Testing
 aubr test              # Run tests in watch mode
@@ -378,8 +400,8 @@ aubx convex dashboard
 ### Environment Variables
 
 Create a `.env.local` file for the Vite frontend. Convex writes
-`VITE_CONVEX_URL` (setup.sh ensures this key is present if Convex wrote a legacy name) for the
-TanStack Start client.
+`VITE_CONVEX_URL` (setup.sh ensures this key is present if Convex wrote a legacy
+name) for the TanStack Start client.
 
 ```bash
 # Auto-generated by `aubx convex dev`
@@ -397,7 +419,8 @@ VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
 `./scripts/setup-clerk-auth.sh` also sets `CLERK_JWT_ISSUER_DOMAIN` on Convex.
 
-See [`.env.example`](./.env.example) and [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
+See [`.env.example`](./.env.example) and
+[docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
 
 ---
 
@@ -469,9 +492,9 @@ it("should test something", async () => {
    aubr start
    ```
 
-This project uses the default TanStack Start Node SSR preset. Vercel, Cloudflare,
-and other presets can be added later by adjusting `vite.config.ts` and the
-`start` script.
+This project uses the default TanStack Start Node SSR preset. Vercel,
+Cloudflare, and other presets can be added later by adjusting `vite.config.ts`
+and the `start` script.
 
 See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment
 instructions, custom domains, and other platforms.
@@ -480,7 +503,8 @@ instructions, custom domains, and other platforms.
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for
+guidelines.
 
 ### Quick Contribution Steps
 
@@ -509,15 +533,18 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and enhancements, including:
 
 ## Community & Support
 
-- **Issues**: [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/robertguss/ai-starter-kit/discussions)
+- **Issues**:
+  [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
+- **Discussions**:
+  [GitHub Discussions](https://github.com/robertguss/ai-starter-kit/discussions)
 - **Contributing**: [Contribution Guidelines](./CONTRIBUTING.md)
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE)
+file for details.
 
 ---
 
@@ -525,7 +552,8 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 Built with amazing open-source technologies:
 
-- [TanStack Start](https://tanstack.com/start/) - Full-stack React framework with Vite SSR
+- [TanStack Start](https://tanstack.com/start/) - Full-stack React framework
+  with Vite SSR
 - [Convex](https://convex.dev/) - The reactive backend
 - [Clerk](https://clerk.com/) - Authentication and user management
 - [shadcn/ui](https://ui.shadcn.com/) - Beautifully designed components

@@ -1,6 +1,7 @@
 # Quick Start Guide
 
-Get the AI Starter Kit running on your machine in **5 minutes**. This guide will walk you through the fastest path to a working application.
+Get the AI Starter Kit running on your machine in **5 minutes**. This guide will
+walk you through the fastest path to a working application.
 
 ---
 
@@ -47,7 +48,8 @@ Before you begin, make sure you have the following installed:
 
 ## Automated Setup (Recommended)
 
-The easiest way to get started is with our automated setup script. It handles everything for you!
+The easiest way to get started is with our automated setup script. It handles
+everything for you!
 
 ```bash
 # Clone the repository
@@ -64,7 +66,8 @@ cd ai-starter-kit
 2. ✅ Fails fast if aube is missing (install from https://aube.jdx.dev)
 3. ✅ Installs all dependencies
 4. ✅ Guides you through Convex authentication (browser login)
-5. ✅ Runs Clerk CLI auth setup (`scripts/setup-clerk-auth.sh`: app, keys, Convex JWT)
+5. ✅ Runs Clerk CLI auth setup (`scripts/setup-clerk-auth.sh`: app, keys,
+   Convex JWT)
 6. ✅ Starts the development servers
 
 Before Clerk setup, authenticate the CLI once if needed:
@@ -75,13 +78,15 @@ aubx clerk@latest auth login
 
 > **Windows Users**: Run `bash setup.sh` in Git Bash or WSL.
 
-After the script completes, your dev server will be running at [http://localhost:3000](http://localhost:3000)!
+After the script completes, your dev server will be running at
+[http://localhost:3000](http://localhost:3000)!
 
 ---
 
 ## Manual Installation Steps
 
-If you prefer to set things up manually, or if the automated setup doesn't work for your environment, follow these steps:
+If you prefer to set things up manually, or if the automated setup doesn't work
+for your environment, follow these steps:
 
 ### Step 1: Clone the Repository
 
@@ -102,14 +107,15 @@ cd ai-starter-kit
 aube install
 ```
 
-This will install all required packages (~2-3 minutes depending on your internet speed).
+This will install all required packages (~2-3 minutes depending on your internet
+speed).
 
 ### Step 3: Initialize Convex
 
 Run the following command to set up your Convex backend:
 
 ```bash
-npx convex dev
+aubx convex dev
 ```
 
 **What happens next:**
@@ -179,15 +185,17 @@ This starts both:
    - You should be redirected to `/dashboard`
 
 4. **Verify Convex auth:**
-   - Open the Convex Dashboard: [https://dashboard.convex.dev](https://dashboard.convex.dev)
+   - Open the Convex Dashboard:
+     [https://dashboard.convex.dev](https://dashboard.convex.dev)
    - Or run: `aubx convex dashboard`
-   - Confirm `CLERK_JWT_ISSUER_DOMAIN` is set and `getCurrentUser` returns a user
+   - Confirm `CLERK_JWT_ISSUER_DOMAIN` is set and `getCurrentUser` returns a
+     user
 
 5. **Run tests** (optional but recommended):
 
    ```bash
    # First, generate Convex types
-   npx convex codegen
+   aubx convex codegen
 
    # Run tests
    aubr test:once
@@ -211,7 +219,8 @@ Now that you have the starter kit running, here are some suggested next steps:
 
 ### 2. Review Example Code
 
-- **Auth UI**: `app/login/[[...sign-in]]/page.tsx` and `app/signup/[[...sign-up]]/page.tsx`
+- **Auth UI**: `app/login/[[...sign-in]]/page.tsx` and
+  `app/signup/[[...sign-up]]/page.tsx`
   - Clerk `<SignIn />` and `<SignUp />`
 
 - **Protected Routes**: `app/start.ts` and `app/routes/_authenticated/route.tsx`
@@ -266,20 +275,20 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 ## Troubleshooting Quick Setup
 
-### Problem: `npx convex dev` fails
+### Problem: `aubx convex dev` fails
 
 **Solution:**
 
 - Make sure you're connected to the internet
 - Check that port 3210 isn't already in use
-- Try: `npx convex dev --admin-key <key>` if you have credentials
+- Try: `aubx convex dev --admin-key <key>` if you have credentials
 
 ### Problem: `VITE_CONVEX_URL` not found
 
 **Solution:**
 
 - Make sure `.env.local` exists in the project root
-- Run `npx convex dev` again - it auto-generates this file
+- Run `aubx convex dev` again - it auto-generates this file
 - Restart your TanStack Start / Vite dev server after the file is created
 
 ### Problem: "Unauthorized" or auth errors
@@ -296,7 +305,8 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 ### Problem: Convex says no auth provider matched the token
 
-**Cause:** The Clerk Convex JWT template is missing, or the issuer domain is wrong.
+**Cause:** The Clerk Convex JWT template is missing, or the issuer domain is
+wrong.
 
 **Solution:**
 
@@ -321,7 +331,7 @@ const greeting = useQuery(api.greetings.sayHello, { name: "World" });
 
 - Run Convex codegen first:
   ```bash
-  npx convex codegen
+  aubx convex codegen
   ```
 - This generates TypeScript types needed for tests
 

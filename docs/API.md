@@ -14,8 +14,8 @@ Public Convex helpers and identity patterns for this starter kit.
 
 ## Authentication
 
-Auth is handled by Clerk on the TanStack Start side. Convex validates Clerk JWTs.
-There are no kit-owned `/api/auth/*` HTTP endpoints.
+Auth is handled by Clerk on the TanStack Start side. Convex validates Clerk
+JWTs. There are no kit-owned `/api/auth/*` HTTP endpoints.
 
 ### Frontend
 
@@ -228,7 +228,7 @@ export default defineSchema({
 ### 3. Generate Types
 
 ```bash
-npx convex codegen
+aubx convex codegen
 ```
 
 ### 4. Use in Components
@@ -307,4 +307,5 @@ export const myQuery = query({
 
 ---
 
-**Previous:** [← Development](./DEVELOPMENT.md) | **Next:** [Database →](./DATABASE.md)
+**Previous:** [← Development](./DEVELOPMENT.md) | **Next:**
+[Database →](./DATABASE.md)
