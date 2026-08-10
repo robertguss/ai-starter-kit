@@ -351,3 +351,18 @@ Convex agent skills for common tasks can be installed by running
 `npx convex ai-files install`.
 
 <!-- convex-ai-end -->
+
+## Learned User Preferences
+
+- When fixing issues found in apps cloned from this kit, also port the fixes back into this template repo; when asked, land those template updates directly on `main`.
+- Prefer auth and setup docs that include concrete Clerk Dashboard URLs and steps for finishing UI configuration (JWT template, API keys).
+- Include `.cursor` project files in commits when they are part of the change set.
+- Prefer strict review findings with `file:line` evidence and without praise.
+
+## Learned Workspace Facts
+
+- This repo is the upstream TanStack Start + Convex + Clerk template used to create apps such as `wts-student-success-internal-tools`.
+- The kit package manager is aube (`aubr` / `aubx`); `setup.sh` requires aube—keep README and onboarding docs aligned with that rather than pnpm-first instructions.
+- `./scripts/setup-clerk-auth.sh` should prefer `CLERK_FRONTEND_API_URL` from `.env.local` and must not use bare `return` inside Node `-e` eval snippets (illegal under Node 24+).
+- TanStack Start in this kit should configure a root `notFoundComponent` and CSRF middleware for server functions (`app/routes/__root.tsx`, `app/start.ts`).
+- With `@tanstack/react-table` v9, the shadcn data-table should use `@tanstack/react-table/legacy` (`useLegacyTable`) for Vite SSR compatibility because v9 removed `useReactTable`.
