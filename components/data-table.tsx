@@ -33,20 +33,22 @@ import {
   IconTrendingUp,
 } from "@tabler/icons-react"
 import {
-  ColumnDef,
-  ColumnFiltersState,
+  type ColumnFiltersState,
+  type ColumnVisibilityState,
+  type SortingState,
   flexRender,
+} from "@tanstack/react-table"
+import {
+  type LegacyColumnDef as ColumnDef,
+  type LegacyRow as Row,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  Row,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table"
+  useLegacyTable,
+} from "@tanstack/react-table/legacy"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -342,7 +344,7 @@ export function DataTable({
   const [data, setData] = React.useState(() => initialData)
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<ColumnVisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -363,7 +365,8 @@ export function DataTable({
     [data]
   )
 
-  const table = useReactTable({
+  // TanStack Table v9 removed useReactTable; useLegacyTable keeps the v8 API.
+  const table = useLegacyTable({
     data,
     columns,
     state: {

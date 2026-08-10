@@ -420,7 +420,28 @@ EOF
   exit 1
 }
 
+frontend_api_url_from_env_file() {
+  local value
+  value="$(grep -E "^CLERK_FRONTEND_API_URL=" "$ENV_FILE" 2>/dev/null | head -n1 | cut -d= -f2- || true)"
+  value="${value%\"}"
+  value="${value#\"}"
+  value="${value%\'}"
+  value="${value#\'}"
+  # clerk env pull writes https://<slug>.clerk.accounts.dev (or a custom FAPI host).
+  if printf '%s' "$value" | grep -Eq '^https://[^[:space:]]+'; then
+    printf '%s' "$value"
+  fi
+}
+
 fetch_frontend_api_url() {
+  # Prefer value already pulled into .env.local (clerk env pull writes this).
+  local from_env
+  from_env="$(frontend_api_url_from_env_file || true)"
+  if [ -n "$from_env" ]; then
+    printf '%s' "$from_env"
+    return 0
+  fi
+
   TMP_DIR="${TMP_DIR:-$(mktemp -d)}"
   local domains_json="$TMP_DIR/domains.json"
 
@@ -433,9 +454,11 @@ fetch_frontend_api_url() {
       return 1
     fi
     curl -fsS "https://api.clerk.com/v1/domains" \
-      -H "Authorization: Bearer ${secret}" > "$domains_json"
+      -H "Authorization: Bearer ${secret}" > "$domains_json" || return 1
   fi
 
+  # Top-level `return` is illegal in `node -e` (Node treats it as a script, not a
+  # function body). Use if/else so Node 20+ / 24 do not throw SyntaxError.
   node -e '
     const fs = require("fs");
     const j = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
@@ -446,9 +469,9 @@ fetch_frontend_api_url() {
       "";
     if (!url && primary && primary.name) {
       process.stdout.write("https://" + primary.name);
-      return;
+    } else {
+      process.stdout.write(String(url || ""));
     }
-    process.stdout.write(String(url || ""));
   ' "$domains_json"
 }
 
