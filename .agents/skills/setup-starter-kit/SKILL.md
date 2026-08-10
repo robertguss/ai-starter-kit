@@ -90,204 +90,65 @@ EOF
 fi
 ```
 
-## Step 4 — Set up Clerk (choose the first path that works)
+## Step 4 — Set up Clerk (Clerk CLI first)
 
-The skill supports three paths, from most to least automated. Try them in order and stop after one succeeds.
+Prefer the kit script. It is the single automated path for humans and agents.
+Do **not** run `clerk init` in this repo; Clerk providers and auth routes
+already exist.
 
-### Path A — Fully automatic with Clerk keys in the environment
+References: https://clerk.com/cli/agents.txt and `.agents/skills/clerk-cli/SKILL.md`.
 
-Use this when the user has set a Clerk secret key (and, ideally, a publishable key) in the current shell:
+### Path A — Kit script (recommended)
 
-```bash
-export CLERK_SECRET_KEY=sk_test_...
-export VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-```
-
-This path creates the Convex JWT template and sets `CLERK_JWT_ISSUER_DOMAIN` without any dashboard clicks. If the publishable key is not available, the agent will ask for it after setting the JWT issuer.
-
-1. Check that the secret key is present without printing it:
-
-   ```bash
-   if test -n "${CLERK_SECRET_KEY:-}"; then echo "secret_key_present=yes"; else echo "secret_key_present=no"; fi
-   ```
-
-   If `secret_key_present=no`, skip to Path B.
-
-2. Create the Convex JWT template via the Clerk Backend API if it does not already exist.
-
-   ```bash
-   node - << 'NODE'
-   const cp = require('child_process');
-   const key = process.env.CLERK_SECRET_KEY;
-
-   const list = cp.execSync('curl -s https://api.clerk.com/v1/jwt_templates -H "Authorization: Bearer ' + key + '"', { encoding: 'utf8' });
-   const templates = JSON.parse(list);
-
-   if ((templates.data || []).some(t => t.name === 'convex')) {
-     console.log('convex JWT template already exists');
-     process.exit(0);
-   }
-
-   const body = JSON.stringify({
-     name: 'convex',
-     claims: {
-       aud: 'convex',
-       name: '{{user.full_name}}',
-       nickname: '{{user.username}}',
-       picture: '{{user.image_url}}',
-       given_name: '{{user.first_name}}',
-       family_name: '{{user.last_name}}',
-       email: '{{user.primary_email_address}}',
-       phone_number: '{{user.primary_phone_number}}',
-       email_verified: '{{user.email_verified}}',
-       phone_number_verified: '{{user.phone_number_verified}}',
-       updated_at: '{{user.updated_at}}'
-     },
-     lifetime: 3600
-   });
-
-   cp.execSync('curl -s -X POST https://api.clerk.com/v1/jwt_templates -H "Authorization: Bearer ' + key + '" -H "Content-Type: application/json" -d \'' + body + '\'', { encoding: 'utf8' });
-   console.log('convex JWT template created');
-   NODE
-   ```
-
-3. Fetch the Frontend API URL (this is also the JWT Issuer).
-
-   ```bash
-   FAPI_URL=$(node - << 'NODE'
-   const cp = require('child_process');
-   const key = process.env.CLERK_SECRET_KEY;
-   const out = cp.execSync('curl -s https://api.clerk.com/v1/domains -H "Authorization: Bearer ' + key + '"', { encoding: 'utf8' });
-   const j = JSON.parse(out);
-   console.log(j.data?.[0]?.frontend_api_url || '');
-   NODE
-   )
-   ```
-
-   If `FAPI_URL` is empty, the key may not have access or the instance has no domain. Fall back to Path C.
-
-4. Set `CLERK_JWT_ISSUER_DOMAIN` in Convex. If your agent has the Convex MCP, use the `envSet` tool. Otherwise:
-
-   ```bash
-   aubx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
-   ```
-
-5. Make sure `.env.local` has the Clerk keys. The secret key is already in the environment. The publishable key may also be; if not, ask the user for it.
-
-   ```bash
-   node - << 'NODE'
-   const fs = require('fs');
-   const envPath = '.env.local';
-   const env = fs.readFileSync(envPath, 'utf8');
-
-   const pub = process.env.VITE_CLERK_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-   if (pub && !/\nVITE_CLERK_PUBLISHABLE_KEY=/.test('\n' + env)) {
-     fs.appendFileSync(envPath, '\nVITE_CLERK_PUBLISHABLE_KEY=' + pub + '\n');
-   } else if (!pub && !/\nVITE_CLERK_PUBLISHABLE_KEY=/.test('\n' + env)) {
-     fs.appendFileSync(envPath, '\n# VITE_CLERK_PUBLISHABLE_KEY= (paste from https://dashboard.clerk.com/last-active?path=api-keys)\n');
-   }
-
-   const secret = process.env.CLERK_SECRET_KEY;
-   if (secret && !/\nCLERK_SECRET_KEY=/.test('\n' + env)) {
-     fs.appendFileSync(envPath, '\nCLERK_SECRET_KEY=' + secret + '\n');
-   }
-   NODE
-   ```
-
-   If the file now has a placeholder for `VITE_CLERK_PUBLISHABLE_KEY`, ask the user to paste it from https://dashboard.clerk.com/last-active?path=api-keys.
-
-### Path B — Clerk CLI (device/browser auth, no long-lived token needed)
-
-Use this when you want a brand-new Clerk app per project and the Clerk CLI is already authenticated. The first `clerk auth login` must be done in a terminal with a browser; after that, the agent can create apps and pull keys without storing any long-lived token.
-
-1. Make sure the Clerk CLI is available:
+1. Ensure the Clerk CLI can run:
 
    ```bash
    aubx clerk@latest --version
    ```
 
-2. If the CLI is not yet authenticated, the user must run this once in their own terminal (the agent cannot complete OAuth in a headless shell):
+2. If not authenticated, the user must run this once in a browser-capable terminal:
 
    ```bash
    aubx clerk@latest auth login
+   aubx clerk@latest whoami
    ```
 
-   Then ask them to confirm `aubx clerk@latest whoami` shows their account.
-
-3. Create a new Clerk app. Write the JSON to a file first to avoid a broken pipe, then extract `application_id`.
+3. Run the idempotent setup script:
 
    ```bash
-   aubx clerk@latest apps create "Starter Kit" --json > /tmp/clerk_app.json
-   APP_ID=$(node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('/tmp/clerk_app.json','utf8')); console.log(j.application_id||'');")
-   rm -f /tmp/clerk_app.json
+   ./scripts/setup-clerk-auth.sh
+   # or: aubr setup:clerk
    ```
 
-   If `APP_ID` is empty, list existing apps and ask the user which one to link:
+   Agent-friendly options:
 
    ```bash
-   aubx clerk@latest apps list --json
+   ./scripts/setup-clerk-auth.sh --app-name "Starter Kit"
+   ./scripts/setup-clerk-auth.sh --app app_xxxxxxxx
    ```
 
-4. Link the project and pull the Clerk environment variables.
+   If agent mode says it cannot select an application, run
+   `aubx clerk@latest apps list --json`, ask the user which `id` to use, and
+   re-run with `--app`.
 
-   ```bash
-   aubx clerk@latest link --app "$APP_ID"
-   aubx clerk@latest env pull
-   ```
+4. The script writes route defaults + keys to `.env.local`, creates the
+   `convex` JWT template when missing, and sets `CLERK_JWT_ISSUER_DOMAIN`.
 
-   This writes `VITE_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `.env.local`.
+### Path B — Keys already in the environment
 
-5. Create the Convex JWT template via the Clerk CLI's authenticated API client.
+If `CLERK_SECRET_KEY` (and ideally `VITE_CLERK_PUBLISHABLE_KEY`) are already
+exported, the same script adopts them without creating an app:
 
-   ```bash
-   cat > /tmp/convex_jwt_template.json << 'EOF'
-   {
-     "name": "convex",
-     "claims": {
-       "aud": "convex",
-       "name": "{{user.full_name}}",
-       "nickname": "{{user.username}}",
-       "picture": "{{user.image_url}}",
-       "given_name": "{{user.first_name}}",
-       "family_name": "{{user.last_name}}",
-       "email": "{{user.primary_email_address}}",
-       "phone_number": "{{user.primary_phone_number}}",
-       "email_verified": "{{user.email_verified}}",
-       "phone_number_verified": "{{user.phone_number_verified}}",
-       "updated_at": "{{user.updated_at}}"
-     },
-     "lifetime": 3600
-   }
-   EOF
-
-   aubx clerk@latest api /jwt_templates --file /tmp/convex_jwt_template.json --yes
-   rm -f /tmp/convex_jwt_template.json
-   ```
-
-6. Get the Frontend API URL using the Clerk CLI's `/domains` endpoint.
-
-   ```bash
-   FAPI_URL=$(aubx clerk@latest api /domains | node - << 'NODE'
-   let d = '';
-   process.stdin.on('data', c => d += c);
-   process.stdin.on('end', () => {
-     try { const j = JSON.parse(d); console.log(j.data?.[0]?.frontend_api_url || ''); } catch { console.log(''); }
-   });
-   NODE
-   )
-   ```
-
-   If `FAPI_URL` is empty, ask the user to copy it from https://dashboard.clerk.com/apps/setup/convex.
-
-7. Set the Convex env var. If your agent has the Convex MCP, use the `envSet` tool. Otherwise:
-
-   ```bash
-   aubx convex env set CLERK_JWT_ISSUER_DOMAIN "$FAPI_URL"
-   ```
+```bash
+export CLERK_SECRET_KEY=sk_test_...
+export VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+./scripts/setup-clerk-auth.sh
+```
 
 ### Path C — Manual dashboard walkthrough
 
-Use this as the final fallback. The user performs the Clerk steps in the browser; the agent writes the resulting values.
+Use this only when the Clerk CLI cannot run. The user performs the Clerk steps
+in the browser; the agent writes the resulting values.
 
 1. Ask the user to open https://dashboard.clerk.com/apps/new, create a new app, and then copy the `VITE_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` from https://dashboard.clerk.com/last-active?path=api-keys.
 
@@ -359,7 +220,8 @@ Use this as the final fallback. The user performs the Clerk steps in the browser
 
 1. Never print `CLERK_SECRET_KEY`, `CLERK_PLATFORM_API_KEY`, or any other API token in the conversation or command output.
 2. Never commit `.env.local`, `.env`, or any generated secret file. Ensure they are in `.gitignore`.
-3. Prefer `bunx` over global package installs.
-4. Run interactive commands in a TTY when possible to avoid `setRawMode EIO`.
-5. Stop and ask the user whenever a browser login is required.
-6. Always verify `CLERK_JWT_ISSUER_DOMAIN` is set in the Convex deployment before declaring the setup complete.
+3. Prefer `aubx clerk@latest` (or the project's package runner) over inventing curl-based Clerk setup when the CLI works.
+4. Never run `clerk init` in this starter kit; use `./scripts/setup-clerk-auth.sh`.
+5. Run interactive commands in a TTY when possible to avoid `setRawMode EIO`.
+6. Stop and ask the user whenever a browser login is required.
+7. Always verify `CLERK_JWT_ISSUER_DOMAIN` is set in the Convex deployment before declaring the setup complete.

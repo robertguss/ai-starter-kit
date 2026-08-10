@@ -35,6 +35,7 @@
   },
   "scripts": {
     "setup": "bash setup.sh",
+    "setup:clerk": "bash scripts/setup-clerk-auth.sh",
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
     "dev:frontend": "vite dev",
     "dev:backend": "convex dev",

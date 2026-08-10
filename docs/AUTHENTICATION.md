@@ -2,8 +2,8 @@
 
 Complete guide to authentication in the AI Starter Kit using Clerk + Convex.
 
-The kit wires the code. You still finish setup once in the Clerk Dashboard
-(create an app, copy keys, turn on the Convex JWT template).
+The kit wires the code. Finish Clerk once with the **Clerk CLI** (recommended)
+or the Dashboard fallback. Prefer the CLI so agents and humans share one path.
 
 ---
 
@@ -12,13 +12,15 @@ The kit wires the code. You still finish setup once in the Clerk Dashboard
 This starter uses **Clerk** for hosted authentication and **Convex** for
 backend identity via Clerk JWTs.
 
-- Email/password and social providers (configured in the Clerk Dashboard)
+- Email/password and social providers (configured in Clerk)
 - Session management (Clerk)
 - Protected routes (TanStack Router `beforeLoad` + Clerk server auth)
 - Backend identity via `ctx.auth.getUserIdentity()`
 
 Official references:
 
+- [Clerk CLI for agents](https://clerk.com/cli/agents.txt)
+- [Clerk CLI docs](https://clerk.com/docs/cli)
 - [Convex & Clerk](https://docs.convex.dev/auth/clerk)
 - [Clerk ↔ Convex integration](https://clerk.com/docs/guides/development/integrations/databases/convex)
 
@@ -71,77 +73,116 @@ integration page (same value Clerk sometimes labels "Frontend API").
 
 ---
 
-## Finish Setup in the Clerk UI
+## Finish Setup with the Clerk CLI (recommended)
 
 Do this once per new project cloned from the kit. The code already expects
-these values.
+these values. Prefer the CLI over copying keys from the Dashboard
+([Clerk CLI agents guide](https://clerk.com/cli/agents.txt)).
+
+This kit already includes Clerk providers, middleware, and `/login` +
+`/signup` routes. **Do not run `clerk init`** in a clone of this starter; it
+would fight those files. Use `./scripts/setup-clerk-auth.sh` instead (also
+invoked from `./setup.sh` and `aubr setup:clerk`).
+
+### 1. Authenticate the Clerk CLI (once per machine)
+
+```bash
+aubx clerk@latest auth login
+aubx clerk@latest whoami
+```
+
+Use a normal terminal with a browser for the OAuth step. After that, agents
+and scripts can create apps and pull keys without pasting secrets.
+
+### 2. Run the kit's Clerk setup script
+
+Convex should already be linked (`aubx convex dev --until-success` or
+`./setup.sh`). Then:
+
+```bash
+./scripts/setup-clerk-auth.sh
+# or
+aubr setup:clerk
+```
+
+Optional flags:
+
+```bash
+./scripts/setup-clerk-auth.sh --app-name "my-app-dev"
+./scripts/setup-clerk-auth.sh --app app_xxxxxxxx   # agent mode / existing app
+```
+
+What the script does (idempotent):
+
+1. Ensures kit route defaults in `.env.local` (`/login`, `/signup`, `/dashboard`)
+2. Creates or links a Clerk application when keys are missing
+3. Runs `clerk env pull` into `.env.local`
+4. Creates the Clerk JWT template named `convex` when missing
+5. Sets `CLERK_JWT_ISSUER_DOMAIN` on Convex from the Frontend API URL
+
+`CLERK_JWT_ISSUER_DOMAIN` is what `convex/auth.config.ts` uses with
+`applicationID: "convex"`. Without it, Clerk login can succeed while Convex
+still sees the user as unauthenticated.
+
+### 3. Sync Convex and start the app
+
+```bash
+aubx convex dev
+aubr dev
+```
+
+### 4. Verify end to end
+
+1. Open [http://localhost:3000/signup](http://localhost:3000/signup).
+2. Create a user.
+3. Confirm you land on `/dashboard`.
+4. Sign out completely, then sign in again at `/login` (old sessions can lack
+   the Convex JWT template).
+5. Confirm Convex auth via `useConvexAuth()` or `api.auth.getCurrentUser`.
+
+### Agent path
+
+Coding agents should run the same script. If the CLI is not logged in, stop
+and ask the human to run `aubx clerk@latest auth login`. Pass `--app` when
+agent mode cannot pick an application. See
+`.agents/skills/setup-starter-kit/SKILL.md`.
+
+---
+
+## Dashboard fallback (manual)
+
+Use this only when the Clerk CLI is unavailable.
 
 ### 1. Create a Clerk account (if needed)
 
-Open [https://dashboard.clerk.com/sign-up](https://dashboard.clerk.com/sign-up)
-and create an account.
+Open [https://dashboard.clerk.com/sign-up](https://dashboard.clerk.com/sign-up).
 
 ### 2. Create a Clerk application
 
 Open [https://dashboard.clerk.com/apps/new](https://dashboard.clerk.com/apps/new).
 
-1. Name the application (for example `my-app-dev`).
-2. Choose sign-in options you want for local development (email/password is
-   enough to start).
-3. Create the application.
-
 ### 3. Copy API keys into `.env.local`
 
-Open the API keys page for the active app:
-
 [https://dashboard.clerk.com/last-active?path=api-keys](https://dashboard.clerk.com/last-active?path=api-keys)
-
-Or navigate: Clerk Dashboard → your application → **Configure** → **API keys**.
-
-Copy:
 
 | Clerk Dashboard label | Put in `.env.local` as |
 | --- | --- |
 | Publishable key (`pk_test_…` or `pk_live_…`) | `VITE_CLERK_PUBLISHABLE_KEY` |
 | Secret key (`sk_test_…` or `sk_live_…`) | `CLERK_SECRET_KEY` |
 
-Also keep the kit route defaults (already in `.env.example`):
+Keep the kit route defaults from `.env.example`.
 
-```bash
-VITE_CLERK_SIGN_IN_URL=/login
-VITE_CLERK_SIGN_UP_URL=/signup
-VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
-```
-
-### 4. Turn on the Convex integration (required)
-
-Open the Clerk Convex setup page:
+### 4. Turn on the Convex integration
 
 [https://dashboard.clerk.com/apps/setup/convex](https://dashboard.clerk.com/apps/setup/convex)
 
-Or navigate: Clerk Dashboard → your application → **Configure** →
-**Integrations** → **Convex** (or the Convex setup deep link above).
-
-1. Activate / enable the Convex integration if it is not already on.
-2. Copy the **Frontend API URL** shown on that page.
-   - Development looks like `https://verb-noun-00.clerk.accounts.dev`
-   - Production custom domains look like `https://clerk.your-domain.com`
-3. Set it on your Convex deployment:
+Copy the **Frontend API URL**, then:
 
 ```bash
 aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
 ```
 
-This value is what `convex/auth.config.ts` uses with `applicationID: "convex"`.
-Without this step, Clerk login can succeed while Convex still sees the user as
-unauthenticated.
-
 ### 5. Allow local development URLs in Clerk
-
-In the Clerk Dashboard, open your application’s path / URL settings
-(**Configure** → **Paths**, or the account portal / domains settings for your
-Clerk version) and ensure development can reach:
 
 | Purpose | Local URL |
 | --- | --- |
@@ -150,40 +191,12 @@ Clerk version) and ensure development can reach:
 | Sign-up | `http://localhost:3000/signup` |
 | After auth | `http://localhost:3000/dashboard` |
 
-If Clerk shows allowlists for redirect URLs or origins, add
-`http://localhost:3000` and the paths above.
-
-### 6. Sync Convex auth config
-
-With your Convex project linked:
-
-```bash
-aubx convex dev
-```
-
-Leave it running so `auth.config.ts` stays synced. Then start the app:
-
-```bash
-aubr dev
-```
-
-### 7. Verify end to end
-
-1. Open [http://localhost:3000/signup](http://localhost:3000/signup).
-2. Create a user in the Clerk UI.
-3. Confirm you land on `/dashboard`.
-4. Sign out completely from Clerk, then sign in again at `/login`.
-   Do this especially right after enabling the Convex JWT template. Old
-   sessions can keep a token Convex rejects.
-5. Confirm Convex auth:
-   - Prefer `useConvexAuth()` showing authenticated in the app.
-   - Or call `api.auth.getCurrentUser` and confirm it returns
-     `{ subject, name, email, image? }` rather than `null`.
-
-### Clerk UI URL cheat sheet
+### Clerk URL cheat sheet
 
 | Task | URL |
 | --- | --- |
+| Clerk CLI docs | https://clerk.com/docs/cli |
+| Clerk CLI agents guide | https://clerk.com/cli/agents.txt |
 | Sign up for Clerk | https://dashboard.clerk.com/sign-up |
 | Create an application | https://dashboard.clerk.com/apps/new |
 | API keys (publishable + secret) | https://dashboard.clerk.com/last-active?path=api-keys |

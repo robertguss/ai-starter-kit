@@ -64,8 +64,14 @@ cd ai-starter-kit
 2. ✅ Fails fast if aube is missing (install from https://aube.jdx.dev)
 3. ✅ Installs all dependencies
 4. ✅ Guides you through Convex authentication (browser login)
-5. ✅ Configures all environment variables automatically
+5. ✅ Runs Clerk CLI auth setup (`scripts/setup-clerk-auth.sh`: app, keys, Convex JWT)
 6. ✅ Starts the development servers
+
+Before Clerk setup, authenticate the CLI once if needed:
+
+```bash
+aubx clerk@latest auth login
+```
 
 > **Windows Users**: Run `bash setup.sh` in Git Bash or WSL.
 
@@ -123,38 +129,22 @@ npx convex dev
 
 **Leave this terminal running!** The Convex dev server needs to stay active.
 
-### Step 4: Finish Clerk in the Dashboard (UI)
+### Step 4: Finish Clerk with the Clerk CLI
 
-The kit already includes Clerk code. You still configure Clerk once in the UI.
-
-1. **Create an app** at https://dashboard.clerk.com/apps/new  
-   (account first if needed: https://dashboard.clerk.com/sign-up)
-
-2. **Copy API keys** from  
-   https://dashboard.clerk.com/last-active?path=api-keys  
-   into `.env.local`:
-   - `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...`
-   - `CLERK_SECRET_KEY=sk_test_...`
-   - Plus the kit route defaults from `.env.example` (`/login`, `/signup`,
-     fallback `/dashboard`)
-
-3. **Turn on Convex** at  
-   https://dashboard.clerk.com/apps/setup/convex  
-   Activate the integration and copy the **Frontend API URL**.
-
-4. **Set the issuer on Convex**:
+The kit already includes Clerk code. Configure Clerk once with the CLI (do
+**not** run `clerk init` here):
 
 ```bash
-aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
+aubx clerk@latest auth login
+./scripts/setup-clerk-auth.sh
+# or: aubr setup:clerk
 ```
 
-`CLERK_JWT_ISSUER_DOMAIN` is the issuer Convex uses to validate Clerk JWTs.
-Without this step, Clerk login can work while Convex stays unauthenticated.
+This creates/links a Clerk app, writes keys to `.env.local`, creates the
+`convex` JWT template, and sets `CLERK_JWT_ISSUER_DOMAIN`.
 
-5. Allow `http://localhost:3000` (and `/login`, `/signup`, `/dashboard`) in
-   Clerk path / redirect settings if prompted.
-
-Full UI walkthrough: [docs/AUTHENTICATION.md](./AUTHENTICATION.md).
+Dashboard fallback and full walkthrough:
+[docs/AUTHENTICATION.md](./AUTHENTICATION.md).
 
 ### Step 5: Start the Development Server
 
