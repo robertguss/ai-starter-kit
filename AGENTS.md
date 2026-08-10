@@ -171,10 +171,10 @@ const identity = await ctx.auth.getUserIdentity();
 
 ### Environment Variables
 
-**Convex (set via `aubx convex env set`)**:
+**Convex (set via `aubx convex env set`, or automatically by
+`./scripts/setup-clerk-auth.sh`)**:
 
 - `CLERK_JWT_ISSUER_DOMAIN` - Clerk Frontend API URL / JWT issuer
-  (from https://dashboard.clerk.com/apps/setup/convex)
 
 **Frontend (`.env.local`)**:
 
@@ -187,27 +187,36 @@ const identity = await ctx.auth.getUserIdentity();
 - `VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` - `/dashboard`
 - `VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` - `/dashboard`
 
-### Clerk Dashboard Steps (Required Once Per Project)
+### Clerk Auth Setup (Required Once Per Project)
 
-1. Account (if needed): https://dashboard.clerk.com/sign-up
-2. Create an application: https://dashboard.clerk.com/apps/new
-3. Copy API keys from
-   https://dashboard.clerk.com/last-active?path=api-keys into `.env.local`
-   (`VITE_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`)
-4. Enable Convex at https://dashboard.clerk.com/apps/setup/convex and copy the
-   Frontend API URL
-5. `aubx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
-6. Allow `http://localhost:3000` (+ `/login`, `/signup`, `/dashboard`) in Clerk
-   path / redirect settings
-7. After activating the JWT template, sign out completely and sign back in
-8. Confirm `useConvexAuth()` is authenticated and
-   `ctx.auth.getUserIdentity()` is non-null
+Prefer the **Clerk CLI**. This kit already ships Clerk wiring, so do **not**
+run `clerk init` in a clone. Use the kit script:
 
-Canonical walkthrough: `docs/AUTHENTICATION.md`.
+```bash
+aubx clerk@latest auth login          # once per machine (browser OAuth)
+aubx convex dev --until-success       # link Convex / write VITE_CONVEX_URL
+./scripts/setup-clerk-auth.sh         # or: aubr setup:clerk
+```
 
-For an agent-guided, interactive setup that walks through these steps and can
-use a Clerk token when one is available, invoke the `setup-starter-kit` agent
-skill in `.agents/skills/setup-starter-kit/`.
+`./scripts/setup-clerk-auth.sh` (also called from `./setup.sh`):
+
+1. Ensures kit route defaults in `.env.local`
+2. Creates or links a Clerk application and runs `clerk env pull`
+3. Creates the Clerk JWT template named `convex` when missing
+4. Sets `CLERK_JWT_ISSUER_DOMAIN` on Convex
+
+Agent-friendly flags: `--app app_xxx`, `--app-name "My App"`. Pass `--app` in
+agent mode when the CLI cannot pick an application.
+
+After the JWT template is created, sign out completely and sign back in.
+Confirm `useConvexAuth()` is authenticated and
+`ctx.auth.getUserIdentity()` is non-null.
+
+Canonical walkthrough: `docs/AUTHENTICATION.md`. Clerk CLI agents guide:
+https://clerk.com/cli/agents.txt.
+
+For an agent-guided interactive setup, invoke the `setup-starter-kit` skill in
+`.agents/skills/setup-starter-kit/`.
 
 ### Clerk MCP
 

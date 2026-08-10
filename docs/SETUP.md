@@ -143,9 +143,18 @@ When you run `aubx convex dev`, Convex creates `.env.local` with:
 VITE_CONVEX_URL=https://your-deployment-name.convex.cloud
 ```
 
-Add Clerk keys and route URLs. Get keys from
-https://dashboard.clerk.com/last-active?path=api-keys (see
-[Clerk Configuration](#clerk-configuration) below).
+Prefer the Clerk CLI path (also run by `./setup.sh`):
+
+```bash
+aubx clerk@latest auth login   # once per machine, browser OAuth
+./scripts/setup-clerk-auth.sh  # or: aubr setup:clerk
+```
+
+That writes Clerk keys + route URLs into `.env.local` and sets
+`CLERK_JWT_ISSUER_DOMAIN` on Convex. See
+[Clerk Configuration](#clerk-configuration).
+
+Manual equivalent in `.env.local`:
 
 ```bash
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
@@ -158,8 +167,7 @@ VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
 ### Set Convex Environment Variables
 
-Enable Convex in Clerk at https://dashboard.clerk.com/apps/setup/convex, copy
-the Frontend API URL, then set it on Convex:
+`./scripts/setup-clerk-auth.sh` sets this automatically. Manual fallback:
 
 ```bash
 aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
@@ -247,45 +255,25 @@ This opens the Convex web dashboard where you can:
 ## Clerk Configuration
 
 Clerk owns sessions and hosted UI. Convex validates Clerk JWTs via
-`convex/auth.config.ts`. The kit ships the code. You finish setup in the Clerk
-UI once per project.
+`convex/auth.config.ts`. The kit ships the code. Finish setup once with the
+**Clerk CLI** (recommended) or the Dashboard fallback.
 
-### Finish setup in the Clerk UI
+### Finish setup with the Clerk CLI
 
-1. **Account (if needed)**  
-   https://dashboard.clerk.com/sign-up
+Do **not** run `clerk init` in a clone of this kit (providers and auth routes
+already exist). Use the kit script:
 
-2. **Create an application**  
-   https://dashboard.clerk.com/apps/new  
-   Name it (for example `my-app-dev`) and enable email/password to start.
+```bash
+aubx clerk@latest auth login
+./scripts/setup-clerk-auth.sh
+# or: aubr setup:clerk
+```
 
-3. **Copy API keys**  
-   https://dashboard.clerk.com/last-active?path=api-keys  
-   (or Dashboard → your app → **Configure** → **API keys**)  
-   - Publishable key → `VITE_CLERK_PUBLISHABLE_KEY` in `.env.local`  
-   - Secret key → `CLERK_SECRET_KEY` in `.env.local`
+This creates/links a Clerk app, pulls keys into `.env.local`, creates the
+`convex` JWT template, and sets `CLERK_JWT_ISSUER_DOMAIN`.
 
-4. **Turn on Convex**  
-   https://dashboard.clerk.com/apps/setup/convex  
-   Activate the Convex integration. Copy the **Frontend API URL**
-   (dev form: `https://verb-noun-00.clerk.accounts.dev`).
-
-5. **Set the issuer on Convex**
-
-   ```bash
-   aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://verb-noun-00.clerk.accounts.dev
-   ```
-
-6. **Allow local URLs** in Clerk paths / redirect settings:
-   - `http://localhost:3000`
-   - `http://localhost:3000/login`
-   - `http://localhost:3000/signup`
-   - `http://localhost:3000/dashboard`
-
-7. **Verify** at `/signup`, then sign out fully and sign in at `/login`.
-   Confirm `useConvexAuth()` is authenticated (or `getCurrentUser` is non-null).
-
-Full walkthrough with cheat-sheet URLs: [Authentication Guide](./AUTHENTICATION.md).
+Dashboard-only steps and URL cheat sheet:
+[Authentication Guide](./AUTHENTICATION.md).
 
 ### What the kit wires up
 

@@ -96,6 +96,7 @@ npx convex codegen
 - `getCurrentUser` returns null while Clerk shows a signed-in user
 
 **Cause:** The Convex JWT template is inactive, or `CLERK_JWT_ISSUER_DOMAIN` is wrong.
+Prefer re-running `./scripts/setup-clerk-auth.sh` (Clerk CLI) before Dashboard clicks.
 
 **Solution:**
 
