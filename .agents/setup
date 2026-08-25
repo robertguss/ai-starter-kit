@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+run_step() {
+  local label="$1"
+  shift
+  local started=$SECONDS
+
+  printf '==> %s\n' "$label"
+  "$@"
+  printf '    completed in %ss\n' "$((SECONDS - started))"
+}
+
+check_node() {
+  command -v node >/dev/null 2>&1 || {
+    echo "Node.js 20.9 or newer is required but was not found." >&2
+    return 1
+  }
+
+  node -e 'const [major, minor] = process.versions.node.split(".").map(Number); if (major < 20 || (major === 20 && minor < 9)) process.exit(1)' || {
+    echo "Node.js 20.9 or newer is required; found $(node --version)." >&2
+    return 1
+  }
+}
+
+install_aube() {
+  if command -v aube >/dev/null 2>&1; then
+    aube --version
+    return
+  fi
+
+  command -v npm >/dev/null 2>&1 || {
+    echo "npm is required to install aube but was not found." >&2
+    return 1
+  }
+
+  npm install --global --ignore-scripts=false @endevco/aube
+  aube --version
+}
+
+run_step "Checking Node.js" check_node
+run_step "Installing aube when missing" install_aube
+run_step "Installing project dependencies" aube install --frozen-lockfile
+
+if [[ ! -f .env.local ]]; then
+  run_step "Creating local environment file" cp -- .env.example .env.local
+else
+  echo "==> Keeping existing .env.local"
+fi
+
+echo "Orb setup complete. Configure Convex and Clerk when the task requires live services."

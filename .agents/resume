@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+command -v node >/dev/null 2>&1 || {
+  echo "Node.js is missing; run .agents/setup to repair this orb." >&2
+  exit 1
+}
+
+command -v aube >/dev/null 2>&1 || {
+  echo "aube is missing; run .agents/setup to repair this orb." >&2
+  exit 1
+}
+
+[[ -d node_modules ]] || {
+  echo "Project dependencies are missing; run .agents/setup to repair this orb." >&2
+  exit 1
+}
+
+echo "Orb environment ready."
