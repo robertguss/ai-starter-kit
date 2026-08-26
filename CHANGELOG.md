@@ -9,15 +9,18 @@ All notable changes are documented here following
 
 - Next.js App Router application shell, auth routes, protected dashboard, 404,
   loading states, and Sentry error boundaries
-- Owner-scoped Convex projects CRUD with indexed pagination and structured
-  validation errors
+- Owner-scoped Convex projects CRUD with indexed pagination and a shared input
+  schema
+- Authenticated Convex query/mutation wrappers via convex-helpers
+- GitHub Actions workflow running `pnpm check` and a high-severity audit
 - Two-identity Convex authorization tests covering cross-user read/write denial
 - Sentry monitoring, Vercel Analytics, and Vercel Speed Insights
 - Strict Clerk nonce CSP and common response security headers
-- Resource-level Clerk auth checks with an ESLint guard against unprotected
-  server resources
+- Dashboard route matching in `proxy.ts` plus an RSC `auth.protect()` fallback
 - Playwright Chromium smoke tests for public, auth, redirect, health, and 404
 - Node.js 24 and pnpm 11 repository pins
+- `ClerkProvider dynamic` so the strict nonce CSP works in production
+- Shared public env helpers so a missing Convex URL does not crash public routes
 
 ### Changed
 
@@ -34,7 +37,6 @@ All notable changes are documented here following
 - TanStack Start, Vite, Vinxi, TanStack Router/Table, and aube integration
 - DnD Kit, Recharts, Vaul, Tabler icons, React Is, and mock dashboard code
 - Unused shadcn components and demo assets
-- GitHub Actions workflow, per project requirements
 
 ## [1.0.0] - 2025-11-10
 

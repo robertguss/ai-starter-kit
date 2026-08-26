@@ -8,7 +8,8 @@ decisions into the foundation.
 ## What ships
 
 - Next.js App Router with React Server Components and typed routes
-- Clerk resource-based authentication with a strict nonce-based CSP
+- Clerk authentication with dashboard route matching, a layout fallback, and a
+  strict nonce-based CSP
 - Convex realtime data, schema validation, indexed pagination, and Clerk JWTs
 - A real owner-scoped projects CRUD feature—not a static dashboard mock
 - Sentry errors/tracing, Vercel Analytics, and Vercel Speed Insights
@@ -75,8 +76,8 @@ and sign in again so Clerk issues a session with the new template.
 ```text
 Browser
   ├─ Next.js App Router on Vercel
-  │    ├─ ClerkProvider + resource-level auth protection
-  │    ├─ proxy.ts auth context + nonce CSP
+  │    ├─ ClerkProvider (dynamic) + dashboard route protection
+  │    ├─ proxy.ts nonce CSP and /dashboard matcher
   │    ├─ Server Components for public/authenticated shells
   │    └─ Sentry + Vercel web telemetry
   └─ ConvexReactClient
@@ -89,24 +90,23 @@ Browser
 
 Authentication and authorization are separate layers:
 
-1. [`proxy.ts`](./proxy.ts) initializes Clerk's request context and nonce CSP;
-   it does not authorize resources by pathname.
-2. The dashboard layout and page protect their resources directly with
-   `await auth.protect()`.
-3. Every project function calls `ctx.auth.getUserIdentity()` and derives
-   ownership from `identity.tokenIdentifier`.
+1. [`proxy.ts`](./proxy.ts) initializes Clerk's request context, a nonce CSP,
+   and `createRouteMatcher(["/dashboard(.*)"])` authorization.
+2. The dashboard layout is the RSC fallback with `await auth.protect()`. Nested
+   pages inherit that layout.
+3. Convex project functions use `authedQuery` / `authedMutation`, which put
+   `ownerId` from `identity.tokenIdentifier` on `ctx`.
 4. No public Convex function accepts an owner/user ID from the client.
-5. Cross-owner reads, updates, and deletes return the same not-found error so
-   callers cannot enumerate records.
+5. Cross-owner reads return `null`. Cross-owner updates and deletes throw the
+   same not-found error so callers cannot enumerate records.
 
-Clerk's ESLint rule treats resources as protected by default and explicitly
-exempts only the public landing, auth, and health routes. It prevents future App
-Router pages, route handlers, or Server Functions from omitting their own auth
-check.
+Clerk's ESLint rule requires `auth.protect()` on `app/dashboard/layout.tsx` and
+treats the public landing, auth, and health routes as public.
 
-The strict Clerk CSP uses per-request nonces for substantially stronger script
-injection protection. Keep the Convex and Sentry `connect-src` entries in
-`proxy.ts` when customizing the policy.
+`ClerkProvider` must set `dynamic` so the per-request CSP nonce is available to
+the document. Keep the Convex and Sentry `connect-src` entries in `proxy.ts`
+when customizing the policy. `NEXT_PUBLIC_CONVEX_URL` is required for Convex UI;
+public routes still render if it is missing.
 
 ### Projects reference feature
 
@@ -116,9 +116,10 @@ features:
 - schema and compound owner/update index in `convex/schema.ts`
 - argument and return validators on every Convex function
 - bounded paginated reads—no unbounded table scans
-- server-side trimming and length validation with structured `ConvexError`s
+- server-side trimming and length validation from one shared Zod schema
 - accessible create/edit/delete UI with optimistic realtime refresh
-- client errors captured by Sentry without sending default PII
+- structured `ConvexError`s mapped onto form fields; unexpected failures go to
+  Sentry without sending default PII
 - tests with two identities proving owner isolation
 
 Copy the security shape, not necessarily the project domain model.

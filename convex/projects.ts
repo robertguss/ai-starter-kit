@@ -6,7 +6,8 @@ import { ConvexError, v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import { mutation, query } from "./_generated/server";
+import { authedMutation, authedQuery } from "./lib/functions";
+import { parseProjectInput } from "./lib/projectInput";
 
 const projectValidator = v.object({
   _id: v.id("projects"),
@@ -21,50 +22,6 @@ const projectInputValidator = v.object({
   name: v.string(),
   description: v.string(),
 });
-
-async function requireOwnerId(ctx: QueryCtx | MutationCtx): Promise<string> {
-  const identity = await ctx.auth.getUserIdentity();
-
-  if (!identity) {
-    throw new ConvexError({
-      code: "UNAUTHENTICATED",
-      message: "You must be signed in to manage projects.",
-    });
-  }
-
-  return identity.tokenIdentifier;
-}
-
-function validateProjectInput(input: { name: string; description: string }) {
-  const name = input.name.trim();
-  const description = input.description.trim();
-
-  if (name.length === 0) {
-    throw new ConvexError({
-      code: "INVALID_INPUT",
-      message: "Project name is required.",
-      field: "name",
-    });
-  }
-
-  if (name.length > 100) {
-    throw new ConvexError({
-      code: "INVALID_INPUT",
-      message: "Project name must be 100 characters or fewer.",
-      field: "name",
-    });
-  }
-
-  if (description.length > 2_000) {
-    throw new ConvexError({
-      code: "INVALID_INPUT",
-      message: "Project description must be 2,000 characters or fewer.",
-      field: "description",
-    });
-  }
-
-  return { name, description };
-}
 
 async function requireOwnedProject(
   ctx: QueryCtx | MutationCtx,
@@ -83,12 +40,10 @@ async function requireOwnedProject(
   return project;
 }
 
-export const list = query({
+export const list = authedQuery({
   args: { paginationOpts: paginationOptsValidator },
   returns: paginationResultValidator(projectValidator),
   handler: async (ctx, args) => {
-    const ownerId = await requireOwnerId(ctx);
-
     if (args.paginationOpts.numItems < 1 || args.paginationOpts.numItems > 50) {
       throw new ConvexError({
         code: "INVALID_INPUT",
@@ -98,46 +53,51 @@ export const list = query({
 
     return await ctx.db
       .query("projects")
-      .withIndex("by_ownerId_and_updatedAt", (q) => q.eq("ownerId", ownerId))
+      .withIndex("by_ownerId_and_updatedAt", (q) =>
+        q.eq("ownerId", ctx.ownerId),
+      )
       .order("desc")
       .paginate(args.paginationOpts);
   },
 });
 
-export const get = query({
+export const get = authedQuery({
   args: { projectId: v.id("projects") },
-  returns: projectValidator,
+  returns: v.union(projectValidator, v.null()),
   handler: async (ctx, args) => {
-    const ownerId = await requireOwnerId(ctx);
-    return await requireOwnedProject(ctx, ownerId, args.projectId);
+    const project = await ctx.db.get("projects", args.projectId);
+
+    if (!project || project.ownerId !== ctx.ownerId) {
+      return null;
+    }
+
+    return project;
   },
 });
 
-export const create = mutation({
+export const create = authedMutation({
   args: projectInputValidator.fields,
   returns: v.id("projects"),
   handler: async (ctx, args) => {
-    const ownerId = await requireOwnerId(ctx);
-    const input = validateProjectInput(args);
+    const input = parseProjectInput(args);
 
     return await ctx.db.insert("projects", {
-      ownerId,
+      ownerId: ctx.ownerId,
       ...input,
       updatedAt: Date.now(),
     });
   },
 });
 
-export const update = mutation({
+export const update = authedMutation({
   args: {
     projectId: v.id("projects"),
     ...projectInputValidator.fields,
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const ownerId = await requireOwnerId(ctx);
-    await requireOwnedProject(ctx, ownerId, args.projectId);
-    const input = validateProjectInput(args);
+    await requireOwnedProject(ctx, ctx.ownerId, args.projectId);
+    const input = parseProjectInput(args);
 
     await ctx.db.patch("projects", args.projectId, {
       ...input,
@@ -148,12 +108,11 @@ export const update = mutation({
   },
 });
 
-export const remove = mutation({
+export const remove = authedMutation({
   args: { projectId: v.id("projects") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const ownerId = await requireOwnerId(ctx);
-    await requireOwnedProject(ctx, ownerId, args.projectId);
+    await requireOwnedProject(ctx, ctx.ownerId, args.projectId);
     await ctx.db.delete("projects", args.projectId);
     return null;
   },

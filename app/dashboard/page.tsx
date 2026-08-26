@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 
 import { ProjectManager } from "@/components/projects/project-manager";
@@ -7,9 +6,7 @@ export const metadata: Metadata = {
   title: "Projects",
 };
 
-export default async function DashboardPage() {
-  await auth.protect();
-
+export default function DashboardPage() {
   return (
     <section aria-labelledby="projects-heading">
       <div className="mb-8 max-w-2xl">

@@ -1,35 +1,29 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-function commaSeparated(value: string | undefined): string[] | undefined {
-  const values = value
-    ?.split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
+import { clerkAuthorizedParties, convexConnectSources } from "@/lib/env";
 
-  return values?.length ? values : undefined;
-}
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
-function convexConnections(): string[] {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (!convexUrl) return [];
-
-  const origin = new URL(convexUrl).origin;
-  return [origin, origin.replace(/^http/, "ws")];
-}
-
-export default clerkMiddleware({
-  authorizedParties: commaSeparated(process.env.CLERK_AUTHORIZED_PARTIES),
-  contentSecurityPolicy: {
-    strict: true,
-    directives: {
-      "connect-src": [
-        ...convexConnections(),
-        "https://*.ingest.sentry.io",
-        "https://*.ingest.us.sentry.io",
-      ],
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (isProtectedRoute(req)) {
+      await auth.protect();
+    }
+  },
+  {
+    authorizedParties: clerkAuthorizedParties(),
+    contentSecurityPolicy: {
+      strict: true,
+      directives: {
+        "connect-src": [
+          ...convexConnectSources(),
+          "https://*.ingest.sentry.io",
+          "https://*.ingest.us.sentry.io",
+        ],
+      },
     },
   },
-});
+);
 
 export const config = {
   matcher: [

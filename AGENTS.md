@@ -41,18 +41,22 @@ Fresh non-interactive setup:
 
 ### Authentication
 
-- `ClerkProvider` lives in `app/layout.tsx`.
-- `ConvexProviderWithClerk` lives in `components/app-providers.tsx`.
-- `/sign-in` and `/sign-up` use Clerk catch-all routes under `app/(auth)`.
-- `proxy.ts` initializes Clerk request auth and a nonce CSP; authorization does
-  not rely on path matching.
-- Dashboard layouts and pages protect themselves with `await auth.protect()`;
-  Clerk's ESLint rule requires protection on future server resources unless
-  their folder is explicitly public.
-- Convex validates Clerk's JWT using `convex/auth.config.ts` and the template
+- `ClerkProvider` lives in `app/layout.tsx` and sets `dynamic` so the strict
+  nonce CSP from `proxy.ts` can be applied to the document.
+- `ConvexProviderWithClerk` lives in `components/app-providers.tsx` and is
+  skipped when `NEXT_PUBLIC_CONVEX_URL` is unset, so public routes still render.
+- `/sign-in` and `/sign-up` use Clerk optional catch-all routes under
+  `app/(auth)`.
+- `proxy.ts` initializes Clerk request auth, a nonce CSP, and
+  `createRouteMatcher(["/dashboard(.*)"])` authorization.
+- The dashboard layout is the RSC fallback with `await auth.protect()`. Nested
+  dashboard pages inherit that layout and must not repeat the call.
+- Convex public functions use `authedQuery` / `authedMutation` in
+  `convex/lib/functions.ts`. Those wrappers put `ownerId` from
+  `identity.tokenIdentifier` on `ctx`. Never trust a route guard as data
+  authorization.
+- Convex validates Clerk JWTs in `convex/auth.config.ts` using the template
   named `convex` with audience `convex`.
-- Authorization belongs in every Convex function. Never trust a route guard as
-  data authorization.
 
 ### Data ownership
 
@@ -103,7 +107,8 @@ deployment without approval.
   prefix.
 - `.env.local` and secret files must remain uncommitted.
 - `CLERK_JWT_ISSUER_DOMAIN` is a Convex deployment variable.
-- Do not run `clerk init`; use `scripts/setup-clerk-auth.sh`.
+- Do not run `clerk init`; use `pnpm setup:clerk` (`scripts/setup-clerk-auth.sh`
+  wraps `scripts/setup-clerk-auth.mjs`).
 - The setup script must remain idempotent and Node 24-safe. Never print full
   secret values.
 - Development, preview, and production must use separate Clerk/Convex
@@ -116,8 +121,9 @@ For application changes, run the narrowest relevant check followed by
 `pnpm test:e2e`. Browser claims require an executed DOM/accessibility check and
 an inspected screenshot for affected UI states.
 
-The project intentionally has no GitHub Actions workflow. Do not add CI unless
-the user asks for it.
+The project runs GitHub Actions on pull requests and `main` (`pnpm check` plus a
+high-severity audit). Do not remove `.github/workflows/ci.yml` without an
+explicit replacement.
 
 ## Deployment
 

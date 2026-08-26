@@ -82,9 +82,9 @@ describe("projects", () => {
     });
 
     await owner.mutation(api.projects.remove, { projectId });
-    await expect(owner.query(api.projects.get, { projectId })).rejects.toThrow(
-      "Project not found",
-    );
+    await expect(
+      owner.query(api.projects.get, { projectId }),
+    ).resolves.toBeNull();
   });
 
   it("returns only the authenticated owner's projects", async () => {
@@ -123,7 +123,7 @@ describe("projects", () => {
 
     await expect(
       otherUser.query(api.projects.get, { projectId }),
-    ).rejects.toThrow("Project not found");
+    ).resolves.toBeNull();
     await expect(
       otherUser.mutation(api.projects.update, {
         projectId,

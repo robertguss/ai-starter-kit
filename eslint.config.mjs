@@ -28,7 +28,7 @@ export default defineConfig([
       "@clerk/next/require-auth-protection": [
         "error",
         {
-          protected: ["**"],
+          protected: ["app/dashboard/layout.tsx"],
           public: ["app", "app/(auth)/**", "app/api/health/**"],
         },
       ],

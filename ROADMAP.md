@@ -23,7 +23,7 @@ These improve the starter without forcing a product model:
 - [ ] Add an optional authenticated Clerk Playwright fixture using a dedicated
       test instance and user
 - [ ] Add accessibility checks to the smoke suite
-- [ ] Add a dependency-update policy and release checklist (without imposing CI)
+- [ ] Add a dependency-update policy and release checklist
 
 ## Product-driven recipes
 
@@ -47,7 +47,6 @@ needs them:
 - A generic admin panel, CMS, billing portal, or organization model
 - Preconfigured feature flags, search, queues, or workflow engines
 - Bundled component libraries beyond the primitives the starter actually uses
-- GitHub Actions or a prescribed CI provider
 
 Each addition should come with a concrete use case, ownership model, negative
 authorization tests, operational failure handling, and removal of any obsolete

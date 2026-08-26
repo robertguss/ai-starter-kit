@@ -4,20 +4,29 @@ import { useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ThemeProvider } from "next-themes";
+import { useState } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { getPublicConvexUrl } from "@/lib/env";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+function ConvexProviders({
+  convexUrl,
+  children,
+}: Readonly<{ convexUrl: string; children: React.ReactNode }>) {
+  const [convex] = useState(() => new ConvexReactClient(convexUrl));
 
-if (!convexUrl) {
-  throw new Error("NEXT_PUBLIC_CONVEX_URL is not configured");
+  return (
+    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      {children}
+    </ConvexProviderWithClerk>
+  );
 }
-
-const convex = new ConvexReactClient(convexUrl);
 
 export function AppProviders({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const convexUrl = getPublicConvexUrl();
+
   return (
     <ThemeProvider
       attribute="class"
@@ -25,9 +34,11 @@ export function AppProviders({
       enableSystem
       disableTransitionOnChange
     >
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        {children}
-      </ConvexProviderWithClerk>
+      {convexUrl ? (
+        <ConvexProviders convexUrl={convexUrl}>{children}</ConvexProviders>
+      ) : (
+        children
+      )}
       <Toaster richColors closeButton />
     </ThemeProvider>
   );
