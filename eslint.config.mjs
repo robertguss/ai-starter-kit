@@ -1,8 +1,12 @@
 import { defineConfig, globalIgnores } from "eslint/config";
+import clerkNext from "@clerk/eslint-plugin/next";
 import convexPlugin from "@convex-dev/eslint-plugin";
-import tseslint from "typescript-eslint";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 export default defineConfig([
+  ...nextVitals,
+  ...nextTypescript,
   globalIgnores([
     "node_modules/**",
     "convex/_generated/**",
@@ -10,21 +14,24 @@ export default defineConfig([
     "build/**",
     "dist/**",
     "coverage/**",
-    ".output/**",
-    ".nitro/**",
     ".next/**",
     ".vercel/**",
-    ".tanstack/**",
     ".audit/**",
-    "server/build/**",
-    "public/build/**",
-    "app/routeTree.gen.ts",
+    "playwright-report/**",
+    "test-results/**",
     "*.tsbuildinfo",
   ]),
-  ...tseslint.config(tseslint.configs.recommended),
   ...convexPlugin.configs.recommended,
   {
+    plugins: { "@clerk/next": clerkNext },
     rules: {
+      "@clerk/next/require-auth-protection": [
+        "error",
+        {
+          protected: ["**"],
+          public: ["app", "app/(auth)/**", "app/api/health/**"],
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

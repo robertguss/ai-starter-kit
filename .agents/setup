@@ -5,51 +5,31 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-run_step() {
-  local label="$1"
-  shift
-  local started=$SECONDS
-
-  printf '==> %s\n' "$label"
-  "$@"
-  printf '    completed in %ss\n' "$((SECONDS - started))"
+command -v node >/dev/null 2>&1 || {
+  echo "Node.js 24 or newer is required but was not found." >&2
+  exit 1
 }
 
-check_node() {
-  command -v node >/dev/null 2>&1 || {
-    echo "Node.js 20.9 or newer is required but was not found." >&2
-    return 1
-  }
-
-  node -e 'const [major, minor] = process.versions.node.split(".").map(Number); if (major < 20 || (major === 20 && minor < 9)) process.exit(1)' || {
-    echo "Node.js 20.9 or newer is required; found $(node --version)." >&2
-    return 1
-  }
+node -e 'if (Number(process.versions.node.split(".")[0]) < 24) process.exit(1)' || {
+  echo "Node.js 24 or newer is required; found $(node --version)." >&2
+  exit 1
 }
 
-install_aube() {
-  if command -v aube >/dev/null 2>&1; then
-    aube --version
-    return
+if ! command -v pnpm >/dev/null 2>&1; then
+  if command -v corepack >/dev/null 2>&1; then
+    corepack enable
+    corepack prepare pnpm@11 --activate
+  else
+    npm install --global pnpm@11
   fi
-
-  command -v npm >/dev/null 2>&1 || {
-    echo "npm is required to install aube but was not found." >&2
-    return 1
-  }
-
-  npm install --global --ignore-scripts=false @endevco/aube
-  aube --version
-}
-
-run_step "Checking Node.js" check_node
-run_step "Installing aube when missing" install_aube
-run_step "Installing project dependencies" aube install --frozen-lockfile
-
-if [[ ! -f .env.local ]]; then
-  run_step "Creating local environment file" cp -- .env.example .env.local
-else
-  echo "==> Keeping existing .env.local"
 fi
 
-echo "Orb setup complete. Configure Convex and Clerk when the task requires live services."
+pnpm_version="$(pnpm --version)"
+if [[ "${pnpm_version%%.*}" != "11" ]]; then
+  echo "pnpm 11.x is required; found $pnpm_version." >&2
+  exit 1
+fi
+
+pnpm install --frozen-lockfile
+
+echo "Orb setup complete. Link Convex and Clerk only when live services are needed."

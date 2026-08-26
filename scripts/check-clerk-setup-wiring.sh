@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Prove the Clerk CLI setup lever is wired into the kit (no network, no secrets).
+# Verify the local setup wiring without network access or secret values.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
-fail=0
+failures=0
 
 check() {
   local label="$1"
@@ -13,27 +13,37 @@ check() {
     echo "PASS  $label"
   else
     echo "FAIL  $label"
-    fail=1
+    failures=1
   fi
 }
 
-check "setup-clerk-auth.sh exists and is executable" test -x scripts/setup-clerk-auth.sh
-check "setup-clerk-auth.sh bash syntax" bash -n scripts/setup-clerk-auth.sh
-check "setup-clerk-auth.sh --help exits 0" \
+check "setup.sh is executable" test -x setup.sh
+check "setup.sh has valid Bash syntax" bash -n setup.sh
+check "setup.sh help exits successfully" bash -c './setup.sh --help >/dev/null'
+check "Clerk setup script is executable" test -x scripts/setup-clerk-auth.sh
+check "Clerk setup script has valid Bash syntax" bash -n scripts/setup-clerk-auth.sh
+check "Clerk setup help exits successfully" \
   bash -c './scripts/setup-clerk-auth.sh --help >/dev/null'
-check "package.json has setup:clerk" grep -q '"setup:clerk"' package.json
-check "setup.sh invokes setup-clerk-auth.sh" grep -q 'scripts/setup-clerk-auth.sh' setup.sh
-check "AGENTS.md documents the script" grep -q 'scripts/setup-clerk-auth.sh' AGENTS.md
-check "AUTHENTICATION.md prefers CLI" grep -q 'Clerk CLI' docs/AUTHENTICATION.md
-check "AUTHENTICATION.md forbids clerk init in kit" grep -q 'Do not run `clerk init`' docs/AUTHENTICATION.md
-check "setup-starter-kit skill points at the script" grep -q 'scripts/setup-clerk-auth.sh' .agents/skills/setup-starter-kit/SKILL.md
-check ".env.example mentions the script" grep -q 'scripts/setup-clerk-auth.sh' .env.example
+check "Clerk setup rejects short placeholder keys" \
+  grep -q '\${#value}.*-ge 30' scripts/setup-clerk-auth.sh
+check "package.json selects pnpm" grep -q '"packageManager": "pnpm@' package.json
+check "package.json exposes setup:clerk" grep -q '"setup:clerk"' package.json
+check "setup.sh invokes the Clerk setup" grep -q 'scripts/setup-clerk-auth.sh' setup.sh
+check "Clerk middleware initializes request auth" grep -q 'clerkMiddleware({' proxy.ts
+check "Clerk middleware configures strict CSP" grep -q 'contentSecurityPolicy' proxy.ts
+check "dashboard layout protects its resource" \
+  grep -q 'await auth.protect()' app/dashboard/layout.tsx
+check "root layout installs ClerkProvider" grep -q '<ClerkProvider' app/layout.tsx
+check "environment example documents Next.js Clerk keys" \
+  grep -q 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY' .env.example
+check "starter setup skill uses the pnpm Clerk setup command" \
+  grep -q 'pnpm setup:clerk' .agents/skills/setup-starter-kit/SKILL.md
 
-if [ "$fail" -ne 0 ]; then
+if [ "$failures" -ne 0 ]; then
   echo ""
-  echo "Clerk setup wiring checks failed"
+  echo "Setup wiring checks failed"
   exit 1
 fi
 
 echo ""
-echo "All Clerk setup wiring checks passed"
+echo "All setup wiring checks passed"
