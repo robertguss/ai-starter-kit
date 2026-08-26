@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { signInHref, signUpHref } from "@/lib/auth-routes";
 
 const foundations = [
   {
@@ -51,10 +52,10 @@ export default async function HomePage() {
             ) : (
               <>
                 <Button asChild variant="ghost" size="sm">
-                  <Link href="/sign-in">Sign in</Link>
+                  <Link href={signInHref}>Sign in</Link>
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/sign-up">Create account</Link>
+                  <Link href={signUpHref}>Create account</Link>
                 </Button>
               </>
             )}
@@ -75,14 +76,18 @@ export default async function HomePage() {
               build on.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg">
-                <Link href={userId ? "/dashboard" : "/sign-up"}>
-                  {userId ? "Open dashboard" : "Get started"}
-                </Link>
-              </Button>
+              {userId ? (
+                <Button asChild size="lg">
+                  <Link href="/dashboard">Open dashboard</Link>
+                </Button>
+              ) : (
+                <Button asChild size="lg">
+                  <Link href={signUpHref}>Get started</Link>
+                </Button>
+              )}
               {!userId && (
                 <Button asChild size="lg" variant="outline">
-                  <Link href="/sign-in">Sign in</Link>
+                  <Link href={signInHref}>Sign in</Link>
                 </Button>
               )}
             </div>
