@@ -1,10 +1,7 @@
+"use client";
+
 import * as React from "react";
-import {
-  IconCheck,
-  IconDeviceDesktop,
-  IconMoon,
-  IconSun,
-} from "@tabler/icons-react";
+import { CheckIcon, LaptopIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -16,9 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const themes = [
-  { value: "light", label: "Light", icon: IconSun },
-  { value: "dark", label: "Dark", icon: IconMoon },
-  { value: "system", label: "System", icon: IconDeviceDesktop },
+  { value: "light", label: "Light", icon: SunIcon },
+  { value: "dark", label: "Dark", icon: MoonIcon },
+  { value: "system", label: "System", icon: LaptopIcon },
 ] as const;
 
 export function ModeToggle() {
@@ -47,7 +44,7 @@ export function ModeToggle() {
               <Icon className="size-4" />
               {label}
             </span>
-            {theme === value && <IconCheck className="size-4" />}
+            {theme === value && <CheckIcon className="size-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

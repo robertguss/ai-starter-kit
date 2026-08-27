@@ -1,98 +1,81 @@
 ---
 name: source-command-convex-auth-setup
-description: "Set up or extend authentication patterns in this Convex + Clerk project"
+description: Set up or extend Clerk authentication and owner authorization in this Next.js and Convex starter.
 ---
 
-# Convex + Clerk Auth Setup (This Project)
+# Clerk + Convex auth in this project
 
-This project uses **Clerk** with Convex JWT validation. Use this guide when
-implementing auth flows, access control, or user management.
+## Existing architecture
 
-## Architecture
+- `app/layout.tsx` installs Clerk's Next.js provider.
+- `components/app-providers.tsx` passes Clerk's `useAuth` to Convex.
+- `proxy.ts` initializes Clerk request auth and creates a strict nonce-based
+  CSP; it does not authorize resources by pathname.
+- Dashboard layouts and pages protect themselves with `await auth.protect()`.
+- Clerk's ESLint rule requires auth protection on future server resources
+  unless their folder is explicitly public.
+- `/sign-in` and `/sign-up` include catch-all pages for Clerk's multi-step flows.
+- `convex/auth.config.ts` validates the Clerk JWT template named `convex`.
+- `convex/projects.ts` is the authorization reference implementation.
 
-- **Backend**: `convex/auth.config.ts` validates Clerk JWTs via
-  `CLERK_JWT_ISSUER_DOMAIN`
-- **Helpers**: `convex/auth.ts` exposes `getCurrentUser` from
-  `ctx.auth.getUserIdentity()`
-- **Frontend**: `ClerkProvider` + `ConvexProviderWithClerk` /
-  `useAuth` from `@clerk/nextjs`
-- **Route protection**: `proxy.ts` (`clerkMiddleware`) plus
-  `auth.protect()` in `app/dashboard/layout.tsx`
-- **UI**: Clerk `<SignIn />` / `<SignUp />` at `/login` and `/signup`
+Route protection is not data authorization. Every public Convex function that
+reads or writes private data must enforce identity and ownership itself.
 
-## Getting the Current User
+## Canonical ownership pattern
 
-Prefer `ctx.auth.getUserIdentity()` in Convex functions, or the shared query:
-
-```typescript
-import { api } from "./_generated/api";
-
-// Client
-const user = useQuery(api.auth.getCurrentUser);
-```
+For simple user-owned data, derive the owner key from the Clerk identity:
 
 ```typescript
-import { query } from "./_generated/server";
-
-export const myQuery = query({
-  args: {},
-  returns: v.null(),
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-    // identity.subject, identity.email, identity.name, identity.pictureUrl
-  },
-});
-```
-
-## Custom Authenticated Functions
-
-```typescript
-import {
-  customQuery,
-  customMutation,
-} from "convex-helpers/server/customFunctions";
-import { query, mutation } from "../_generated/server";
-
-async function requireIdentity(ctx: { auth: { getUserIdentity: () => Promise<unknown> } }) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) {
-    throw new Error("Not authenticated");
-  }
-  return identity;
+const identity = await ctx.auth.getUserIdentity();
+if (!identity) {
+  throw new ConvexError({
+    code: "UNAUTHENTICATED",
+    message: "You must be signed in.",
+  });
 }
 
-export const authedQuery = customQuery(query, {
-  args: {},
-  input: async (ctx, args) => {
-    const identity = await requireIdentity(ctx);
-    return { ctx: { ...ctx, identity }, args };
-  },
-});
-
-export const authedMutation = customMutation(mutation, {
-  args: {},
-  input: async (ctx, args) => {
-    const identity = await requireIdentity(ctx);
-    return { ctx: { ...ctx, identity }, args };
-  },
-});
+const ownerId = identity.tokenIdentifier;
 ```
 
-## Clerk Dashboard Checklist
+Never accept `ownerId`, `userId`, or another identity field from a public
+function argument. On direct reads, updates, and deletes, load the document and
+compare its `ownerId` to the derived value before returning or mutating it. Use
+the same not-found response for missing and another user's documents to avoid
+resource enumeration.
 
-1. Create a Clerk application
-2. Enable Convex at https://dashboard.clerk.com/apps/setup/convex
-3. Set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in `.env.local`
-4. Set `bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL>`
-5. Sign out and back in after activating the Convex JWT template
-6. Verify with `useConvexAuth()` and a protected query
+Do not add a users table merely to mirror Clerk. Add app-owned user records only
+when the product needs profile fields, relationships, lifecycle sync, or roles;
+then verify signed Clerk webhooks and make processing idempotent.
 
-## Rules
+## Setup
 
-1. Read `convex/auth.ts` and `app/ConvexClientProvider.tsx` before changing auth
-2. Use `ctx.auth.getUserIdentity()` (or `api.auth.getCurrentUser`) for identity
-3. Do not reintroduce Better Auth, auth proxy routes, or
-   `NEXT_PUBLIC_CONVEX_SITE_URL` for session auth
+Use the repository setup path; do not run `clerk init`:
+
+```bash
+pnpm exec convex dev --until-success
+pnpm dlx clerk@latest auth login
+pnpm setup:clerk
+```
+
+The script writes `NEXT_PUBLIC_CLERK_*` values, creates the `convex` JWT
+template, and sets `CLERK_JWT_ISSUER_DOMAIN` on the linked Convex deployment.
+Dashboard links:
+
+- <https://dashboard.clerk.com/last-active?path=api-keys>
+- <https://dashboard.clerk.com/apps/setup/convex>
+
+Sign out completely and sign in again after first creating the JWT template.
+
+## Verification
+
+For every owner-scoped feature:
+
+1. Seed records through the real mutation as owner A and owner B.
+2. Prove each owner list returns only that owner's rows.
+3. Prove owner B cannot directly read, update, or delete owner A's ID.
+4. Prove unauthenticated callers cannot use any private operation.
+5. Run `pnpm lint`, `pnpm typecheck`, and `pnpm test:once`.
+
+Use `useConvexAuth()` for client UI readiness. Use Clerk hooks/components for
+display and account controls; do not add a public Convex “current user” query
+unless the application genuinely owns user data that Clerk does not provide.

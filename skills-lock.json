@@ -31,12 +31,6 @@
       "skillPath": "skills/core/clerk-setup/SKILL.md",
       "computedHash": "2142fbbf99008c3152e7044730e57d6063b26a9f2523da1fd21a83f6207a2b81"
     },
-    "clerk-tanstack-patterns": {
-      "source": "clerk/skills",
-      "sourceType": "github",
-      "skillPath": "skills/frameworks/clerk-tanstack-patterns/SKILL.md",
-      "computedHash": "dae6b1764f59c280cc257fc114ff3d2acc186d27537875e3c461650b7addb85d"
-    },
     "clerk-testing": {
       "source": "clerk/skills",
       "sourceType": "github",

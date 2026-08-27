@@ -10,8 +10,8 @@ command -v node >/dev/null 2>&1 || {
   exit 1
 }
 
-command -v aube >/dev/null 2>&1 || {
-  echo "aube is missing; run .agents/setup to repair this orb." >&2
+command -v pnpm >/dev/null 2>&1 || {
+  echo "pnpm is missing; run .agents/setup to repair this orb." >&2
   exit 1
 }
 

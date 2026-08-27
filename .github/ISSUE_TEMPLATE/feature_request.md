@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for the AI Starter Kit
+about: Suggest a new feature or enhancement for Web App Starter Kit
 title: "[FEATURE] "
 labels: enhancement
 assignees: ""
@@ -38,7 +38,7 @@ Describe your use case in detail. How would you use this feature?
 
 ## Benefits
 
-Who would benefit from this feature? How would it improve the AI Starter Kit?
+Who would benefit from this feature? How would it improve Web App Starter Kit?
 
 ## Implementation Ideas
 

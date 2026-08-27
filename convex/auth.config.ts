@@ -7,7 +7,7 @@ const PLACEHOLDER_DOMAIN = "https://clerk-not-configured.invalid";
 const domain = process.env.CLERK_JWT_ISSUER_DOMAIN;
 if (!domain) {
   console.warn(
-    "Missing CLERK_JWT_ISSUER_DOMAIN. Authentication is disabled until you run: bunx convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL from https://dashboard.clerk.com/apps/setup/convex>",
+    "Missing CLERK_JWT_ISSUER_DOMAIN. Authentication is disabled until you run: pnpm exec convex env set CLERK_JWT_ISSUER_DOMAIN <Frontend API URL from https://dashboard.clerk.com/apps/setup/convex>",
   );
 }
 

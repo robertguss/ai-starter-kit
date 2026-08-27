@@ -1,96 +1,35 @@
-# AI Starter Kit
+# Web App Starter Kit
 
-A modern, production-ready starter kit for building full-stack applications with
-**TanStack Start**, **Convex** real-time database, **Clerk** authentication,
-**TypeScript**, and **shadcn/ui** components.
+A lean, production-oriented TypeScript starter for applications deployed on
+Vercel. It combines **Next.js App Router**, **Convex**, **Clerk**, **Tailwind
+CSS**, and **shadcn/ui** without preloading a SaaS application's product
+decisions into the foundation.
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![TanStack Start](https://img.shields.io/badge/TanStack%20Start-latest-black.svg)](https://tanstack.com/start/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## What ships
 
----
+- Next.js App Router with React Server Components and typed routes
+- Clerk authentication with dashboard route matching, a layout fallback, and a
+  strict nonce-based CSP
+- Convex realtime data, schema validation, indexed pagination, and Clerk JWTs
+- A real owner-scoped projects CRUD feature—not a static dashboard mock
+- Sentry errors/tracing, Vercel Analytics, and Vercel Speed Insights
+- Security headers, health endpoints, error boundaries, and dark mode
+- Strict TypeScript, ESLint, Prettier, Husky, and lint-staged
+- Vitest + convex-test authorization tests and Playwright Chromium smoke tests
+- Node.js 24 and pnpm 11, pinned through repository metadata
 
-## Quickstart
+The starter deliberately omits billing, organizations, email, uploads, audit
+logs, feature flags, workflows, and admin tooling. Add those only when the
+product requires them; see
+[Optional production capabilities](#optional-production-capabilities).
 
-From a fresh clone to a running app with Convex + Clerk auth. This kit uses
-[aube](https://aube.jdx.dev) (`aube` / `aubr` / `aubx`), not npm/pnpm scripts
-directly.
+## Quick start
 
 ### Prerequisites
 
-| Tool     | Requirement                                                                          |
-| -------- | ------------------------------------------------------------------------------------ |
-| Node.js  | **20.9+** (`node -v`)                                                                |
-| aube     | Install from [aube.jdx.dev](https://aube.jdx.dev) (`aube --version`)                 |
-| Accounts | Free [Clerk](https://clerk.com) + [Convex](https://convex.dev) (CLI opens a browser) |
-
-Windows: use Git Bash or WSL for the shell scripts below.
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/robertguss/web-app-starter-kit.git
-cd web-app-starter-kit
-aube install
-```
-
-### 2. Log in to the Clerk CLI (once per machine)
-
-```bash
-aubx clerk@latest auth login
-aubx clerk@latest whoami
-```
-
-Do this in a normal terminal with a browser. Do **not** run `clerk init` in this
-repo. Providers, middleware, `/login`, and `/signup` already ship with the kit.
-
-### 3. Link Convex
-
-```bash
-aubx convex dev --until-success
-```
-
-Log in / create a Convex project when prompted. This writes `VITE_CONVEX_URL`
-into `.env.local` (and `setup.sh` maps any legacy `NEXT_PUBLIC_CONVEX_URL` if
-needed).
-
-### 4. Finish Clerk + Convex JWT auth
-
-```bash
-./scripts/setup-clerk-auth.sh
-# same as: aubr setup:clerk
-```
-
-This idempotent script:
-
-1. Adds kit route defaults (`/login`, `/signup` → `/dashboard`) to `.env.local`
-2. Creates or links a Clerk app and runs `clerk env pull`
-3. Creates the Clerk JWT template named `convex` when missing
-4. Sets `CLERK_JWT_ISSUER_DOMAIN` on your Convex deployment
-
-### 5. Start the app
-
-```bash
-aubr dev
-```
-
-Runs the TanStack Start frontend and Convex backend together (`package.json` →
-`dev` / `dev:frontend` / `dev:backend`).
-
-Open [http://localhost:3000](http://localhost:3000).
-
-### 6. Verify auth end to end
-
-1. Go to [http://localhost:3000/signup](http://localhost:3000/signup) and create
-   a user
-2. Confirm you land on `/dashboard`
-3. Sign out fully, then sign in again at `/login` (needed once after the JWT
-   template is created)
-4. Confirm the dashboard still loads while signed in
-
-### One-command path
-
-If the Clerk CLI is already logged in:
+- Node.js **24.x**
+- pnpm **11.x**
+- Clerk and Convex accounts
 
 ```bash
 git clone https://github.com/robertguss/web-app-starter-kit.git
@@ -98,470 +37,216 @@ cd web-app-starter-kit
 ./setup.sh
 ```
 
-`./setup.sh` installs deps, runs Convex until ready, calls
-`scripts/setup-clerk-auth.sh`, then starts `aubr dev`.
-
-### Deeper docs
-
-| Topic                                | Doc                                                          |
-| ------------------------------------ | ------------------------------------------------------------ |
-| Auth details + Dashboard fallback    | [docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md)           |
-| Full setup / env reference           | [docs/SETUP.md](./docs/SETUP.md)                             |
-| Longer quick start + troubleshooting | [docs/QUICK_START.md](./docs/QUICK_START.md)                 |
-| Clerk CLI for agents                 | [clerk.com/cli/agents.txt](https://clerk.com/cli/agents.txt) |
-
----
-
-<div align="center">
-
-## 📬 Join the Refactoring AI Newsletter
-
-[![Subscribe](https://img.shields.io/badge/Subscribe-Refactoring%20AI-blue?style=for-the-badge&logo=substack&logoColor=white)](https://refactoringai.substack.com/)
-
-<a href="https://refactoringai.substack.com/">
-  <img src="./public/refactoring-ai.webp" alt="Refactoring AI Newsletter" width="600px" />
-</a>
-
-<h3>I teach developers how to ship their ideas in days with AI</h3>
-
-<p><strong>Master modern full-stack development with AI-powered tools and techniques</strong></p>
-
-<p><strong>✨ What You'll Learn:</strong></p>
-
-<p>
-🚀 I've taught over 50,000 developers to date.<br/>
-🎯 Top 1% TypeScript engineers globally on GitHub.<br/>
-🤖 Learn how to use AI coding agents like Claude Code effectively
-</p>
-
-[**→ Subscribe Now (It's Free!)**](https://refactoringai.substack.com/)
-
-</div>
-
----
-
-## Built with this Starter Kit
-
-<div align="center">
-
-<h3><a href="https://github.com/robertguss/social_post">SocialPost</a> - Real-World Production Application</h3>
-
-[![GitHub](https://img.shields.io/badge/View_on_GitHub-SocialPost-181717?style=for-the-badge&logo=github)](https://github.com/robertguss/social_post)
-
-<p><strong>See this starter kit in action!</strong> SocialPost is a full-featured social media management tool built entirely with this stack.</p>
-
-[**→ Explore SocialPost Source Code**](https://github.com/robertguss/social_post)
-
-</div>
-
----
-
-## Table of Contents
-
-- [Quickstart](#quickstart)
-- [Features](#features)
-- [Recommended Development Workflow](#recommended-development-workflow)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Documentation](#documentation)
-- [Development](#development)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Features
-
-### Core Capabilities
-
-- **Authentication** - Clerk + Convex JWT integration
-  - Hosted Clerk sign-in / sign-up UI
-  - Protected `/dashboard` route via TanStack Router `beforeLoad` + Clerk server
-    auth
-  - Convex identity from Clerk JWTs (`ctx.auth.getUserIdentity()`)
-  - Setup via Clerk CLI (`./scripts/setup-clerk-auth.sh`); Dashboard fallback in
-    docs
-
-- **Real-time Database** - Powered by Convex
-  - Serverless backend with zero infrastructure management
-  - Automatic TypeScript generation
-  - Real-time subscriptions out of the box
-  - ACID transactions
-
-- **Modern UI Components** - 20+ shadcn/ui components pre-installed
-  - Buttons, Forms, Modals, Tables, Charts, Sidebar
-  - Fully customizable with Tailwind CSS 4
-  - Dark mode support with Tailwind CSS variables
-  - Responsive design patterns
-
-- **Testing Infrastructure** - Complete testing setup
-  - Vitest for unit and integration tests
-  - convex-test for isolated backend testing
-  - Example tests included
-  - Coverage reporting
-
-- **Developer Experience**
-  - TypeScript strict mode for type safety
-  - ESLint configuration for code quality
-  - Hot module replacement
-  - Parallel dev servers via `aubr dev` (frontend + backend)
-
----
-
-## Recommended Development Workflow
-
-### Building with AI Coding Agents
-
-This starter kit is designed to work seamlessly with AI coding agents like
-**Claude Code**. For the best development experience, we recommend following the
-**[BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)** (Breakthrough
-Method for Agile AI Driven Development).
-
-**What is BMAD?**
-
-The BMAD Method is a comprehensive framework that combines human expertise with
-AI capabilities to build software more effectively. It provides:
-
-- **19+ specialized AI agents** and **50+ workflows** for different development
-  scenarios
-- **Three planning tracks** that automatically adapt based on your project
-  needs:
-  - **Quick Flow Track** - Bug fixes and small features
-  - **BMad Method Track** - Full products and platforms (recommended for this
-    starter kit)
-  - **Enterprise Method Track** - Complex systems with security and compliance
-    needs
-
-**Why BMAD with this Starter Kit?**
-
-- Accelerates feature development while maintaining code quality
-- Provides structured workflows for common tasks (auth, database, UI components)
-- Helps AI agents understand your project structure and patterns
-- Guides reflective thinking that brings out better architectural decisions
-
-**Getting Started with BMAD:**
-
-1. Review the
-   [BMAD Method documentation](https://github.com/bmad-code-org/BMAD-METHOD)
-2. Use the `CLAUDE.md` file in this repo (pre-configured for Claude Code)
-3. Follow the BMad Method Track for adding new features to your application
-
-> **Note**: While BMAD is recommended, it's entirely optional. This starter kit
-> works great with any development workflow or AI coding assistant.
-
----
-
-## Tech Stack
-
-| Category            | Technology     | Version | Purpose                                  |
-| ------------------- | -------------- | ------- | ---------------------------------------- |
-| **Framework**       | TanStack Start | latest  | Full-stack React framework with Vite SSR |
-| **Frontend**        | React          | 19.x    | UI library                               |
-| **Language**        | TypeScript     | 5.x     | Type-safe JavaScript                     |
-| **Backend**         | Convex         | 1.28+   | Real-time serverless database            |
-| **Auth**            | Clerk          | Latest  | Authentication & session management      |
-| **Styling**         | Tailwind CSS   | 4.x     | Utility-first CSS framework              |
-| **Components**      | shadcn/ui      | Latest  | Radix UI + Tailwind components           |
-| **Icons**           | Lucide React   | Latest  | Beautiful consistent icons               |
-| **Testing**         | Vitest         | 4.x     | Fast unit testing framework              |
-| **Package Manager** | aube           | 1.x+    | Fast, secure JavaScript package manager  |
-
-### Why These Technologies?
-
-- **TanStack Start**: Full-stack React framework with TanStack Router, Vite,
-  SSR, and server functions
-- **Convex**: Eliminates the complexity of traditional backends - no
-  REST/GraphQL APIs to build, real-time by default
-- **Clerk**: Hosted auth with a first-party Convex JWT integration
-- **shadcn/ui**: Copy-paste components you own, built on Radix UI primitives for
-  accessibility
-- **TypeScript**: End-to-end type safety from database to frontend
-
----
-
-## Project Structure
-
-```
-ai-starter-kit/
-├── app/                          # TanStack Start application source
-│   ├── routes/                   # TanStack Router routes
-│   │   ├── __root.tsx            # Root route (providers + document shell)
-│   │   ├── index.tsx             # Home page
-│   │   ├── dashboard.tsx         # Protected dashboard page
-│   │   ├── login.tsx             # Clerk sign-in
-│   │   └── signup.tsx            # Clerk sign-up
-│   ├── router.tsx                # Router factory
-│   ├── start.ts                  # TanStack Start entry + Clerk middleware
-│   ├── ConvexClientProvider.tsx  # Convex + Clerk provider
-│   └── globals.css               # Tailwind CSS entry
-│
-├── components/                   # React components
-│   ├── ui/                       # shadcn/ui components (20+)
-│   ├── app-sidebar.tsx           # Main application sidebar
-│   ├── nav-user.tsx              # User menu (Clerk signOut)
-│   └── data-table.tsx            # Reusable data table
-│
-├── convex/                       # Convex backend
-│   ├── _generated/               # Auto-generated types & API
-│   ├── auth.config.ts            # Clerk JWT provider config
-│   ├── auth.ts                   # getCurrentUser helper
-│   ├── http.ts                   # HTTP router
-│   ├── schema.ts                 # Database schema
-│   ├── test.setup.ts             # Test configuration
-│   └── TESTING.md                # Testing documentation
-│
-├── lib/                          # Shared utilities
-│   └── utils.ts                  # Helper functions (cn, etc.)
-│
-├── hooks/                        # React hooks
-│   └── use-mobile.ts             # Mobile detection hook
-│
-├── docs/                         # Documentation
-│   ├── AUTHENTICATION.md         # Clerk + Convex auth guide
-│   └── ...                       # Setup, architecture, etc.
-│
-├── vite.config.ts                # Vite + TanStack Start plugin configuration
-├── .mcp.json                     # Includes Clerk MCP
-├── CLAUDE.md                     # Claude AI development guide
-└── LICENSE                       # MIT License
-```
-
----
-
-## Documentation
-
-Comprehensive guides for all aspects of the starter kit:
-
-### Getting Started
-
-- [Quick Start Guide](./docs/QUICK_START.md) - Get running in 5 minutes
-- [Detailed Setup](./docs/SETUP.md) - Complete installation & configuration
-- [Architecture Overview](./docs/ARCHITECTURE.md) - How everything fits together
-
-### Development
-
-- [Development Guide](./docs/DEVELOPMENT.md) - Adding features, modifying schema
-- [API Reference](./docs/API.md) - Convex functions documentation
-- [Database Guide](./docs/DATABASE.md) - Schema, indexes, and patterns
-- [Authentication](./docs/AUTHENTICATION.md) - Auth flows and customization
-
-### Deployment & Help
-
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to production (Vercel)
-- [Troubleshooting](./docs/TROUBLESHOOTING.md) - Common issues and solutions
-- [IDE Tools](./docs/IDE_TOOLS.md) - Optional development enhancements
-
----
-
-## Development
-
-### Available Scripts
+The setup script installs dependencies, links a Convex project, creates or links
+a Clerk app, creates the `convex` JWT template, configures the Clerk issuer on
+Convex, and starts both development servers.
+
+For an agent or a non-interactive environment:
 
 ```bash
-# Development
-aubr dev               # Run both frontend and backend in parallel
-aubr dev:frontend      # Run TanStack Start Vite dev server
-aubr dev:backend       # Run Convex only
-aubr predev            # Ensure Convex is ready before `dev`
-
-# Building
-aubr build             # Build for production (Vite + SSR + type check)
-aubr start             # Start production Node server
-
-# Code Quality
-aubr lint              # Run ESLint
-aubr typecheck         # TypeScript only (`tsc --noEmit`)
-aubr format            # Format with Prettier
-aubr format:check      # Check Prettier formatting
-aubr check             # Lint + typecheck + tests
-
-# Testing
-aubr test              # Run tests in watch mode
-aubr test:once         # Run tests once
-aubr test:debug        # Debug tests with inspector
-aubr test:coverage     # Run with coverage report
+./setup.sh --yes --no-dev --clerk-app app_xxx
 ```
 
-### Adding New Features
+Use `--skip-convex` or `--skip-clerk` to defer either external setup step.
+
+### Manual setup
 
 ```bash
-# Add a new shadcn/ui component
-aubx shadcn@latest add [component-name]
-
-# Generate Convex types (after schema changes)
-aubx convex codegen
-
-# Open Convex dashboard
-aubx convex dashboard
+pnpm install --frozen-lockfile
+pnpm exec convex dev --until-success
+pnpm dlx clerk@latest auth login
+pnpm setup:clerk
+pnpm dev
 ```
 
-### Environment Variables
+Do **not** run `clerk init`: this repository already owns its providers,
+middleware, auth routes, and environment conventions.
 
-Create a `.env.local` file for the Vite frontend. Convex writes
-`VITE_CONVEX_URL` (setup.sh ensures this key is present if Convex wrote a legacy
-name) for the TanStack Start client.
+Useful Clerk dashboard links:
+
+- Create an app: <https://dashboard.clerk.com/apps/new>
+- API keys: <https://dashboard.clerk.com/last-active?path=api-keys>
+- Convex integration: <https://dashboard.clerk.com/apps/setup/convex>
+
+After enabling the Convex JWT template for the first time, sign out completely
+and sign in again so Clerk issues a session with the new template.
+
+## Architecture
+
+```text
+Browser
+  ├─ Next.js App Router on Vercel
+  │    ├─ ClerkProvider (dynamic) + dashboard route protection
+  │    ├─ proxy.ts nonce CSP and /dashboard matcher
+  │    ├─ Server Components for public/authenticated shells
+  │    └─ Sentry + Vercel web telemetry
+  └─ ConvexReactClient
+       └─ Clerk "convex" JWT
+            └─ Convex queries and mutations
+                 └─ ownerId = identity.tokenIdentifier
+```
+
+### Authentication and authorization
+
+Authentication and authorization are separate layers:
+
+1. [`proxy.ts`](./proxy.ts) initializes Clerk's request context, a nonce CSP,
+   and `createRouteMatcher(["/dashboard(.*)"])` authorization.
+2. The dashboard layout is the RSC fallback with `await auth.protect()`. Nested
+   pages inherit that layout.
+3. Convex project functions use `authedQuery` / `authedMutation`, which put
+   `ownerId` from `identity.tokenIdentifier` on `ctx`.
+4. No public Convex function accepts an owner/user ID from the client.
+5. Cross-owner reads return `null`. Cross-owner updates and deletes throw the
+   same not-found error so callers cannot enumerate records.
+
+Clerk's ESLint rule requires `auth.protect()` on `app/dashboard/layout.tsx` and
+treats the public landing, auth, and health routes as public.
+
+`ClerkProvider` must set `dynamic` so the per-request CSP nonce is available to
+the document. Keep the Convex and Sentry `connect-src` entries in `proxy.ts`
+when customizing the policy. `NEXT_PUBLIC_CONVEX_URL` is required for Convex UI;
+public routes still render if it is missing.
+
+### Projects reference feature
+
+The projects vertical slice demonstrates the patterns expected of production
+features:
+
+- schema and compound owner/update index in `convex/schema.ts`
+- argument and return validators on every Convex function
+- bounded paginated reads—no unbounded table scans
+- server-side trimming and length validation from one shared Zod schema
+- accessible create/edit/delete UI with optimistic realtime refresh
+- structured `ConvexError`s mapped onto form fields; unexpected failures go to
+  Sentry without sending default PII
+- tests with two identities proving owner isolation
+
+Copy the security shape, not necessarily the project domain model.
+
+## Commands
+
+| Command              | Purpose                                       |
+| -------------------- | --------------------------------------------- |
+| `pnpm dev`           | Run Next.js and Convex together               |
+| `pnpm dev:frontend`  | Run Next.js only                              |
+| `pnpm dev:backend`   | Run Convex only                               |
+| `pnpm build`         | Create a production Next.js build             |
+| `pnpm lint`          | Run ESLint with zero warnings allowed         |
+| `pnpm typecheck`     | Run TypeScript without emitting               |
+| `pnpm test:once`     | Run unit/backend tests once                   |
+| `pnpm test:e2e`      | Run Playwright Chromium smoke tests           |
+| `pnpm test:coverage` | Run Vitest with coverage                      |
+| `pnpm check`         | Format, lint, typecheck, unit, and setup test |
+| `pnpm codegen`       | Regenerate Convex types (linked project)      |
+| `pnpm setup:clerk`   | Configure Clerk + Convex JWT auth             |
+
+Install the Playwright browser once on a new machine:
 
 ```bash
-# Auto-generated by `aubx convex dev`
-VITE_CONVEX_URL=https://your-deployment.convex.cloud
-
-# Written by ./scripts/setup-clerk-auth.sh (Clerk CLI)
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
-
-VITE_CLERK_SIGN_IN_URL=/login
-VITE_CLERK_SIGN_UP_URL=/signup
-VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+pnpm exec playwright install chromium
 ```
 
-`./scripts/setup-clerk-auth.sh` also sets `CLERK_JWT_ISSUER_DOMAIN` on Convex.
+The checked-in smoke suite covers the public page, health route, signed-out
+dashboard redirect, Clerk sign-in page, and 404. Authenticated end-to-end tests
+should use a dedicated Clerk test instance and test user; backend authorization
+is already tested deterministically with `convex-test`.
 
-See [`.env.example`](./.env.example) and
-[docs/AUTHENTICATION.md](./docs/AUTHENTICATION.md).
+Local browser tests load `.env.local` with Next.js semantics and fail fast when
+Clerk is not configured. To test a configured preview instead, set
+`PLAYWRIGHT_BASE_URL`; Playwright will not start a local server in that mode.
 
----
+## Environment variables
 
-## Testing
+Start with [`.env.example`](./.env.example). Important boundaries:
 
-This starter includes a complete testing setup with Vitest and convex-test:
+- `NEXT_PUBLIC_*` values are shipped to the browser; never put secrets there.
+- `CLERK_SECRET_KEY`, `SENTRY_AUTH_TOKEN`, and `CONVEX_DEPLOY_KEY` are secrets.
+- `CLERK_JWT_ISSUER_DOMAIN` lives in each Convex deployment, not `.env.local`.
+- Scope development, preview, and production credentials separately.
+- `CLERK_AUTHORIZED_PARTIES` is optional, but when set it must include every
+  legitimate local, preview, and production origin.
 
-```bash
-# Run tests in watch mode
-aubr test
+Sentry remains disabled when `NEXT_PUBLIC_SENTRY_DSN` is absent. Source maps are
+uploaded only when `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are
+all present during the build. Default PII collection and Session Replay are off;
+production tracing samples 10% of transactions.
 
-# Run tests once (CI mode)
-aubr test:once
+## Deploying to Vercel
 
-# Run with coverage
-aubr test:coverage
+1. Import the repository at <https://vercel.com/new>. Vercel detects Next.js and
+   pnpm from `package.json` and `pnpm-lock.yaml`.
+2. Create a Convex production deploy key with `deployment:deploy` permission and
+   set it as `CONVEX_DEPLOY_KEY` in Vercel's **Production** environment.
+3. Set the Vercel build command to:
+
+   ```bash
+   pnpm exec convex deploy --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL --cmd 'pnpm build'
+   ```
+
+4. Configure the production Clerk keys and set the production Clerk Frontend API
+   URL as `CLERK_JWT_ISSUER_DOMAIN` on the Convex production deployment.
+5. Configure a real production domain in Clerk. Do not treat a generated
+   `*.vercel.app` hostname as the long-term authentication origin.
+6. Add the optional Sentry variables from `.env.example` to enable monitoring
+   and source maps. Vercel Analytics and Speed Insights need no application
+   secrets.
+7. For isolated preview data, create a separate Convex **preview** deploy key
+   scoped to Vercel's Preview environment. Never point previews at production
+   data by convenience.
+
+Current Convex deployment guidance:
+<https://docs.convex.dev/production/hosting/vercel>.
+
+### Production launch checklist
+
+- Use separate Clerk and Convex development/preview/production environments.
+- Verify signed-out redirects and sign-in/up redirects on the production domain.
+- Exercise one create/read/update/delete flow as two different users.
+- Configure Sentry alert routing and test a non-sensitive synthetic error.
+- Enable and rehearse Convex backups before storing irreplaceable data.
+- Add rate limiting before exposing abuse-prone mutations, actions, or webhooks.
+- Define data retention, deletion, and migration runbooks for the product.
+- Review CSP additions instead of weakening or disabling the policy.
+- Run `pnpm check`, `pnpm build`, and `pnpm test:e2e` before release.
+- Monitor `/api/health`, Convex health, Web Vitals, and server/client errors.
+
+## Optional production capabilities
+
+Add capabilities in response to a concrete product requirement:
+
+| Need                        | Recommended direction                                          |
+| --------------------------- | -------------------------------------------------------------- |
+| B2B tenancy                 | Clerk Organizations plus org-scoped Convex authorization tests |
+| App-owned user profiles     | Clerk webhooks with signature verification and idempotency     |
+| Billing                     | Stripe with webhook-driven entitlement state                   |
+| Transactional email         | Resend or Postmark from a Convex action                        |
+| File uploads                | Convex file storage with owner-scoped metadata                 |
+| Abuse protection            | `@convex-dev/rate-limiter` at server trust boundaries          |
+| Compliance/audit history    | Append-only, actor-attributed Convex audit events              |
+| Product analytics           | PostHog only if Vercel's web analytics is insufficient         |
+| Internationalization        | `next-intl` once multiple locales are committed                |
+| Complex forms               | React Hook Form when native state is no longer maintainable    |
+| Long-running business flows | `@convex-dev/workflow` when durable orchestration is required  |
+
+Avoid adding Redux, React Query, tRPC, Axios, Prisma, or a second database by
+default. Next.js and Convex already own the corresponding state, transport, API,
+and persistence concerns. A second abstraction should solve a measured problem
+rather than duplicate the stack.
+
+## Repository layout
+
+```text
+app/                  Next.js routes, layouts, errors, and health endpoint
+components/           Application and shadcn/ui components
+convex/               Schema, authenticated functions, and backend tests
+e2e/                  Playwright smoke tests
+lib/                  Framework-neutral utilities and tests
+scripts/              Idempotent setup and wiring checks
+proxy.ts              Clerk request context and nonce-based CSP
+instrumentation*.ts   Sentry server, edge, and browser instrumentation
 ```
-
-**Key patterns:**
-
-- Tests run in isolated environment with mock database
-- See [convex/TESTING.md](./convex/TESTING.md) for comprehensive testing guide
-
-```typescript
-import { convexTest } from "convex-test";
-import { modules } from "./test.setup";
-import schema from "./schema";
-
-it("should test something", async () => {
-  const t = convexTest(schema, modules);
-  const result = await t.query(api.myModule.listItems, { count: 10 });
-  expect(result).toEqual([]);
-});
-```
-
----
-
-## Deployment
-
-### Default Node Server Preset (Recommended for local / self-host)
-
-1. **Push to GitHub**
-
-   ```bash
-   git push origin main
-   ```
-
-2. **Build the application**
-
-   ```bash
-   aubr build
-   ```
-
-3. **Deploy Backend**
-
-   ```bash
-   aubx convex deploy
-   ```
-
-4. **Set Production Environment Variables**
-
-   ```bash
-   aubx convex env set CLERK_JWT_ISSUER_DOMAIN https://clerk.your-domain.com --prod
-   ```
-
-5. **Start the production Node server**
-
-   ```bash
-   aubr start
-   ```
-
-This project uses the default TanStack Start Node SSR preset. Vercel,
-Cloudflare, and other presets can be added later by adjusting `vite.config.ts`
-and the `start` script.
-
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment
-instructions, custom domains, and other platforms.
-
----
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for
-guidelines.
-
-### Quick Contribution Steps
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`aubr test:once`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
----
-
-## Roadmap
-
-See [ROADMAP.md](./ROADMAP.md) for planned features and enhancements, including:
-
-- OAuth providers (Google, GitHub)
-- Email verification flow
-- Password reset functionality
-- User profile management
-- Additional example components
-- And more!
-
----
-
-## Community & Support
-
-- **Issues**:
-  [GitHub Issues](https://github.com/robertguss/ai-starter-kit/issues)
-- **Discussions**:
-  [GitHub Discussions](https://github.com/robertguss/ai-starter-kit/discussions)
-- **Contributing**: [Contribution Guidelines](./CONTRIBUTING.md)
-
----
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE)
-file for details.
-
----
-
-## Acknowledgments
-
-Built with amazing open-source technologies:
-
-- [TanStack Start](https://tanstack.com/start/) - Full-stack React framework
-  with Vite SSR
-- [Convex](https://convex.dev/) - The reactive backend
-- [Clerk](https://clerk.com/) - Authentication and user management
-- [shadcn/ui](https://ui.shadcn.com/) - Beautifully designed components
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Radix UI](https://www.radix-ui.com/) - Unstyled, accessible components
-
----
-
-**Made with ❤️ by [Robert Guss](https://github.com/robertguss)**
-
-If this starter kit helped you, consider giving it a ⭐️ on GitHub!
+[MIT](./LICENSE)

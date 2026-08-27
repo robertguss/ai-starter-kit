@@ -1,0 +1,10 @@
+allowBuilds:
+  "@sentry/cli": true
+  bufferutil: true
+  core-js: false
+  esbuild: true
+  unrs-resolver: true
+  utf-8-validate: true
+
+overrides:
+  utf-8-validate: 5.0.10

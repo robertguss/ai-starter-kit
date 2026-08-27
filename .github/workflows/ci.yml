@@ -17,32 +17,22 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup aube + Node
-        uses: jdx/aube-action@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: latest
-          node-version: "22"
-          run-install: false
+          node-version-file: .nvmrc
+          cache: pnpm
 
       - name: Install dependencies (frozen lockfile)
-        run: aube ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Generate Convex types
-        run: aubx convex codegen
-
-      - name: Lint
-        run: aubr lint
-
-      - name: Typecheck
-        run: aubr typecheck
-
-      - name: Format check
-        run: aubr format:check
-
-      - name: Unit tests
-        run: aubr test:once
+      - name: Check
+        run: pnpm check
 
       - name: Dependency audit
-        run: aube audit --audit-level high
+        run: pnpm audit --audit-level high
